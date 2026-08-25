@@ -3,9 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página Inicial</title>
+    <title>Painel do Administrador</title>
 </head>
 <body>
-    <h1>Bem-vindo ao sistema!</h1>
+    <h1>Painel do Administrador</h1>
+
+    <!-- Formulário para o Admin cadastrar novos usuários -->
+    <section>
+        <h2>Cadastrar Novo Usuário</h2>
+        <form id="form-cadastro">
+            <input type="email" id="cad-email" placeholder="E-mail do novo usuário" required>
+            <input type="password" id="cad-senha" placeholder="Senha temporária" required>
+            <button type="submit">Cadastrar Usuário</button>
+        </form>
+    </section>
+
+    <!-- Script com type="module" para usar o Firebase -->
+    <script type="module">
+        import { cadastrar } from './auth.js';
+
+        const formCadastro = document.getElementById('form-cadastro');
+
+        formCadastro.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('cad-email').value;
+            const senha = document.getElementById('cad-senha').value;
+
+            try {
+                await cadastrar(email, senha);
+                alert('Usuário cadastrado com sucesso!');
+                formCadastro.reset();
+            } catch (erro) {
+                alert('Erro ao cadastrar usuário: ' + erro.message);
+            }
+        });
+    </script>
 </body>
 </html>
