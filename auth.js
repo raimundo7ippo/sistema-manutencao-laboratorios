@@ -28,7 +28,7 @@ export async function entrar(email, senha) {
     console.log("Login realizado com sucesso:", credencial.user.email);
 
     // 🔴 TROQUE "admin@seu-sistema.com" PELO SEU E-MAIL REAL DE ADMIN:
-    if (credencial.user.email === "seu-email-admin@exemplo.com") {
+    if (credencial.user.email === "admin@sistema-labs.com") {
       // Envia para o painel de administrador
       window.location.href = "admin.html"; 
     } else {
