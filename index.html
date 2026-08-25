@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Sistema de Manutenção - Login</title>
+</head>
+<body>
+
+  <h2>Acesso ao Sistema</h2>
+
+  <form id="form-auth">
+    <input type="email" id="email" placeholder="Seu e-mail" required />
+    <input type="password" id="senha" placeholder="Sua senha" required />
+    
+    <button type="button" id="btn-login">Entrar</button>
+    <button type="button" id="btn-cadastrar">Cadastrar</button>
+  </form>
+
+  <p id="mensagem"></p>
+
+  <!-- Script conectando o HTML ao JavaScript -->
+  <script type="module">
+    import { entrar, cadastrar } from './auth.js';
+
+    const emailInput = document.getElementById('email');
+    const senhaInput = document.getElementById('senha');
+    const msg = document.getElementById('mensagem');
+
+    // Botão de Login
+    document.getElementById('btn-login').addEventListener('click', async () => {
+      try {
+        await entrar(emailInput.value, senhaInput.value);
+        msg.innerText = "Login realizado com sucesso!";
+      } catch (erro) {
+        msg.innerText = "Erro no login: " + erro.message;
+      }
+    });
+
+    // Botão de Cadastro
+    document.getElementById('btn-cadastrar').addEventListener('click', async () => {
+      try {
+        await cadastrar(emailInput.value, senhaInput.value);
+        msg.innerText = "Usuário cadastrado com sucesso!";
+      } catch (erro) {
+        msg.innerText = "Erro no cadastro: " + erro.message;
+      }
+    });
+  </script>
+
+</body>
+</html>
