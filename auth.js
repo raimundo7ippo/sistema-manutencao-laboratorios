@@ -3,7 +3,7 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut 
-} from 'firebase/auth';
+} from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
 // 1. Criar novo usuário (Cadastro)
 export async function cadastrar(email, senha) {
