@@ -10,6 +10,7 @@ export async function cadastrar(email, senha) {
   try {
     const credencial = await createUserWithEmailAndPassword(auth, email, senha);
     console.log("Usuário criado com sucesso:", credencial.user.email);
+    window.location.href = "home.html";
     return credencial.user;
   } catch (erro) {
     console.error("Erro ao cadastrar:", erro.message);
@@ -22,6 +23,7 @@ export async function entrar(email, senha) {
   try {
     const credencial = await signInWithEmailAndPassword(auth, email, senha);
     console.log("Login realizado com sucesso:", credencial.user.email);
+    window.location.href = "home.html";
     return credencial.user;
   } catch (erro) {
     console.error("Erro ao entrar:", erro.message);
