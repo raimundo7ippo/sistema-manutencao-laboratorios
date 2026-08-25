@@ -23,7 +23,17 @@ export async function entrar(email, senha) {
   try {
     const credencial = await signInWithEmailAndPassword(auth, email, senha);
     console.log("Login realizado com sucesso:", credencial.user.email);
-    window.location.href = "home.html";
+
+    // Checa se é o e-mail do admin
+if (credencial.user.email === "admin@seu-sistema.com") {
+  // Envia para o painel de administrador (com opção de cadastrar)
+  window.location.href = "admin.html"; 
+} else {
+  // Envia para a home comum de usuário
+  window.location.href = "home.html"; 
+}
+
+    
     return credencial.user;
   } catch (erro) {
     console.error("Erro ao entrar:", erro.message);
