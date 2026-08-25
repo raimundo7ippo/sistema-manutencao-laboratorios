@@ -10,7 +10,10 @@ export async function cadastrar(email, senha) {
   try {
     const credencial = await createUserWithEmailAndPassword(auth, email, senha);
     console.log("Usuário criado com sucesso:", credencial.user.email);
-    window.location.href = "home.html";
+    
+    // 🔴 REMOVIDO: window.location.href = "home.html";
+    // Assim o admin continua na tela do admin.html após cadastrar alguém!
+
     return credencial.user;
   } catch (erro) {
     console.error("Erro ao cadastrar:", erro.message);
@@ -24,16 +27,15 @@ export async function entrar(email, senha) {
     const credencial = await signInWithEmailAndPassword(auth, email, senha);
     console.log("Login realizado com sucesso:", credencial.user.email);
 
-    // Checa se é o e-mail do admin
-if (credencial.user.email === "admin@seu-sistema.com") {
-  // Envia para o painel de administrador (com opção de cadastrar)
-  window.location.href = "admin.html"; 
-} else {
-  // Envia para a home comum de usuário
-  window.location.href = "home.html"; 
-}
+    // 🔴 TROQUE "admin@seu-sistema.com" PELO SEU E-MAIL REAL DE ADMIN:
+    if (credencial.user.email === "seu-email-admin@exemplo.com") {
+      // Envia para o painel de administrador
+      window.location.href = "admin.html"; 
+    } else {
+      // Envia para a home comum de usuário
+      window.location.href = "home.html"; 
+    }
 
-    
     return credencial.user;
   } catch (erro) {
     console.error("Erro ao entrar:", erro.message);
