@@ -28,43 +28,11 @@ export async function cadastrarManutencao(dadosFormulario) {
     console.error("Erro ao cadastrar manutenção:", erro);
     throw erro;
   }
-  export async function listarAuditoriaSoftwares(tabelaElemento) {
-  try {
-    const q = query(collection(db, "softwares_laboratorio"), orderBy("criadoEm", "desc"));
-    const querySnapshot = await getDocs(q);
-
-    tabelaElemento.innerHTML = "";
-
-    if (querySnapshot.empty) {
-      tabelaElemento.innerHTML = '<tr><td colspan="6">Nenhum software auditado ainda.</td></tr>';
-      return;
-    }
-
-    querySnapshot.forEach((docSnap) => {
-      const dados = docSnap.data();
-      const statusCor = dados.funciona === "Sim" ? "green" : "red";
-
-      const linha = `
-        <tr>
-          <td>${dados.software || '-'}</td>
-          <td>${dados.solicitante || '-'}</td>
-          <td>${dados.curso || '-'}</td>
-          <td>${dados.maquina || '-'}</td>
-          <td style="color: ${statusCor}; font-weight: bold;">${dados.funciona || '-'}</td>
-          <td>${dados.cadastradoPor || '-'}</td>
-        </tr>
-      `;
-      tabelaElemento.innerHTML += linha;
-    });
-  } catch (erro) {
-    console.error("Erro ao listar softwares:", erro);
-    tabelaElemento.innerHTML = '<tr><td colspan="6">Erro ao carregar dados.</td></tr>';
-  }
-}
 }
 
 // 2. Listar chamados com filtro por aba de Laboratório
 export async function listarManutencoes(tabelaElemento, labFiltro = "Todos", ocultarConcluidos = false) {
+  if (!tabelaElemento) return;
   try {
     const q = query(collection(db, "manutencoes"), orderBy("criadoEm", "desc"));
     const querySnapshot = await getDocs(q);
@@ -133,6 +101,7 @@ export async function listarManutencoes(tabelaElemento, labFiltro = "Todos", ocu
 
 // 3. Histórico de registros resolvidos
 export async function listarHistorico(tabelaHistoricoElemento) {
+  if (!tabelaHistoricoElemento) return;
   try {
     const q = query(collection(db, "manutencoes"), orderBy("criadoEm", "desc"));
     const querySnapshot = await getDocs(q);
@@ -179,7 +148,9 @@ export async function concluirManutencao(idChamado) {
     console.error("Erro ao concluir chamado:", erro);
     throw erro;
   }
-  // Função para registrar a checagem de software por máquina
+}
+
+// 5. Registrar a checagem de software por máquina
 export async function cadastrarChecagemSoftware(dadosSoftware) {
   try {
     const usuarioAtual = auth.currentUser;
@@ -196,4 +167,39 @@ export async function cadastrarChecagemSoftware(dadosSoftware) {
     throw erro;
   }
 }
+
+// 6. Listar Auditoria de Softwares na Tabela
+export async function listarAuditoriaSoftwares(tabelaElemento) {
+  if (!tabelaElemento) return;
+  try {
+    const q = query(collection(db, "softwares_laboratorio"), orderBy("criadoEm", "desc"));
+    const querySnapshot = await getDocs(q);
+
+    tabelaElemento.innerHTML = "";
+
+    if (querySnapshot.empty) {
+      tabelaElemento.innerHTML = '<tr><td colspan="6">Nenhum software registrado até o momento.</td></tr>';
+      return;
+    }
+
+    querySnapshot.forEach((docSnap) => {
+      const dados = docSnap.data();
+      const statusCor = dados.funciona === "Sim" ? "green" : "red";
+
+      const linha = `
+        <tr>
+          <td>${dados.software || '-'}</td>
+          <td>${dados.solicitante || '-'}</td>
+          <td>${dados.curso || '-'}</td>
+          <td>${dados.maquina || '-'}</td>
+          <td style="color: ${statusCor}; font-weight: bold;">${dados.funciona || '-'}</td>
+          <td>${dados.cadastradoPor || '-'}</td>
+        </tr>
+      `;
+      tabelaElemento.innerHTML += linha;
+    });
+  } catch (erro) {
+    console.error("Erro ao listar softwares:", erro);
+    tabelaElemento.innerHTML = '<tr><td colspan="6">Nenhum software registrado até o momento.</td></tr>';
+  }
 }
