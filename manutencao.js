@@ -1,265 +1,297 @@
-import { db, auth } from './firebase-config.js';
+import { db, auth } from './firebase.js';
 import { 
   collection, 
+  getDocs, 
+  query, 
+  orderBy, 
+  serverTimestamp,
   doc,
   setDoc,
-  addDoc, 
-  getDocs, 
-  updateDoc, 
-  query, 
-  where, 
-  orderBy,
-  serverTimestamp 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  updateDoc 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Registra ou atualiza chamado de manutenção
-export async function cadastrarManutencao(dados) {
-  const statusAtual = dados.tudoFuncionando === "Sim" ? "Pendente/OK" : "Em Aberto";
-
-  // ID Único composto: Lab + ID Máquina
-  const docId = `${dados.laboratorio}_${dados.identificacao}`.replace(/[\/\s]/g, '_');
-
-  await setDoc(doc(db, "manutencoes", docId), {
-    ...dados,
-    status: statusAtual,
-    dataAtualizacao: serverTimestamp()
-  }, { merge: true });
-}
-
-// Lista os chamados na tabela principal
-export async function listarManutencoes(tabelaEl, labFiltro = "Todos", ocultarResolvidos = false) {
-  if (!tabelaEl) return;
-
+// 1. Cadastrar/Atualizar manutenção mantendo chave única por máquina (sem duplicar)
+export async function cadastrarManutencao(dadosFormulario) {
   try {
-    let q = collection(db, "manutencoes");
-    const snapshot = await getDocs(q);
-    
-    tabelaEl.innerHTML = "";
-    let encontrou = false;
+    const usuarioAtual = auth.currentUser;
+    if (!usuarioAtual) throw new Error("Usuário não autenticado.");
 
-    snapshot.forEach(docSnap => {
-      const d = docSnap.data();
+    // Gera ID único combinando Laboratório + Máquina
+    const idUnico = `${dadosFormulario.laboratorio}_${dadosFormulario.identificacao}`.replace(/[\/\s]/g, '_');
 
-      if (labFiltro !== "Todos" && d.laboratorio !== labFiltro) return;
-      if (ocultarResolvidos && d.status === "Resolvido") return;
+    await setDoc(doc(db, "manutencoes", idUnico), {
+      ...dadosFormulario,
+      solicitanteEmail: usuarioAtual.email,
+      solicitanteUid: usuarioAtual.uid,
+      status: dadosFormulario.tudoFuncionando === "Não" ? "Pendente" : "OK",
+      criadoEm: serverTimestamp()
+    }, { merge: true });
 
-      encontrou = true;
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${d.identificacao || '-'}</td>
-        <td>${d.patrimonioCpu || '-'}</td>
-        <td>${d.internetFunciona || '-'}</td>
-        <td>${d.detalhesInternet || '-'}</td>
-        <td>${d.bateria || '-'}</td>
-        <td>${d.estabilizadorFunciona || '-'}</td>
-        <td>${d.patrimonioEstabilizador || '-'}</td>
-        <td>${d.detalhesEstabilizador || '-'}</td>
-        <td>${d.tudoFuncionando || '-'}</td>
-        <td>${d.motivoProblema || '-'}</td>
-        <td>${d.modeloComputador || '-'}</td>
-        <td>${d.so || '-'}</td>
-        <td>${d.verificadoPor || '-'}</td>
-        <td><strong>${d.status || 'Em Aberto'}</strong></td>
-        <td>
-          ${d.status !== 'Resolvido' 
-            ? `<button class="btn-concluir" data-id="${docSnap.id}">Concluir</button>` 
-            : '✓ Concluído'}
-        </td>
-      `;
-      tabelaEl.appendChild(tr);
-    });
-
-    if (!encontrou) {
-      tabelaEl.innerHTML = `<tr><td colspan="15">Nenhum registro encontrado.</td></tr>`;
-    }
-  } catch (err) {
-    console.error("Erro ao listar manutenções:", err);
-    tabelaEl.innerHTML = `<tr><td colspan="15">Erro ao carregar dados.</td></tr>`;
+    return idUnico;
+  } catch (erro) {
+    console.error("Erro ao cadastrar manutenção:", erro);
+    throw erro;
   }
 }
 
-// Conclui chamado e envia para o histórico
-export async function concluirManutencao(idDoc) {
-  const docRef = doc(db, "manutencoes", idDoc);
-  await updateDoc(docRef, { status: "Resolvido" });
-
-  await addDoc(collection(db, "historico_manutencoes"), {
-    manutencaoId: idDoc,
-    dataConclusao: serverTimestamp()
-  });
-}
-
-// Lista o histórico de chamados resolvidos
-export async function listarHistorico(tabelaEl) {
-  if (!tabelaEl) return;
-
+// 2. Listar chamados com filtro por aba de Laboratório
+export async function listarManutencoes(tabelaElemento, labFiltro = "Todos", ocultarConcluidos = false) {
+  if (!tabelaElemento) return;
   try {
-    const q = query(collection(db, "manutencoes"), where("status", "==", "Resolvido"));
-    const snapshot = await getDocs(q);
+    const q = query(collection(db, "manutencoes"), orderBy("criadoEm", "desc"));
+    const querySnapshot = await getDocs(q);
 
-    tabelaEl.innerHTML = "";
-    let encontrou = false;
+    tabelaElemento.innerHTML = ""; 
 
-    snapshot.forEach(docSnap => {
-      const d = docSnap.data();
-      encontrou = true;
-
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${d.laboratorio || '-'}</td>
-        <td>${d.identificacao || '-'}</td>
-        <td>${d.patrimonioCpu || '-'}</td>
-        <td>${d.motivoProblema || 'Nenhum'}</td>
-        <td>${d.verificadoPor || '-'}</td>
-        <td>${d.dataAtualizacao ? new Date(d.dataAtualizacao.toDate()).toLocaleString('pt-BR') : '-'}</td>
-        <td><span style="color: green; font-weight: bold;">Resolvido</span></td>
-      `;
-      tabelaEl.appendChild(tr);
-    });
-
-    if (!encontrou) {
-      tabelaEl.innerHTML = `<tr><td colspan="7">Nenhum histórico disponível.</td></tr>`;
+    if (querySnapshot.empty) {
+      tabelaElemento.innerHTML = '<tr><td colspan="15">Nenhum registro encontrado.</td></tr>';
+      return;
     }
-  } catch (err) {
-    console.error("Erro ao listar histórico:", err);
-  }
-}
 
-// Cadastra ou atualiza auditoria de software evitando duplicatas da mesma máquina
-export async function cadastrarChecagemSoftware(dados) {
-  const user = auth.currentUser;
-  const emailAudit = user ? user.email : (dados.auditadoPor || "Anônimo");
+    let contador = 0;
 
-  // Chave Única: Software + Lab + Maquina
-  const docId = `${dados.software}_${dados.laboratorio}_${dados.maquina}`.replace(/[\/\s]/g, '_');
+    querySnapshot.forEach((docSnap) => {
+      const dados = docSnap.data();
+      const id = docSnap.id;
+      const estaConcluido = dados.status === "Concluído";
 
-  await setDoc(doc(db, "softwares_laboratorio", docId), {
-    ...dados,
-    auditadoPor: emailAudit,
-    dataAuditoria: serverTimestamp()
-  }, { merge: true });
-}
+      if (labFiltro !== "Todos" && dados.laboratorio !== labFiltro) return;
+      if (ocultarConcluidos && estaConcluido) return;
 
-// Lista auditoria agrupada por software com coluna de laboratório no detalhe
-export async function listarAuditoriaSoftwares(tabelaEl, termoBusca = "") {
-  if (!tabelaEl) return;
+      contador++;
 
-  try {
-    const snapshot = await getDocs(collection(db, "softwares_laboratorio"));
-    const softwaresAgrupados = {};
-
-    snapshot.forEach(docSnap => {
-      const d = docSnap.data();
-      const softNome = d.software;
-      if (!softNome) return;
-
-      if (!softwaresAgrupados[softNome]) {
-        softwaresAgrupados[softNome] = [];
-      }
-      softwaresAgrupados[softNome].push({ id: docSnap.id, ...d });
-    });
-
-    tabelaEl.innerHTML = "";
-    let totalMonitorados = 0;
-    let totalOperacionais = 0;
-    let totalComErro = 0;
-
-    const termo = termoBusca.toLowerCase().trim();
-
-    Object.keys(softwaresAgrupados).forEach((nomeSoft, index) => {
-      const lista = softwaresAgrupados[nomeSoft];
-
-      // Aplica o filtro nos detalhes
-      const listaFiltrada = lista.filter(item => {
-        if (!termo) return true;
-        return (
-          item.software?.toLowerCase().includes(termo) ||
-          item.maquina?.toLowerCase().includes(termo) ||
-          item.laboratorio?.toLowerCase().includes(termo) ||
-          item.curso?.toLowerCase().includes(termo) ||
-          item.solicitante?.toLowerCase().includes(termo)
-        );
-      });
-
-      if (listaFiltrada.length === 0) return;
-
-      totalMonitorados++;
-      const maquinasComFalha = listaFiltrada.filter(i => i.funciona === "Não").length;
-      const totalMaquinas = listaFiltrada.length;
-
-      let statusHTML = "";
-      if (maquinasComFalha === 0) {
-        totalOperacionais++;
-        statusHTML = `<span style="color: green; font-weight: bold;">🟢 100% Funcional (${totalMaquinas}/${totalMaquinas} OK)</span>`;
-      } else {
-        totalComErro++;
-        statusHTML = `<span style="color: red; font-weight: bold;">⚠️ ${maquinasComFalha} máq. com falha (${totalMaquinas - maquinasComFalha}/${totalMaquinas} OK)</span>`;
-      }
-
-      // Pega a última data de auditoria do grupo
-      const datas = listaFiltrada
-        .map(i => i.dataAuditoria?.toDate ? i.dataAuditoria.toDate() : null)
-        .filter(Boolean);
-      const ultimaData = datas.length > 0 ? new Date(Math.max(...datas)).toLocaleString('pt-BR') : '-';
-
-      const targetId = `detalhe-soft-${index}`;
-
-      const trPrincipal = document.createElement('tr');
-      trPrincipal.innerHTML = `
-        <td><strong>💻 ${nomeSoft}</strong></td>
-        <td>${totalMaquinas} máquina(s)</td>
-        <td>${statusHTML}</td>
-        <td>${ultimaData}</td>
-        <td>
-          <button class="btn-detalhes-soft" data-target="${targetId}" style="cursor: pointer;">👁️ Ver Detalhes</button>
-        </td>
-      `;
-      tabelaEl.appendChild(trPrincipal);
-
-      // Sub-tabela com os detalhes individuais (incluindo Laboratório)
-      const trDetalhes = document.createElement('tr');
-      trDetalhes.id = targetId;
-      trDetalhes.style.display = 'none';
-      trDetalhes.style.backgroundColor = '#f4f8f9';
-
-      let linhasDet = listaFiltrada.map(item => `
+      const linha = `
         <tr>
-          <td><b>Lab:</b> ${item.laboratorio || '-'}</td>
-          <td><b>Máquina:</b> ${item.maquina || '-'}</td>
-          <td><b>Prof/Solicitante:</b> ${item.solicitante || '-'}</td>
-          <td><b>Curso:</b> ${item.curso || '-'}</td>
-          <td><b>Funciona:</b> <span style="color: ${item.funciona === 'Sim' ? 'green' : 'red'}; font-weight: bold;">${item.funciona}</span></td>
-          <td><b>Auditado por:</b> ${item.auditadoPor || '-'}</td>
+          <td>${dados.identificacao || '-'}</td>
+          <td>${dados.patrimonioCpu || '-'}</td>
+          <td>${dados.internetFunciona || '-'}</td>
+          <td>${dados.detalhesInternet || '-'}</td>
+          <td>${dados.bateria || '-'}</td>
+          <td>${dados.estabilizadorFunciona || '-'}</td>
+          <td>${dados.patrimonioEstabilizador || '-'}</td>
+          <td>${dados.detalhesEstabilizador || '-'}</td>
+          <td style="color: ${dados.tudoFuncionando === 'Não' ? 'red' : 'green'}; font-weight: bold;">
+            ${dados.tudoFuncionando || '-'}
+          </td>
+          <td>${dados.motivoProblema || '-'}</td>
+          <td>${dados.modeloComputador || '-'}</td>
+          <td>${dados.so || '-'}</td>
+          <td>${dados.verificadoPor || '-'}</td>
+          <td><strong>${dados.status || 'Pendente'}</strong></td>
+          <td>
+            ${
+              estaConcluido 
+                ? '✅ Finalizado' 
+                : `<button class="btn-concluir" data-id="${id}">Resolver</button>`
+            }
+          </td>
+        </tr>
+      `;
+      tabelaElemento.innerHTML += linha;
+    });
+
+    if (contador === 0) {
+      tabelaElemento.innerHTML = '<tr><td colspan="15">Nenhum registro encontrado para este filtro.</td></tr>';
+    }
+
+  } catch (erro) {
+    console.error("Erro ao carregar chamados:", erro);
+    tabelaElemento.innerHTML = '<tr><td colspan="15">Erro ao carregar chamados.</td></tr>';
+  }
+}
+
+// 3. Histórico de registros resolvidos
+export async function listarHistorico(tabelaHistoricoElemento) {
+  if (!tabelaHistoricoElemento) return;
+  try {
+    const q = query(collection(db, "manutencoes"), orderBy("criadoEm", "desc"));
+    const querySnapshot = await getDocs(q);
+
+    tabelaHistoricoElemento.innerHTML = "";
+    let totalHistorico = 0;
+
+    querySnapshot.forEach((docSnap) => {
+      const dados = docSnap.data();
+      if (dados.status === "Concluído") {
+        totalHistorico++;
+        const dataFormatada = dados.criadoEm?.toDate ? dados.criadoEm.toDate().toLocaleString('pt-BR') : '-';
+
+        const linha = `
+          <tr>
+            <td>${dados.laboratorio || '-'}</td>
+            <td>${dados.identificacao || '-'}</td>
+            <td>${dados.patrimonioCpu || '-'}</td>
+            <td>${dados.motivoProblema || '-'}</td>
+            <td>${dados.verificadoPor || '-'}</td>
+            <td>${dataFormatada}</td>
+            <td><span style="color: green;"><strong>Resolvido</strong></span></td>
+          </tr>
+        `;
+        tabelaHistoricoElemento.innerHTML += linha;
+      }
+    });
+
+    if (totalHistorico === 0) {
+      tabelaHistoricoElemento.innerHTML = '<tr><td colspan="7">Nenhum histórico de chamados resolvidos.</td></tr>';
+    }
+  } catch (erro) {
+    console.error("Erro ao carregar histórico:", erro);
+    tabelaHistoricoElemento.innerHTML = '<tr><td colspan="7">Erro ao carregar histórico.</td></tr>';
+  }
+}
+
+// 4. Marcar como resolvido
+export async function concluirManutencao(idChamado) {
+  try {
+    const chamadoRef = doc(db, "manutencoes", idChamado);
+    await updateDoc(chamadoRef, { status: "Concluído" });
+  } catch (erro) {
+    console.error("Erro ao concluir chamado:", erro);
+    throw erro;
+  }
+}
+
+// 5. Registrar/Atualizar checagem de software (Sobrescreve estado anterior da mesma máquina)
+export async function cadastrarChecagemSoftware(dadosSoftware) {
+  try {
+    const usuarioAtual = auth.currentUser;
+    if (!usuarioAtual) throw new Error("Usuário não autenticado.");
+
+    // Chave composta para impedir duplicação da máquina no mesmo software
+    const idUnico = `${dadosSoftware.software}_${dadosSoftware.laboratorio}_${dadosSoftware.maquina}`.replace(/[\/\s]/g, '_');
+
+    await setDoc(doc(db, "softwares_laboratorio", idUnico), {
+      ...dadosSoftware,
+      cadastradoPor: usuarioAtual.email,
+      criadoEm: serverTimestamp()
+    }, { merge: true });
+
+    return idUnico;
+  } catch (erro) {
+    console.error("Erro ao registrar software:", erro);
+    throw erro;
+  }
+}
+
+// 6. Listar Auditoria de Softwares Agrupada com coluna de Laboratório
+export async function listarAuditoriaSoftwares(tabelaElemento, termoBusca = "") {
+  if (!tabelaElemento) return;
+  try {
+    const q = query(collection(db, "softwares_laboratorio"), orderBy("criadoEm", "desc"));
+    const querySnapshot = await getDocs(q);
+
+    tabelaElemento.innerHTML = "";
+
+    if (querySnapshot.empty) {
+      tabelaElemento.innerHTML = '<tr><td colspan="5">Nenhum software registrado até o momento.</td></tr>';
+      document.getElementById('stat-total-softwares').innerText = '0';
+      document.getElementById('stat-softwares-ok').innerText = '0';
+      document.getElementById('stat-softwares-erro').innerText = '0';
+      return;
+    }
+
+    const grupos = {};
+
+    querySnapshot.forEach((docSnap) => {
+      const d = docSnap.data();
+      const nomeSoft = d.software || 'Não especificado';
+
+      const busca = termoBusca.toLowerCase();
+      const bateuBusca = 
+        nomeSoft.toLowerCase().includes(busca) ||
+        (d.maquina && d.maquina.toLowerCase().includes(busca)) ||
+        (d.laboratorio && d.laboratorio.toLowerCase().includes(busca)) ||
+        (d.curso && d.curso.toLowerCase().includes(busca)) ||
+        (d.solicitante && d.solicitante.toLowerCase().includes(busca));
+
+      if (termoBusca && !bateuBusca) return;
+
+      if (!grupos[nomeSoft]) {
+        grupos[nomeSoft] = {
+          total: 0,
+          ok: 0,
+          erro: 0,
+          ultimoteste: d.criadoEm?.toDate ? d.criadoEm.toDate().toLocaleString('pt-BR') : '-',
+          itens: []
+        };
+      }
+
+      grupos[nomeSoft].total++;
+      if (d.funciona === "Sim") grupos[nomeSoft].ok++;
+      else grupos[nomeSoft].erro++;
+
+      grupos[nomeSoft].itens.push(d);
+    });
+
+    const chavesSoftwares = Object.keys(grupos);
+
+    if (chavesSoftwares.length === 0) {
+      tabelaElemento.innerHTML = '<tr><td colspan="5">Nenhum resultado para a busca.</td></tr>';
+      return;
+    }
+
+    let countTotal = chavesSoftwares.length;
+    let countOk = 0;
+    let countErro = 0;
+
+    chavesSoftwares.forEach((nomeSoft, index) => {
+      const g = grupos[nomeSoft];
+      const temErro = g.erro > 0;
+      if (temErro) countErro++; else countOk++;
+
+      const statusBadge = temErro 
+        ? `<span style="color: red; font-weight: bold;">⚠️ ${g.erro} máq. com falha (${g.ok}/${g.total} OK)</span>`
+        : `<span style="color: green; font-weight: bold;">✅ 100% Funcional (${g.ok}/${g.total} OK)</span>`;
+
+      const linhaPrincipal = `
+        <tr style="background-color: ${index % 2 === 0 ? '#f9f9f9' : '#ffffff'}; font-weight: bold;">
+          <td>💻 ${nomeSoft}</td>
+          <td>${g.total} máquina(s)</td>
+          <td>${statusBadge}</td>
+          <td>${g.ultimoteste}</td>
+          <td>
+            <button class="btn-detalhes-soft" data-target="detalhe-soft-${index}" style="cursor: pointer; padding: 4px 8px;">
+              👁️ Ver Detalhes
+            </button>
+          </td>
+        </tr>
+      `;
+
+      let linhasDetalhesHTML = g.itens.map(item => `
+        <tr>
+          <td>Lab: <strong>${item.laboratorio || '-'}</strong></td>
+          <td>Máquina: <strong>${item.maquina || '-'}</strong></td>
+          <td>Prof/Solicitante: ${item.solicitante || '-'}</td>
+          <td>Curso: ${item.curso || '-'}</td>
+          <td style="color: ${item.funciona === 'Sim' ? 'green' : 'red'}; font-weight: bold;">
+            Funciona: ${item.funciona || '-'}
+          </td>
+          <td>Auditado por: ${item.cadastradoPor || '-'}</td>
         </tr>
       `).join('');
 
-      trDetalhes.innerHTML = `
-        <td colspan="5" style="padding: 10px;">
-          <div style="border-left: 3px solid #008080; padding-left: 10px;">
-            <small style="font-weight: bold;">Histórico Individual de Instalações:</small>
-            <table style="width: 100%; margin-top: 5px; background: white; min-width: auto;">
-              <tbody>${linhasDet}</tbody>
-            </table>
-          </div>
-        </td>
+      const linhaDetalheContainer = `
+        <tr id="detalhe-soft-${index}" class="linha-detalhe-software" style="display: none; background-color: #f0f7f7;">
+          <td colspan="5">
+            <div style="padding: 10px; border-left: 3px solid #008080;">
+              <small><strong>Histórico Individual de Instalações:</strong></small>
+              <table border="1" style="width: 100%; margin-top: 5px; font-weight: normal; font-size: 0.9em; background: #fff;">
+                ${linhasDetalhesHTML}
+              </table>
+            </div>
+          </td>
+        </tr>
       `;
-      tabelaEl.appendChild(trDetalhes);
+
+      tabelaElemento.innerHTML += linhaPrincipal + linhaDetalheContainer;
     });
 
-    // Atualiza os contadores no topo da página
-    const elTotal = document.getElementById('stat-total-softwares');
-    const elOk = document.getElementById('stat-softwares-ok');
-    const elErro = document.getElementById('stat-softwares-erro');
+    document.getElementById('stat-total-softwares').innerText = countTotal;
+    document.getElementById('stat-softwares-ok').innerText = countOk;
+    document.getElementById('stat-softwares-erro').innerText = countErro;
 
-    if (elTotal) elTotal.textContent = totalMonitorados;
-    if (elOk) elOk.textContent = totalOperacionais;
-    if (elErro) elErro.textContent = totalComErro;
-
-    if (totalMonitorados === 0) {
-      tabelaEl.innerHTML = `<tr><td colspan="5">Nenhuma auditoria registrada.</td></tr>`;
-    }
-  } catch (err) {
-    console.error("Erro ao listar auditoria de softwares:", err);
-    tabelaEl.innerHTML = `<tr><td colspan="5">Erro ao carregar auditorias.</td></tr>`;
+  } catch (erro) {
+    console.error("Erro ao listar softwares:", erro);
+    tabelaElemento.innerHTML = '<tr><td colspan="5">Erro ao carregar dados.</td></tr>';
   }
 }
