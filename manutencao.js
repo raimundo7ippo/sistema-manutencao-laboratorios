@@ -1,7 +1,7 @@
 import { db, auth } from './firebase.js';
 import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// Função para registrar um novo chamado no Firestore
+// Função compartilhada: Usada na Home e no Admin para registrar chamados
 export async function cadastrarManutencao(laboratorio, equipamento, descricao) {
   try {
     const usuarioAtual = auth.currentUser;
@@ -10,7 +10,6 @@ export async function cadastrarManutencao(laboratorio, equipamento, descricao) {
       throw new Error("Usuário não autenticado.");
     }
 
-    // Adiciona um novo documento na coleção 'manutencoes'
     const docRef = await addDoc(collection(db, "manutencoes"), {
       laboratorio: laboratorio,
       equipamento: equipamento,
