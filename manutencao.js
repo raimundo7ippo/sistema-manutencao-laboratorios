@@ -34,7 +34,7 @@ export async function cadastrarManutencao(dadosFormulario) {
   }
 }
 
-// 2. Listar chamados com filtro por aba de Laboratório
+// 2. Listar chamados com filtro por aba de Laboratório e atualizar Cards dos Computadores
 export async function listarManutencoes(tabelaElemento, labFiltro = "Todos", ocultarConcluidos = false) {
   if (!tabelaElemento) return;
   try {
@@ -43,22 +43,39 @@ export async function listarManutencoes(tabelaElemento, labFiltro = "Todos", ocu
 
     tabelaElemento.innerHTML = ""; 
 
+    // Variáveis para os contadores do painel de computadores
+    let totalPcs = 0;
+    let pcsOk = 0;
+    let pcsErro = 0;
+
     if (querySnapshot.empty) {
       tabelaElemento.innerHTML = '<tr><td colspan="15">Nenhum registro encontrado.</td></tr>';
+      atualizarCardsPcs(0, 0, 0);
       return;
     }
 
-    let contador = 0;
+    let contadorLinhasExibidas = 0;
 
     querySnapshot.forEach((docSnap) => {
       const dados = docSnap.data();
       const id = docSnap.id;
       const estaConcluido = dados.status === "Concluído";
 
+      // Filtra por laboratório para os dados da tabela e dos cards
       if (labFiltro !== "Todos" && dados.laboratorio !== labFiltro) return;
+
+      // Atualiza os contadores com base nas máquinas do laboratório selecionado
+      totalPcs++;
+      if (dados.tudoFuncionando === "Sim") {
+        pcsOk++;
+      } else {
+        pcsErro++;
+      }
+
+      // Aplica o filtro de ocultar concluídos na exibição da tabela
       if (ocultarConcluidos && estaConcluido) return;
 
-      contador++;
+      contadorLinhasExibidas++;
 
       const linha = `
         <tr>
@@ -90,7 +107,10 @@ export async function listarManutencoes(tabelaElemento, labFiltro = "Todos", ocu
       tabelaElemento.innerHTML += linha;
     });
 
-    if (contador === 0) {
+    // Atualiza os elementos visuais dos cards
+    atualizarCardsPcs(totalPcs, pcsOk, pcsErro);
+
+    if (contadorLinhasExibidas === 0) {
       tabelaElemento.innerHTML = '<tr><td colspan="15">Nenhum registro encontrado para este filtro.</td></tr>';
     }
 
@@ -98,6 +118,17 @@ export async function listarManutencoes(tabelaElemento, labFiltro = "Todos", ocu
     console.error("Erro ao carregar chamados:", erro);
     tabelaElemento.innerHTML = '<tr><td colspan="15">Erro ao carregar chamados.</td></tr>';
   }
+}
+
+// Função auxiliar para atualizar o HTML dos cards de computadores
+function atualizarCardsPcs(total, ok, erro) {
+  const elTotal = document.getElementById('stat-total-pcs');
+  const elOk = document.getElementById('stat-pcs-ok');
+  const elErro = document.getElementById('stat-pcs-erro');
+
+  if (elTotal) elTotal.innerText = total;
+  if (elOk) elOk.innerText = ok;
+  if (elErro) elErro.innerText = erro;
 }
 
 // 3. Histórico de registros resolvidos
@@ -286,9 +317,13 @@ export async function listarAuditoriaSoftwares(tabelaElemento, termoBusca = "") 
       tabelaElemento.innerHTML += linhaPrincipal + linhaDetalheContainer;
     });
 
-    document.getElementById('stat-total-softwares').innerText = countTotal;
-    document.getElementById('stat-softwares-ok').innerText = countOk;
-    document.getElementById('stat-softwares-erro').innerText = countErro;
+    const elTotalSofts = document.getElementById('stat-total-softwares');
+    const elOkSofts = document.getElementById('stat-softwares-ok');
+    const elErroSofts = document.getElementById('stat-softwares-erro');
+
+    if (elTotalSofts) elTotalSofts.innerText = countTotal;
+    if (elOkSofts) elOkSofts.innerText = countOk;
+    if (elErroSofts) elErroSofts.innerText = countErro;
 
   } catch (erro) {
     console.error("Erro ao listar softwares:", erro);

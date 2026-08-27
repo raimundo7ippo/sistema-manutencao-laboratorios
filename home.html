@@ -14,6 +14,16 @@
     table { width: 100%; border-collapse: collapse; min-width: 1200px; }
     th, td { border: 1px solid #ddd; padding: 6px; text-align: left; font-size: 13px; }
     th { background-color: #008b8b; color: white; }
+    
+    /* Estilos dos Cards de Estatísticas */
+    .cards-container { display: flex; gap: 15px; margin-bottom: 15px; }
+    .card-stat { padding: 12px 20px; border-radius: 8px; flex: 1; }
+    .card-stat small { font-weight: bold; }
+    .card-stat h3 { margin: 5px 0 0 0; font-size: 22px; }
+    
+    .card-total { background: #eef2f5; border-left: 4px solid #008080; }
+    .card-ok { background: #e6f4ea; border-left: 4px solid green; }
+    .card-erro { background: #fce8e6; border-left: 4px solid red; }
   </style>
 </head>
 <body>
@@ -168,9 +178,25 @@
 
   <hr>
 
-  <h2>Painel de Acompanhamento</h2>
+  <h2>Painel de Acompanhamento das Máquinas</h2>
 
-  <div>
+  <!-- BANNER DE STATUS DOS COMPUTADORES -->
+  <div class="cards-container">
+    <div class="card-stat card-total">
+      <small style="color: #666;">Máquinas Auditadas</small>
+      <h3 id="stat-total-pcs">0</h3>
+    </div>
+    <div class="card-stat card-ok">
+      <small style="color: green;">Totalmente Operacionais</small>
+      <h3 id="stat-pcs-ok">0</h3>
+    </div>
+    <div class="card-stat card-erro">
+      <small style="color: red;">Com Pendências / Falhas</small>
+      <h3 id="stat-pcs-erro">0</h3>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 10px;">
     <button class="aba-btn ativa" data-lab="Todos">Todos</button>
     <button class="aba-btn" data-lab="Informática, Bloco I">Informática, Bloco I</button>
     <button class="aba-btn" data-lab="Programação Computacional">Programação Computacional</button>
@@ -230,20 +256,22 @@
   </div>
 
   <br><hr><br>
+  
   <h2>💻 Status dos Softwares Instalados</h2>
 
-  <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-    <div style="background: #eef2f5; padding: 12px 20px; border-radius: 8px; border-left: 4px solid #008080;">
+  <!-- BANNER DE STATUS DOS SOFTWARES -->
+  <div class="cards-container">
+    <div class="card-stat card-total">
       <small style="color: #666;">Softwares Monitorados</small>
-      <h3 id="stat-total-softwares" style="margin: 5px 0 0 0;">0</h3>
+      <h3 id="stat-total-softwares">0</h3>
     </div>
-    <div style="background: #e6f4ea; padding: 12px 20px; border-radius: 8px; border-left: 4px solid green;">
+    <div class="card-stat card-ok">
       <small style="color: green;">Totalmente Operacionais</small>
-      <h3 id="stat-softwares-ok" style="margin: 5px 0 0 0;">0</h3>
+      <h3 id="stat-softwares-ok">0</h3>
     </div>
-    <div style="background: #fce8e6; padding: 12px 20px; border-radius: 8px; border-left: 4px solid red;">
+    <div class="card-stat card-erro">
       <small style="color: red;">Com Falhas Reportadas</small>
-      <h3 id="stat-softwares-erro" style="margin: 5px 0 0 0;">0</h3>
+      <h3 id="stat-softwares-erro">0</h3>
     </div>
   </div>
 
