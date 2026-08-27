@@ -14,16 +14,17 @@
     table { width: 100%; border-collapse: collapse; min-width: 1200px; }
     th, td { border: 1px solid #ddd; padding: 6px; text-align: left; font-size: 13px; }
     th { background-color: #008b8b; color: white; }
-    
-    /* Estilos dos Cards de Estatísticas */
+
     .cards-container { display: flex; gap: 15px; margin-bottom: 15px; }
     .card-stat { padding: 12px 20px; border-radius: 8px; flex: 1; }
     .card-stat small { font-weight: bold; }
     .card-stat h3 { margin: 5px 0 0 0; font-size: 22px; }
-    
+
     .card-total { background: #eef2f5; border-left: 4px solid #008080; }
     .card-ok { background: #e6f4ea; border-left: 4px solid green; }
     .card-erro { background: #fce8e6; border-left: 4px solid red; }
+
+    .aviso-erro { color: #b71c1c; background: #fce8e6; padding: 8px 12px; border-radius: 4px; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -31,58 +32,6 @@
   <h1>Controle de Vistoria de Laboratórios</h1>
 
   <form id="form-manutencao">
-    <hr>
-    <h3>Auditoria de Softwares</h3>
-    <div class="form-grid">
-      <div class="form-group">
-        <label>Software:</label>
-        <select id="select-software">
-          <option value="">Selecione...</option>
-          <option value="Chrome">Chrome</option>
-          <option value="Firefox">Firefox</option>
-          <option value="Dev C++*">Dev C++*</option>
-          <option value="Wireshark 3.0">Wireshark 3.0</option>
-          <option value="MySQL Workbench">MySQL Workbench</option>
-          <option value="Blender">Blender</option>
-          <option value="MySQL Community Edition">MySQL Community Edition</option>
-          <option value="Stata*">Stata*</option>
-          <option value="Netbeans 11">Netbeans 11</option>
-          <option value="Java (latest)">Java (latest)</option>
-          <option value="Python 3">Python 3</option>
-          <option value="QGIS*">QGIS*</option>
-          <option value="GeoDA*">GeoDA*</option>
-          <option value="GeoDaSpace*">GeoDaSpace*</option>
-          <option value="TerraView*">TerraView*</option>
-          <option value="Musescore">Musescore</option>
-          <option value="Autocad*">Autocad*</option>
-          <option value="VS Code">VS Code</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Solicitante:</label>
-        <input type="text" id="input-solicitante">
-      </div>
-
-      <div class="form-group">
-        <label>Curso:</label>
-        <input type="text" id="input-curso">
-      </div>
-
-      <div class="form-group">
-        <label>Identificação / Nº da Máquina:</label>
-        <input type="text" id="input-num-maquina">
-      </div>
-
-      <div class="form-group">
-        <label>Software Funciona?:</label>
-        <select id="select-software-status">
-          <option value="Sim">Sim</option>
-          <option value="Não">Não</option>
-        </select>
-      </div>
-    </div>
-
     <h3>Registrar / Atualizar Máquina</h3>
     <div class="form-grid">
       <div class="form-group">
@@ -172,15 +121,66 @@
         <input type="text" id="input-verificado-por" required>
       </div>
     </div>
+
+    <hr>
+    <h3>Auditoria de Software (opcional)</h3>
+    <p style="color:#666; font-size: 0.9em; margin-top: -8px;">
+      Preencha esta seção apenas se também quiser registrar o teste de um software nesta máquina.
+    </p>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Software:</label>
+        <select id="select-software">
+          <option value="">Nenhum / não testado</option>
+          <option value="Chrome">Chrome</option>
+          <option value="Firefox">Firefox</option>
+          <option value="Dev C++*">Dev C++*</option>
+          <option value="Wireshark 3.0">Wireshark 3.0</option>
+          <option value="MySQL Workbench">MySQL Workbench</option>
+          <option value="Blender">Blender</option>
+          <option value="MySQL Community Edition">MySQL Community Edition</option>
+          <option value="Stata*">Stata*</option>
+          <option value="Netbeans 11">Netbeans 11</option>
+          <option value="Java (latest)">Java (latest)</option>
+          <option value="Python 3">Python 3</option>
+          <option value="QGIS*">QGIS*</option>
+          <option value="GeoDA*">GeoDA*</option>
+          <option value="GeoDaSpace*">GeoDaSpace*</option>
+          <option value="TerraView*">TerraView*</option>
+          <option value="Musescore">Musescore</option>
+          <option value="Autocad*">Autocad*</option>
+          <option value="VS Code">VS Code</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Solicitante:</label>
+        <input type="text" id="input-solicitante">
+      </div>
+
+      <div class="form-group">
+        <label>Curso:</label>
+        <input type="text" id="input-curso">
+      </div>
+
+      <div class="form-group">
+        <label>Software Funciona?:</label>
+        <select id="select-software-status">
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+      </div>
+    </div>
+
     <br>
     <button type="submit" style="padding: 10px 20px; cursor: pointer;">Salvar Registro</button>
+    <div id="form-erro" class="aviso-erro" style="display:none;"></div>
   </form>
 
   <hr>
 
   <h2>Painel de Acompanhamento das Máquinas</h2>
 
-  <!-- BANNER DE STATUS DOS COMPUTADORES -->
   <div class="cards-container">
     <div class="card-stat card-total">
       <small style="color: #666;">Máquinas Auditadas</small>
@@ -204,7 +204,6 @@
     <button id="btn-toggle-ocultar" style="float: right;">Ocultar Resolvidos</button>
   </div>
 
-  <!-- BOTÕES DE LIMPEZA DO PAINEL DE COMPUTADORES -->
   <div style="margin-bottom: 15px;">
     <button id="btn-limpar-concluidos" style="background-color: #ff9800; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer;">🧹 Limpar Histórico Concluído</button>
     <button id="btn-limpar-todas-manutencoes" style="background-color: #f44336; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; margin-left: 5px;">⚠️ Apagar Todas as Manutenções</button>
@@ -262,10 +261,9 @@
   </div>
 
   <br><hr><br>
-  
+
   <h2>💻 Status dos Softwares Instalados</h2>
 
-  <!-- BANNER DE STATUS DOS SOFTWARES -->
   <div class="cards-container">
     <div class="card-stat card-total">
       <small style="color: #666;">Softwares Monitorados</small>
@@ -282,13 +280,12 @@
   </div>
 
   <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-    <input 
-      type="text" 
-      id="filtro-software-busca" 
-      placeholder="🔍 Buscar por software, máquina ou curso..." 
+    <input
+      type="text"
+      id="filtro-software-busca"
+      placeholder="🔍 Buscar por software, máquina ou curso..."
       style="padding: 8px 12px; width: 100%; max-width: 400px; border: 1px solid #ccc; border-radius: 5px;"
     >
-    <!-- BOTÃO DE LIMPEZA DE SOFTWARES -->
     <button id="btn-limpar-softwares" style="background-color: #f44336; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">🗑️ Limpar Todos os Registros de Softwares</button>
   </div>
 
@@ -310,18 +307,22 @@
   </div>
 
   <script type="module">
-    import { 
-      cadastrarManutencao, 
-      listarManutencoes, 
-      concluirManutencao, 
-      listarHistorico,
+    import {
+      cadastrarManutencao,
+      buscarManutencoes,
+      renderizarPainel,
+      renderizarHistorico,
+      concluirManutencao,
       cadastrarChecagemSoftware,
-      listarAuditoriaSoftwares,
+      buscarSoftwares,
+      renderizarAuditoriaSoftwares,
       limparSecaoManutencoes,
-      limparSecaoSoftwares
+      limparSecaoSoftwares,
     } from './manutencao.js';
+    import { debounce } from './utils.js';
 
     const formManutencao = document.getElementById('form-manutencao');
+    const formErro = document.getElementById('form-erro');
     const tabela = document.getElementById('tabela-chamados');
     const btnOcultar = document.getElementById('btn-toggle-ocultar');
 
@@ -332,7 +333,6 @@
     const tabelaSoftwares = document.getElementById('tabela-softwares');
     const inputBuscaSoft = document.getElementById('filtro-software-busca');
 
-    // Botões de Limpeza
     const btnLimparConcluidos = document.getElementById('btn-limpar-concluidos');
     const btnLimparTodasManutencoes = document.getElementById('btn-limpar-todas-manutencoes');
     const btnLimparSoftwares = document.getElementById('btn-limpar-softwares');
@@ -340,146 +340,156 @@
     let labAtual = "Todos";
     let ocultarResolvidos = false;
 
-    function renderizar() {
-      listarManutencoes(tabela, labAtual, ocultarResolvidos);
-      listarHistorico(tabelaHistorico);
-      const termo = inputBuscaSoft ? inputBuscaSoft.value : "";
-      listarAuditoriaSoftwares(tabelaSoftwares, termo);
+    // Cache em memória para não reconsultar o Firestore a cada clique de filtro.
+    let registrosManutencaoCache = [];
+    let registrosSoftwareCache = [];
+
+    function mostrarErroFormulario(mensagem) {
+      formErro.textContent = mensagem;
+      formErro.style.display = mensagem ? 'block' : 'none';
     }
 
-    renderizar();
+    /** Recarrega os dados do Firestore (uma leitura por coleção) e redesenha tudo. */
+    async function carregarTudo() {
+      try {
+        registrosManutencaoCache = await buscarManutencoes();
+      } catch (erro) {
+        console.error("Erro ao carregar manutenções:", erro);
+        tabela.innerHTML = '<tr><td colspan="15">Erro ao carregar chamados.</td></tr>';
+        tabelaHistorico.innerHTML = '<tr><td colspan="7">Erro ao carregar histórico.</td></tr>';
+        registrosManutencaoCache = [];
+      }
 
-    // Eventos dos botões de limpeza
-    if (btnLimparConcluidos) {
-      btnLimparConcluidos.addEventListener('click', () => {
-        limparSecaoManutencoes("concluidos");
-      });
+      try {
+        registrosSoftwareCache = await buscarSoftwares();
+      } catch (erro) {
+        console.error("Erro ao carregar softwares:", erro);
+        tabelaSoftwares.innerHTML = '<tr><td colspan="5">Erro ao carregar dados.</td></tr>';
+        registrosSoftwareCache = [];
+      }
+
+      redesenhar();
     }
 
-    if (btnLimparTodasManutencoes) {
-      btnLimparTodasManutencoes.addEventListener('click', () => {
-        limparSecaoManutencoes("todos");
-      });
+    /** Redesenha as tabelas usando os dados já em cache (sem ir ao Firestore). */
+    function redesenhar() {
+      renderizarPainel(tabela, registrosManutencaoCache, labAtual, ocultarResolvidos);
+      renderizarHistorico(tabelaHistorico, registrosManutencaoCache);
+      renderizarAuditoriaSoftwares(tabelaSoftwares, registrosSoftwareCache, inputBuscaSoft?.value || "");
     }
 
-    if (btnLimparSoftwares) {
-      btnLimparSoftwares.addEventListener('click', () => {
-        limparSecaoSoftwares();
-      });
-    }
+    carregarTudo();
 
-    document.querySelectorAll('.aba-btn').forEach(btn => {
+    btnLimparConcluidos?.addEventListener('click', async () => {
+      const removidos = await limparSecaoManutencoes("concluidos");
+      if (removidos > 0) carregarTudo();
+    });
+
+    btnLimparTodasManutencoes?.addEventListener('click', async () => {
+      const removidos = await limparSecaoManutencoes("todos");
+      if (removidos > 0) carregarTudo();
+    });
+
+    btnLimparSoftwares?.addEventListener('click', async () => {
+      const removidos = await limparSecaoSoftwares();
+      if (removidos > 0) carregarTudo();
+    });
+
+    document.querySelectorAll('.aba-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => {
-        document.querySelectorAll('.aba-btn').forEach(b => b.classList.remove('ativa'));
+        document.querySelectorAll('.aba-btn').forEach((b) => b.classList.remove('ativa'));
         e.target.classList.add('ativa');
         labAtual = e.target.getAttribute('data-lab');
-        renderizar();
+        redesenhar();
       });
     });
 
-    if (inputBuscaSoft) {
-      inputBuscaSoft.addEventListener('input', (e) => {
-        listarAuditoriaSoftwares(tabelaSoftwares, e.target.value);
-      });
-    }
+    inputBuscaSoft?.addEventListener('input', debounce((e) => {
+      renderizarAuditoriaSoftwares(tabelaSoftwares, registrosSoftwareCache, e.target.value);
+    }, 250));
 
-    if (tabelaSoftwares) {
-      tabelaSoftwares.addEventListener('click', (e) => {
-        const btn = e.target.closest('.btn-detalhes-soft');
-        if (btn) {
-          const targetId = btn.getAttribute('data-target');
-          const detalheEl = document.getElementById(targetId);
-          if (detalheEl) {
-            const visivel = detalheEl.style.display !== 'none';
-            detalheEl.style.display = visivel ? 'none' : 'table-row';
-            btn.textContent = visivel ? '👁️ Ver Detalhes' : '🔽 Ocultar Detalhes';
-          }
+    tabelaSoftwares?.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-detalhes-soft');
+      if (!btn) return;
+      const detalheEl = document.getElementById(btn.getAttribute('data-target'));
+      if (!detalheEl) return;
+      const visivel = detalheEl.style.display !== 'none';
+      detalheEl.style.display = visivel ? 'none' : 'table-row';
+      btn.textContent = visivel ? '👁️ Ver Detalhes' : '🔽 Ocultar Detalhes';
+    });
+
+    btnOcultar?.addEventListener('click', () => {
+      ocultarResolvidos = !ocultarResolvidos;
+      btnOcultar.textContent = ocultarResolvidos ? 'Exibir Resolvidos' : 'Ocultar Resolvidos';
+      redesenhar();
+    });
+
+    btnHistorico?.addEventListener('click', () => {
+      const estaEscondido = containerHistorico.style.display === 'none';
+      containerHistorico.style.display = estaEscondido ? 'block' : 'none';
+      btnHistorico.textContent = estaEscondido ? '📜 Ocultar Histórico' : '📜 Mostrar Histórico de Resolvidos';
+    });
+
+    tabela?.addEventListener('click', async (e) => {
+      if (!e.target.classList.contains('btn-concluir')) return;
+      const id = e.target.getAttribute('data-id');
+      try {
+        await concluirManutencao(id);
+        carregarTudo();
+      } catch (erro) {
+        console.error(erro);
+        alert('Erro ao atualizar chamado.');
+      }
+    });
+
+    formManutencao?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      mostrarErroFormulario('');
+
+      const labSelect = document.getElementById('select-laboratorio')?.value || '';
+      const idMaqInput = document.getElementById('input-identificacao')?.value || '';
+
+      const dadosManutencao = {
+        laboratorio: labSelect,
+        identificacao: idMaqInput,
+        patrimonioCpu: document.getElementById('input-patrimonio-cpu')?.value || '',
+        internetFunciona: document.getElementById('select-internet')?.value || '',
+        detalhesInternet: document.getElementById('input-detalhes-internet')?.value || '',
+        bateria: document.getElementById('select-bateria')?.value || '',
+        estabilizadorFunciona: document.getElementById('select-estabilizador')?.value || '',
+        patrimonioEstabilizador: document.getElementById('input-patrimonio-estabilizador')?.value || '',
+        detalhesEstabilizador: document.getElementById('input-detalhes-estabilizador')?.value || '',
+        tudoFuncionando: document.getElementById('select-tudo-funcionando')?.value || '',
+        motivoProblema: document.getElementById('input-motivo-problema')?.value || '',
+        modeloComputador: document.getElementById('input-modelo')?.value || '',
+        so: document.getElementById('input-so')?.value || '',
+        verificadoPor: document.getElementById('input-verificado-por')?.value || '',
+      };
+
+      try {
+        await cadastrarManutencao(dadosManutencao);
+
+        const selectSoftware = document.getElementById('select-software');
+        if (selectSoftware && selectSoftware.value) {
+          await cadastrarChecagemSoftware({
+            laboratorio: labSelect,
+            software: selectSoftware.value,
+            solicitante: document.getElementById('input-solicitante')?.value || '',
+            curso: document.getElementById('input-curso')?.value || '',
+            maquina: idMaqInput,
+            funciona: document.getElementById('select-software-status')?.value || '',
+          });
         }
-      });
-    }
 
-    if (btnOcultar) {
-      btnOcultar.addEventListener('click', () => {
-        ocultarResolvidos = !ocultarResolvidos;
-        btnOcultar.textContent = ocultarResolvidos ? 'Exibir Resolvidos' : 'Ocultar Resolvidos';
-        renderizar();
-      });
-    }
-
-    if (btnHistorico) {
-      btnHistorico.addEventListener('click', () => {
-        const estaEscondido = containerHistorico.style.display === 'none';
-        containerHistorico.style.display = estaEscondido ? 'block' : 'none';
-        btnHistorico.textContent = estaEscondido ? '📜 Ocultar Histórico' : '📜 Mostrar Histórico de Resolvidos';
-      });
-    }
-
-    if (tabela) {
-      tabela.addEventListener('click', async (e) => {
-        if (e.target.classList.contains('btn-concluir')) {
-          const id = e.target.getAttribute('data-id');
-          try {
-            await concluirManutencao(id);
-            alert('Status atualizado para resolvido!');
-            renderizar();
-          } catch (erro) {
-            alert('Erro ao atualizar chamado.');
-          }
-        }
-      });
-    }
-
-    if (formManutencao) {
-      formManutencao.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const labSelect = document.getElementById('select-laboratorio')?.value || '';
-        const idMaqInput = document.getElementById('input-identificacao')?.value || '';
-
-        const dadosManutencao = {
-          laboratorio: labSelect,
-          identificacao: idMaqInput,
-          patrimonioCpu: document.getElementById('input-patrimonio-cpu')?.value || '',
-          internetFunciona: document.getElementById('select-internet')?.value || '',
-          detalhesInternet: document.getElementById('input-detalhes-internet')?.value || '',
-          bateria: document.getElementById('select-bateria')?.value || '',
-          estabilizadorFunciona: document.getElementById('select-estabilizador')?.value || '',
-          patrimonioEstabilizador: document.getElementById('input-patrimonio-estabilizador')?.value || '',
-          detalhesEstabilizador: document.getElementById('input-detalhes-estabilizador')?.value || '',
-          tudoFuncionando: document.getElementById('select-tudo-funcionando')?.value || '',
-          motivoProblema: document.getElementById('input-motivo-problema')?.value || '',
-          modeloComputador: document.getElementById('input-modelo')?.value || '',
-          so: document.getElementById('input-so')?.value || '',
-          verificadoPor: document.getElementById('input-verificado-por')?.value || ''
-        };
-
-        try {
-          await cadastrarManutencao(dadosManutencao);
-
-          const selectSoftware = document.getElementById('select-software');
-          if (selectSoftware && selectSoftware.value) {
-            const numMaqSoft = document.getElementById('input-num-maquina')?.value || idMaqInput;
-            const dadosSoftware = {
-              laboratorio: labSelect,
-              software: selectSoftware.value,
-              solicitante: document.getElementById('input-solicitante')?.value || '',
-              curso: document.getElementById('input-curso')?.value || '',
-              maquina: numMaqSoft,
-              funciona: document.getElementById('select-software-status')?.value || '',
-              auditadoPor: document.getElementById('input-verificado-por')?.value || 'Sistema'
-            };
-            await cadastrarChecagemSoftware(dadosSoftware);
-          }
-
-          alert('Registro salvo com sucesso!');
-          formManutencao.reset();
-          renderizar();
-        } catch (erro) {
-          alert('Erro ao salvar registro. Verifique se você está autenticado.');
-          console.error(erro);
-        }
-      });
-    }
+        formManutencao.reset();
+        carregarTudo();
+      } catch (erro) {
+        console.error(erro);
+        mostrarErroFormulario(erro.message === "Usuário não autenticado."
+          ? "Você precisa estar autenticado para salvar um registro."
+          : "Erro ao salvar registro. Tente novamente.");
+      }
+    });
   </script>
 </body>
 </html>
