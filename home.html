@@ -51,17 +51,17 @@
 
       <div class="form-group">
         <label>Solicitante:</label>
-        <input type="text" id="input-solicitante" placeholder="Ex: Iális">
+        <input type="text" id="input-solicitante">
       </div>
 
       <div class="form-group">
         <label>Curso:</label>
-        <input type="text" id="input-curso" placeholder="Ex: Eng. Computação">
+        <input type="text" id="input-curso">
       </div>
 
       <div class="form-group">
         <label>Identificação / Nº da Máquina:</label>
-        <input type="text" id="input-num-maquina" placeholder="Ex: 01, 15, 40">
+        <input type="text" id="input-num-maquina">
       </div>
 
       <div class="form-group">
@@ -87,12 +87,12 @@
 
       <div class="form-group">
         <label>ID da Máquina:</label>
-        <input type="text" id="input-identificacao" placeholder="Ex: 1, PC Bolsista" required>
+        <input type="text" id="input-identificacao" required>
       </div>
 
       <div class="form-group">
         <label>Patrimônio CPU:</label>
-        <input type="text" id="input-patrimonio-cpu" placeholder="Ex: 2020004452">
+        <input type="text" id="input-patrimonio-cpu">
       </div>
 
       <div class="form-group">
@@ -105,7 +105,7 @@
 
       <div class="form-group">
         <label>Detalhes da Internet:</label>
-        <input type="text" id="input-detalhes-internet" placeholder="Se houver problema...">
+        <input type="text" id="input-detalhes-internet">
       </div>
 
       <div class="form-group">
@@ -126,12 +126,12 @@
 
       <div class="form-group">
         <label>Patrimônio Estabilizador:</label>
-        <input type="text" id="input-patrimonio-estabilizador" placeholder="Ex: 269383">
+        <input type="text" id="input-patrimonio-estabilizador">
       </div>
 
       <div class="form-group">
         <label>Detalhes Estabilizador:</label>
-        <input type="text" id="input-detalhes-estabilizador" placeholder="Ex: Não tem estabilizador">
+        <input type="text" id="input-detalhes-estabilizador">
       </div>
 
       <div class="form-group">
@@ -144,22 +144,22 @@
 
       <div class="form-group">
         <label>Motivo / Observação:</label>
-        <input type="text" id="input-motivo-problema" placeholder="Ex: Tela apaga de vez em quando">
+        <input type="text" id="input-motivo-problema">
       </div>
 
       <div class="form-group">
         <label>Modelo Computador:</label>
-        <input type="text" id="input-modelo" placeholder="Ex: Optiplex 3070">
+        <input type="text" id="input-modelo">
       </div>
 
       <div class="form-group">
         <label>Sistema Operacional:</label>
-        <input type="text" id="input-so" placeholder="Ex: Linux Ubuntu 24.04.2">
+        <input type="text" id="input-so">
       </div>
 
       <div class="form-group">
         <label>Verificado por (Nome):</label>
-        <input type="text" id="input-verificado-por" placeholder="Ex: Marco / Daniel" required>
+        <input type="text" id="input-verificado-por" required>
       </div>
     </div>
     <br>
@@ -170,7 +170,6 @@
 
   <h2>Painel de Acompanhamento</h2>
 
-  <!-- Abas de Laboratórios -->
   <div>
     <button class="aba-btn ativa" data-lab="Todos">Todos</button>
     <button class="aba-btn" data-lab="Informática, Bloco I">Informática, Bloco I</button>
@@ -233,7 +232,6 @@
   <br><hr><br>
   <h2>💻 Status dos Softwares Instalados</h2>
 
-  <!-- Cards de Resumo -->
   <div style="display: flex; gap: 15px; margin-bottom: 15px;">
     <div style="background: #eef2f5; padding: 12px 20px; border-radius: 8px; border-left: 4px solid #008080;">
       <small style="color: #666;">Softwares Monitorados</small>
@@ -249,7 +247,6 @@
     </div>
   </div>
 
-  <!-- Filtro e Busca -->
   <div style="margin-bottom: 15px;">
     <input 
       type="text" 
@@ -259,7 +256,6 @@
     >
   </div>
 
-  <!-- Tabela Agrupada -->
   <div class="table-container">
     <table border="1" style="width: 100%; text-align: left;">
       <thead>
@@ -287,25 +283,20 @@
       listarAuditoriaSoftwares 
     } from './manutencao.js';
 
-    // Elementos da tabela de Manutenção
     const formManutencao = document.getElementById('form-manutencao');
     const tabela = document.getElementById('tabela-chamados');
     const btnOcultar = document.getElementById('btn-toggle-ocultar');
 
-    // Elementos da tabela de Histórico
     const tabelaHistorico = document.getElementById('tabela-historico');
     const btnHistorico = document.getElementById('btn-toggle-historico');
     const containerHistorico = document.getElementById('container-historico');
 
-    // Elementos da tabela de Softwares
     const tabelaSoftwares = document.getElementById('tabela-softwares');
     const inputBuscaSoft = document.getElementById('filtro-software-busca');
 
-    // Estados dos filtros
     let labAtual = "Todos";
     let ocultarResolvidos = false;
 
-    // Função central para renderizar todas as tabelas
     function renderizar() {
       listarManutencoes(tabela, labAtual, ocultarResolvidos);
       listarHistorico(tabelaHistorico);
@@ -313,10 +304,8 @@
       listarAuditoriaSoftwares(tabelaSoftwares, termo);
     }
 
-    // Inicializa os dados na tela
     renderizar();
 
-    // Controle de Abas (Filtro por Laboratório)
     document.querySelectorAll('.aba-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         document.querySelectorAll('.aba-btn').forEach(b => b.classList.remove('ativa'));
@@ -326,14 +315,12 @@
       });
     });
 
-    // Filtro de Busca em Tempo Real (Softwares)
     if (inputBuscaSoft) {
       inputBuscaSoft.addEventListener('input', (e) => {
         listarAuditoriaSoftwares(tabelaSoftwares, e.target.value);
       });
     }
 
-    // Clique no botão "Ver Detalhes" da tabela de softwares
     if (tabelaSoftwares) {
       tabelaSoftwares.addEventListener('click', (e) => {
         const btn = e.target.closest('.btn-detalhes-soft');
@@ -349,7 +336,6 @@
       });
     }
 
-    // Alternar visibilidade de resolvidos na tabela principal
     if (btnOcultar) {
       btnOcultar.addEventListener('click', () => {
         ocultarResolvidos = !ocultarResolvidos;
@@ -358,7 +344,6 @@
       });
     }
 
-    // Alternar exibição da caixa de Histórico
     if (btnHistorico) {
       btnHistorico.addEventListener('click', () => {
         const estaEscondido = containerHistorico.style.display === 'none';
@@ -367,7 +352,6 @@
       });
     }
 
-    // Ação do botão Resolver/Concluir
     if (tabela) {
       tabela.addEventListener('click', async (e) => {
         if (e.target.classList.contains('btn-concluir')) {
@@ -383,14 +367,16 @@
       });
     }
 
-    // Envio do formulário (Salva Manutenção e/ou Checagem de Software)
     if (formManutencao) {
       formManutencao.addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        const labSelect = document.getElementById('select-laboratorio')?.value || '';
+        const idMaqInput = document.getElementById('input-identificacao')?.value || '';
+
         const dadosManutencao = {
-          laboratorio: document.getElementById('select-laboratorio')?.value || '',
-          identificacao: document.getElementById('input-identificacao')?.value || '',
+          laboratorio: labSelect,
+          identificacao: idMaqInput,
           patrimonioCpu: document.getElementById('input-patrimonio-cpu')?.value || '',
           internetFunciona: document.getElementById('select-internet')?.value || '',
           detalhesInternet: document.getElementById('input-detalhes-internet')?.value || '',
@@ -410,12 +396,15 @@
 
           const selectSoftware = document.getElementById('select-software');
           if (selectSoftware && selectSoftware.value) {
+            const numMaqSoft = document.getElementById('input-num-maquina')?.value || idMaqInput;
             const dadosSoftware = {
+              laboratorio: labSelect,
               software: selectSoftware.value,
               solicitante: document.getElementById('input-solicitante')?.value || '',
               curso: document.getElementById('input-curso')?.value || '',
-              maquina: document.getElementById('input-num-maquina')?.value || '',
-              funciona: document.getElementById('select-software-status')?.value || ''
+              maquina: numMaqSoft,
+              funciona: document.getElementById('select-software-status')?.value || '',
+              auditadoPor: document.getElementById('input-verificado-por')?.value || 'Sistema'
             };
             await cadastrarChecagemSoftware(dadosSoftware);
           }
