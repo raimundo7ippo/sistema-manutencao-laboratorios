@@ -38,15 +38,38 @@
 
   <button type="submit">Solicitar Manutenção</button>
 </form>
+<hr>
+
+<h2>Meus Chamados de Manutenção</h2>
+
+<table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%;">
+  <thead>
+    <tr>
+      <th>Laboratório</th>
+      <th>Equipamento</th>
+      <th>Descrição</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody id="tabela-chamados">
+    <tr>
+      <td colspan="4">Carregando chamados...</td>
+    </tr>
+  </tbody>
+</table>
 <script type="module">
-  import { cadastrarManutencao } from './manutencao.js';
+  import { cadastrarManutencao, listarManutencoes } from './manutencao.js';
 
   const formManutencao = document.getElementById('form-manutencao');
+  const tabela = document.getElementById('tabela-chamados');
 
+  // 1. Carrega os chamados existentes ao abrir a página
+  listarManutencoes(tabela);
+
+  // 2. Escuta o envio do formulário
   formManutencao.addEventListener('submit', async (event) => {
-    event.preventDefault(); // Impede a página de recarregar
+    event.preventDefault();
 
-    // Pegando os valores digitados
     const laboratorio = document.getElementById('select-laboratorio').value;
     const equipamento = document.getElementById('input-equipamento').value;
     const descricao = document.getElementById('input-descricao').value;
@@ -54,7 +77,10 @@
     try {
       await cadastrarManutencao(laboratorio, equipamento, descricao);
       alert('Chamado registrado com sucesso!');
-      formManutencao.reset(); // Limpa os campos
+      formManutencao.reset();
+
+      // 3. Atualiza a tabela imediatamente após salvar
+      listarManutencoes(tabela);
     } catch (erro) {
       alert('Erro ao registrar chamado. Confira se você está logado!');
       console.error(erro);
