@@ -9,5 +9,57 @@
 <body>
     <h1>Bem-vindo ao sistema!</h1>
      <h3>funções do sistema</h3>
+     <form id="form-manutencao">
+  <div>
+    <label for="select-laboratorio">Laboratório:</label>
+    <select id="select-laboratorio" required>
+      <option value="">Selecione o laboratório</option>
+      <option value="Lab 01">Laboratório 01</option>
+      <option value="Lab 02">Laboratório 02</option>
+      <option value="Lab 03">Laboratório 03</option>
+    </select>
+  </div>
+
+  <br>
+
+  <div>
+    <label for="input-equipamento">Equipamento:</label>
+    <input type="text" id="input-equipamento" placeholder="Ex: Computador 05, Impressora" required>
+  </div>
+
+  <br>
+
+  <div>
+    <label for="input-descricao">Descrição do Problema:</label>
+    <textarea id="input-descricao" placeholder="Descreva o defeito..." required></textarea>
+  </div>
+
+  <br>
+
+  <button type="submit">Solicitar Manutenção</button>
+</form>
+<script type="module">
+  import { cadastrarManutencao } from './manutencao.js';
+
+  const formManutencao = document.getElementById('form-manutencao');
+
+  formManutencao.addEventListener('submit', async (event) => {
+    event.preventDefault(); // Impede a página de recarregar
+
+    // Pegando os valores digitados
+    const laboratorio = document.getElementById('select-laboratorio').value;
+    const equipamento = document.getElementById('input-equipamento').value;
+    const descricao = document.getElementById('input-descricao').value;
+
+    try {
+      await cadastrarManutencao(laboratorio, equipamento, descricao);
+      alert('Chamado registrado com sucesso!');
+      formManutencao.reset(); // Limpa os campos
+    } catch (erro) {
+      alert('Erro ao registrar chamado. Confira se você está logado!');
+      console.error(erro);
+    }
+  });
+</script>
 </body>
 </html>
