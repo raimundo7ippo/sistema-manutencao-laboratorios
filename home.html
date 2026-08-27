@@ -1,91 +1,96 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página Inicial</title>
-    
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Página Inicial</title>
 </head>
 <body>
-    <h1>Bem-vindo ao sistema!</h1>
-     <h3>funções do sistema</h3>
-     <form id="form-manutencao">
-  <div>
-    <label for="select-laboratorio">Laboratório:</label>
-    <select id="select-laboratorio" required>
-      <option value="">Selecione o laboratório</option>
-      <option value="Lab 01">Laboratório 01</option>
-      <option value="Lab 02">Laboratório 02</option>
-      <option value="Lab 03">Laboratório 03</option>
-    </select>
-  </div>
+  <h1>Bem-vindo ao sistema!</h1>
+  <h3>funções do sistema</h3>
 
-  <br>
+  <form id="form-manutencao">
+    <div>
+      <label for="select-laboratorio">Laboratório:</label>
+      <select id="select-laboratorio" required>
+        <option value="">Selecione o laboratório</option>
+        <option value="Lab de Simulações Numéricas">Lab de Simulações Numéricas</option>
+        <option value="Lab de Programação">Lab de Programação</option>
+      </select>
+    </div>
+    <br>
+    <div>
+      <label for="input-equipamento">Equipamento:</label>
+      <input type="text" id="input-equipamento" placeholder="Ex: Computador 05, Impressora" required>
+    </div>
+    <br>
+    <div>
+      <label for="input-descricao">Descrição do Problema:</label>
+      <textarea id="input-descricao" placeholder="Descreva o defeito..." required></textarea>
+    </div>
+    <br>
+    <button type="submit">Solicitar Manutenção</button>
+  </form>
 
-  <div>
-    <label for="input-equipamento">Equipamento:</label>
-    <input type="text" id="input-equipamento" placeholder="Ex: Computador 05, Impressora" required>
-  </div>
+  <hr>
 
-  <br>
+  <h2>Meus Chamados de Manutenção</h2>
 
-  <div>
-    <label for="input-descricao">Descrição do Problema:</label>
-    <textarea id="input-descricao" placeholder="Descreva o defeito..." required></textarea>
-  </div>
+  <table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%;">
+    <thead>
+      <tr>
+        <th>Laboratório</th>
+        <th>Equipamento</th>
+        <th>Descrição</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="tabela-chamados">
+      <tr>
+        <td colspan="5">Carregando chamados...</td>
+      </tr>
+    </tbody>
+  </table>
 
-  <br>
+  <script type="module">
+    import { cadastrarManutencao, listarManutencoes, concluirManutencao } from './manutencao.js';
 
-  <button type="submit">Solicitar Manutenção</button>
-</form>
-<hr>
+    const formManutencao = document.getElementById('form-manutencao');
+    const tabela = document.getElementById('tabela-chamados');
 
-<h2>Meus Chamados de Manutenção</h2>
+    listarManutencoes(tabela);
 
-<table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%;">
-  <thead>
-    <tr>
-      <th>Laboratório</th>
-      <th>Equipamento</th>
-      <th>Descrição</th>
-      <th>Status</th>
-    </tr>
-  </thead>
-  <tbody id="tabela-chamados">
-    <tr>
-      <td colspan="4">Carregando chamados...</td>
-    </tr>
-  </tbody>
-</table>
-<script type="module">
-  import { cadastrarManutencao, listarManutencoes } from './manutencao.js';
+    tabela.addEventListener('click', async (event) => {
+      if (event.target.classList.contains('btn-concluir')) {
+        const idChamado = event.target.getAttribute('data-id');
+        try {
+          await concluirManutencao(idChamado);
+          alert('Chamado marcado como resolvido!');
+          listarManutencoes(tabela);
+        } catch (erro) {
+          alert('Erro ao atualizar chamado.');
+        }
+      }
+    });
 
-  const formManutencao = document.getElementById('form-manutencao');
-  const tabela = document.getElementById('tabela-chamados');
+    formManutencao.addEventListener('submit', async (event) => {
+      event.preventDefault();
 
-  // 1. Carrega os chamados existentes ao abrir a página
-  listarManutencoes(tabela);
+      const laboratorio = document.getElementById('select-laboratorio').value;
+      const equipamento = document.getElementById('input-equipamento').value;
+      const descricao = document.getElementById('input-descricao').value;
 
-  // 2. Escuta o envio do formulário
-  formManutencao.addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    const laboratorio = document.getElementById('select-laboratorio').value;
-    const equipamento = document.getElementById('input-equipamento').value;
-    const descricao = document.getElementById('input-descricao').value;
-
-    try {
-      await cadastrarManutencao(laboratorio, equipamento, descricao);
-      alert('Chamado registrado com sucesso!');
-      formManutencao.reset();
-
-      // 3. Atualiza a tabela imediatamente após salvar
-      listarManutencoes(tabela);
-    } catch (erro) {
-      alert('Erro ao registrar chamado. Confira se você está logado!');
-      console.error(erro);
-    }
-  });
-</script>
+      try {
+        await cadastrarManutencao(laboratorio, equipamento, descricao);
+        alert('Chamado registrado com sucesso!');
+        formManutencao.reset();
+        listarManutencoes(tabela);
+      } catch (erro) {
+        alert('Erro ao registrar chamado. Confira se você está logado!');
+        console.error(erro);
+      }
+    });
+  </script>
 </body>
 </html>

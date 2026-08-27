@@ -5,29 +5,25 @@ import {
   getDocs, 
   query, 
   orderBy, 
-  serverTimestamp 
+  serverTimestamp,
+  doc,
+  updateDoc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-// 1. Função para cadastrar chamados
 export async function cadastrarManutencao(laboratorio, equipamento, descricao) {
   try {
     const usuarioAtual = auth.currentUser;
-
-    if (!usuarioAtual) {
-      throw new Error("Usuário não autenticado.");
-    }
+    if (!usuarioAtual) throw new Error("Usuário não autenticado.");
 
     const docRef = await addDoc(collection(db, "manutencoes"), {
-      laboratorio: laboratorio,
-      equipamento: equipamento,
-      descricao: descricao,
+      laboratorio,
+      equipamento,
+      descricao,
       solicitanteEmail: usuarioAtual.email,
       solicitanteUid: usuarioAtual.uid,
       status: "Pendente",
       criadoEm: serverTimestamp()
     });
-
-    console.log("Chamado salvo com ID: ", docRef.id);
     return docRef.id;
   } catch (erro) {
     console.error("Erro ao cadastrar manutenção:", erro);
@@ -35,33 +31,52 @@ export async function cadastrarManutencao(laboratorio, equipamento, descricao) {
   }
 }
 
-// 2. Função para buscar e exibir os chamados na tabela
 export async function listarManutencoes(tabelaElemento) {
   try {
     const q = query(collection(db, "manutencoes"), orderBy("criadoEm", "desc"));
     const querySnapshot = await getDocs(q);
 
-    tabelaElemento.innerHTML = ""; // Limpa a mensagem de carregando
+    tabelaElemento.innerHTML = ""; 
 
     if (querySnapshot.empty) {
-      tabelaElemento.innerHTML = '<tr><td colspan="4">Nenhum chamado encontrado.</td></tr>';
+      tabelaElemento.innerHTML = '<tr><td colspan="5">Nenhum chamado encontrado.</td></tr>';
       return;
     }
 
-    querySnapshot.forEach((doc) => {
-      const dados = doc.data();
+    querySnapshot.forEach((docSnap) => {
+      const dados = docSnap.data();
+      const id = docSnap.id;
+      const estaConcluido = dados.status === "Concluído";
+
       const linha = `
         <tr>
           <td>${dados.laboratorio || '-'}</td>
           <td>${dados.equipamento || '-'}</td>
           <td>${dados.descricao || '-'}</td>
           <td><strong>${dados.status || 'Pendente'}</strong></td>
+          <td>
+            ${
+              estaConcluido 
+                ? '✅ Finalizado' 
+                : `<button class="btn-concluir" data-id="${id}">Marcar como Resolvido</button>`
+            }
+          </td>
         </tr>
       `;
       tabelaElemento.innerHTML += linha;
     });
   } catch (erro) {
     console.error("Erro ao carregar chamados:", erro);
-    tabelaElemento.innerHTML = '<tr><td colspan="4">Erro ao carregar chamados.</td></tr>';
+    tabelaElemento.innerHTML = '<tr><td colspan="5">Erro ao carregar chamados.</td></tr>';
+  }
+}
+
+export async function concluirManutencao(idChamado) {
+  try {
+    const chamadoRef = doc(db, "manutencoes", idChamado);
+    await updateDoc(chamadoRef, { status: "Concluído" });
+  } catch (erro) {
+    console.error("Erro ao concluir chamado:", erro);
+    throw erro;
   }
 }
