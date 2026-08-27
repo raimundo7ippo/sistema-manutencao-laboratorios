@@ -228,28 +228,64 @@
       </tbody>
     </table>
   </div>
+  <br><hr><br>
+<h2>💻 Status dos Softwares Instalados</h2>
+<div class="table-container">
+  <table border="1">
+    <thead>
+      <tr>
+        <th>Software</th>
+        <th>Solicitante</th>
+        <th>Curso</th>
+        <th>Nº Máquina</th>
+        <th>Funciona?</th>
+        <th>Auditado por</th>
+      </tr>
+    </thead>
+    <tbody id="tabela-softwares">
+      <tr><td colspan="6">Carregando auditoria de softwares...</td></tr>
+    </tbody>
+  </table>
+</div>
 
   <script type="module">
-    import { cadastrarManutencao, listarManutencoes, concluirManutencao, listarHistorico } from './manutencao.js';
+    import { 
+      cadastrarManutencao, 
+      listarManutencoes, 
+      concluirManutencao, 
+      listarHistorico,
+      cadastrarChecagemSoftware,
+      listarAuditoriaSoftwares 
+    } from './manutencao.js';
 
-    const form = document.getElementById('form-manutencao');
+    // Elementos da tabela de Manutenção
+    const formManutencao = document.getElementById('form-manutencao');
     const tabela = document.getElementById('tabela-chamados');
-    const tabelaHistorico = document.getElementById('tabela-historico');
     const btnOcultar = document.getElementById('btn-toggle-ocultar');
+
+    // Elementos da tabela de Histórico
+    const tabelaHistorico = document.getElementById('tabela-historico');
     const btnHistorico = document.getElementById('btn-toggle-historico');
     const containerHistorico = document.getElementById('container-historico');
 
+    // Elementos da tabela de Softwares
+    const tabelaSoftwares = document.getElementById('tabela-softwares');
+
+    // Estados dos filtros
     let labAtual = "Todos";
     let ocultarResolvidos = false;
 
+    // Função central para renderizar todas as tabelas
     function renderizar() {
       listarManutencoes(tabela, labAtual, ocultarResolvidos);
       listarHistorico(tabelaHistorico);
+      listarAuditoriaSoftwares(tabelaSoftwares);
     }
 
+    // Inicializa os dados na tela
     renderizar();
 
-    // Controle de Filtro por Abas
+    // Controle de Abas (Filtro por Laboratório)
     document.querySelectorAll('.aba-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
         document.querySelectorAll('.aba-btn').forEach(b => b.classList.remove('ativa'));
@@ -259,18 +295,21 @@
       });
     });
 
+    // Alternar visibilidade de resolvidos na tabela principal
     btnOcultar.addEventListener('click', () => {
       ocultarResolvidos = !ocultarResolvidos;
       btnOcultar.textContent = ocultarResolvidos ? 'Exibir Resolvidos' : 'Ocultar Resolvidos';
       renderizar();
     });
 
+    // Alternar exibição da caixa de Histórico
     btnHistorico.addEventListener('click', () => {
       const estaEscondido = containerHistorico.style.display === 'none';
       containerHistorico.style.display = estaEscondido ? 'block' : 'none';
       btnHistorico.textContent = estaEscondido ? '📜 Ocultar Histórico' : '📜 Mostrar Histórico de Resolvidos';
     });
 
+    // Ação do botão Resolver/Concluir
     tabela.addEventListener('click', async (e) => {
       if (e.target.classList.contains('btn-concluir')) {
         const id = e.target.getAttribute('data-id');
@@ -279,15 +318,16 @@
           alert('Status atualizado para resolvido!');
           renderizar();
         } catch (erro) {
-          alert('Erro ao atualizar.');
+          alert('Erro ao atualizar chamado.');
         }
       }
     });
 
-    form.addEventListener('submit', async (e) => {
+    // Envio do formulário (Salva Manutenção e/ou Checagem de Software)
+    formManutencao.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const dados = {
+      const dadosManutencao = {
         laboratorio: document.getElementById('select-laboratorio').value,
         identificacao: document.getElementById('input-identificacao').value,
         patrimonioCpu: document.getElementById('input-patrimonio-cpu').value,
@@ -305,12 +345,27 @@
       };
 
       try {
-        await cadastrarManutencao(dados);
+        await cadastrarManutencao(dadosManutencao);
+
+        // Se o software foi selecionado, salva também a checagem de software
+        const selectSoftware = document.getElementById('select-software');
+        if (selectSoftware && selectSoftware.value) {
+          const dadosSoftware = {
+            software: selectSoftware.value,
+            solicitante: document.getElementById('input-solicitante').value,
+            curso: document.getElementById('input-curso').value,
+            maquina: document.getElementById('input-num-maquina').value,
+            funciona: document.getElementById('select-software-status').value
+          };
+          await cadastrarChecagemSoftware(dadosSoftware);
+        }
+
         alert('Registro salvo com sucesso!');
-        form.reset();
+        formManutencao.reset();
         renderizar();
       } catch (erro) {
-        alert('Erro ao salvar registro.');
+        alert('Erro ao salvar registro. Verifique se você está autenticado.');
+        console.error(erro);
       }
     });
   </script>
