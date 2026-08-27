@@ -1,0 +1,30 @@
+import { db, auth } from './firebase.js';
+import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// Função para registrar um novo chamado no Firestore
+export async function cadastrarManutencao(laboratorio, equipamento, descricao) {
+  try {
+    const usuarioAtual = auth.currentUser;
+
+    if (!usuarioAtual) {
+      throw new Error("Usuário não autenticado.");
+    }
+
+    // Adiciona um novo documento na coleção 'manutencoes'
+    const docRef = await addDoc(collection(db, "manutencoes"), {
+      laboratorio: laboratorio,
+      equipamento: equipamento,
+      descricao: descricao,
+      solicitanteEmail: usuarioAtual.email,
+      solicitanteUid: usuarioAtual.uid,
+      status: "Pendente",
+      criadoEm: serverTimestamp()
+    });
+
+    console.log("Chamado salvo com ID: ", docRef.id);
+    return docRef.id;
+  } catch (erro) {
+    console.error("Erro ao cadastrar manutenção:", erro);
+    throw erro;
+  }
+}
