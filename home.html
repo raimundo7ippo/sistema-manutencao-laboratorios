@@ -34,7 +34,10 @@
 
   <hr>
 
-  <h2>Meus Chamados de Manutenção</h2>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h2>Meus Chamados de Manutenção</h2>
+    <button id="btn-toggle-ocultar">Ocultar Resolvidos</button>
+  </div>
 
   <table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%;">
     <thead>
@@ -53,27 +56,88 @@
     </tbody>
   </table>
 
+  <br><hr><br>
+
+  <!-- Botão para alternar a exibição do Histórico -->
+  <button id="btn-toggle-historico" style="padding: 8px 16px; cursor: pointer;">📜 Mostrar Histórico de Resolvidos</button>
+
+  <!-- Container do Histórico (Inicia Escondido) -->
+  <div id="container-historico" style="display: none; margin-top: 15px;">
+    <h2>📜 Histórico de Chamados Resolvidos</h2>
+
+    <table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%; background-color: #f9f9f9;">
+      <thead>
+        <tr>
+          <th>Laboratório</th>
+          <th>Equipamento</th>
+          <th>Descrição</th>
+          <th>Data</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-historico">
+        <tr>
+          <td colspan="5">Carregando histórico...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
   <script type="module">
-    import { cadastrarManutencao, listarManutencoes, concluirManutencao } from './manutencao.js';
+    import { cadastrarManutencao, listarManutencoes, concluirManutencao, listarHistorico } from './manutencao.js';
 
     const formManutencao = document.getElementById('form-manutencao');
     const tabela = document.getElementById('tabela-chamados');
+    const tabelaHistorico = document.getElementById('tabela-historico');
+    const btnOcultar = document.getElementById('btn-toggle-ocultar');
+    
+    // Elementos do controle de visibilidade do histórico
+    const btnHistorico = document.getElementById('btn-toggle-historico');
+    const containerHistorico = document.getElementById('container-historico');
 
-    listarManutencoes(tabela);
+    let ocultarResolvidos = false;
 
+    function atualizarTabelas() {
+      listarManutencoes(tabela, ocultarResolvidos);
+      listarHistorico(tabelaHistorico);
+    }
+
+    atualizarTabelas();
+
+    // Botão Ocultar/Exibir Resolvidos da tabela principal
+    btnOcultar.addEventListener('click', () => {
+      ocultarResolvidos = !ocultarResolvidos;
+      btnOcultar.textContent = ocultarResolvidos ? 'Exibir Resolvidos' : 'Ocultar Resolvidos';
+      listarManutencoes(tabela, ocultarResolvidos);
+    });
+
+    // Botão Mostrar/Ocultar a tabela inteira de Histórico
+    btnHistorico.addEventListener('click', () => {
+      const estaEscondido = containerHistorico.style.display === 'none';
+      if (estaEscondido) {
+        containerHistorico.style.display = 'block';
+        btnHistorico.textContent = '📜 Ocultar Histórico';
+      } else {
+        containerHistorico.style.display = 'none';
+        btnHistorico.textContent = '📜 Mostrar Histórico de Resolvidos';
+      }
+    });
+
+    // Concluir Chamado
     tabela.addEventListener('click', async (event) => {
       if (event.target.classList.contains('btn-concluir')) {
         const idChamado = event.target.getAttribute('data-id');
         try {
           await concluirManutencao(idChamado);
           alert('Chamado marcado como resolvido!');
-          listarManutencoes(tabela);
+          atualizarTabelas();
         } catch (erro) {
           alert('Erro ao atualizar chamado.');
         }
       }
     });
 
+    // Criar chamado
     formManutencao.addEventListener('submit', async (event) => {
       event.preventDefault();
 
@@ -85,7 +149,7 @@
         await cadastrarManutencao(laboratorio, equipamento, descricao);
         alert('Chamado registrado com sucesso!');
         formManutencao.reset();
-        listarManutencoes(tabela);
+        atualizarTabelas();
       } catch (erro) {
         alert('Erro ao registrar chamado. Confira se você está logado!');
         console.error(erro);
