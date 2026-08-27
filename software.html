@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auditoria de Softwares</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .table-container { overflow-x: auto; max-width: 100%; margin-top: 15px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 13px; }
+    th { background-color: #008b8b; color: white; }
+    .cards-container { display: flex; gap: 15px; margin-bottom: 15px; }
+    .card-stat { padding: 12px 20px; border-radius: 8px; flex: 1; }
+    .card-stat small { font-weight: bold; }
+    .card-stat h3 { margin: 5px 0 0 0; font-size: 22px; }
+    .card-total { background: #eef2f5; border-left: 4px solid #008080; }
+    .card-ok { background: #e6f4ea; border-left: 4px solid green; }
+    .card-erro { background: #fce8e6; border-left: 4px solid red; }
+  </style>
+</head>
+<body>
+
+  <p><a href="home.html">⬅️ Voltar para o Menu Principal</a></p>
+  <h1>💻 Status dos Softwares Instalados</h1>
+
+  <div class="cards-container">
+    <div class="card-stat card-total">
+      <small style="color: #666;">Softwares Monitorados</small>
+      <h3 id="stat-total-softwares">0</h3>
+    </div>
+    <div class="card-stat card-ok">
+      <small style="color: green;">Totalmente Operacionais</small>
+      <h3 id="stat-softwares-ok">0</h3>
+    </div>
+    <div class="card-stat card-erro">
+      <small style="color: red;">Com Falhas Reportadas</small>
+      <h3 id="stat-softwares-erro">0</h3>
+    </div>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+    <input
+      type="text"
+      id="filtro-software-busca"
+      placeholder="🔍 Buscar por software, máquina ou curso..."
+      style="padding: 8px 12px; width: 100%; max-width: 400px; border: 1px solid #ccc; border-radius: 5px;"
+    >
+    <button id="btn-limpar-softwares" style="background-color: #f44336; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">🗑️ Limpar Todos os Registros</button>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Software</th>
+          <th>Auditadas</th>
+          <th>Status Geral</th>
+          <th>Última Auditoria</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-softwares">
+        <tr><td colspan="5">Carregando auditoria de softwares...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script type="module">
+    import {
+      buscarSoftwares,
+      renderizarAuditoriaSoftwares,
+      limparSecaoSoftwares
+    } from './manutencao.js';
+    import { debounce } from './utils.js';
+
+    const tabelaSoftwares = document.getElementById('tabela-softwares');
+    const inputBuscaSoft = document.getElementById('filtro-software-busca');
+    const btnLimparSoftwares = document.getElementById('btn-limpar-softwares');
+
+    let registrosCache = [];
+
+    async function carregarSoftwares() {
+      try {
+        registrosCache = await buscarSoftwares();
+      } catch (erro) {
+        registrosCache = [];
+      }
+      renderizarAuditoriaSoftwares(tabelaSoftwares, registrosCache, inputBuscaSoft?.value || "");
+    }
+
+    carregarSoftwares();
+
+    btnLimparSoftwares?.addEventListener('click', async () => {
+      if (await limparSecaoSoftwares() > 0) carregarSoftwares();
+    });
+
+    inputBuscaSoft?.addEventListener('input', debounce((e) => {
+      renderizarAuditoriaSoftwares(tabelaSoftwares, registrosCache, e.target.value);
+    }, 250));
+
+    tabelaSoftwares?.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-detalhes-soft');
+      if (!btn) return;
+      const detalheEl = document.getElementById(btn.getAttribute('data-target'));
+      if (!detalheEl) return;
+      const visivel = detalheEl.style.display !== 'none';
+      detalheEl.style.display = visivel ? 'none' : 'table-row';
+      btn.textContent = visivel ? '👁️ Ver Detalhes' : '🔽 Ocultar Detalhes';
+    });
+  </script>
+</body>
+</html>

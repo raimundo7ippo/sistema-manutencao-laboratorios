@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciamento de Máquinas</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .form-group { display: flex; flex-direction: column; }
+    .aba-btn { padding: 8px 16px; margin-right: 4px; cursor: pointer; border: 1px solid #ccc; background: #e0e0e0; }
+    .aba-btn.ativa { background: #007bff; color: white; font-weight: bold; border-color: #007bff; }
+    .table-container { overflow-x: auto; max-width: 100%; margin-top: 15px; }
+    table { width: 100%; border-collapse: collapse; min-width: 1200px; }
+    th, td { border: 1px solid #ddd; padding: 6px; text-align: left; font-size: 13px; }
+    th { background-color: #008b8b; color: white; }
+    .cards-container { display: flex; gap: 15px; margin-bottom: 15px; }
+    .card-stat { padding: 12px 20px; border-radius: 8px; flex: 1; }
+    .card-stat small { font-weight: bold; }
+    .card-stat h3 { margin: 5px 0 0 0; font-size: 22px; }
+    .card-total { background: #eef2f5; border-left: 4px solid #008080; }
+    .card-ok { background: #e6f4ea; border-left: 4px solid green; }
+    .card-erro { background: #fce8e6; border-left: 4px solid red; }
+    .aviso-erro { color: #b71c1c; background: #fce8e6; padding: 8px 12px; border-radius: 4px; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <p><a href="home.html">⬅️ Voltar para o Menu Principal</a></p>
+  <h1>Controle de Vistoria de Máquinas</h1>
+
+  <form id="form-manutencao">
+    <h3>Registrar / Atualizar Máquina</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Laboratório:</label>
+        <select id="select-laboratorio" required>
+          <option value="">Selecione...</option>
+          <option value="Informática, Bloco I">Informática, Bloco I</option>
+          <option value="Programação Computacional">Programação Computacional</option>
+          <option value="Simulações Numéricas">Simulações Numéricas</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>ID da Máquina:</label>
+        <input type="text" id="input-identificacao" required>
+      </div>
+      <div class="form-group">
+        <label>Patrimônio CPU:</label>
+        <input type="text" id="input-patrimonio-cpu">
+      </div>
+      <div class="form-group">
+        <label>Internet Funciona?:</label>
+        <select id="select-internet">
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Detalhes da Internet:</label>
+        <input type="text" id="input-detalhes-internet">
+      </div>
+      <div class="form-group">
+        <label>Bateria:</label>
+        <select id="select-bateria">
+          <option value="Operante">Operante</option>
+          <option value="Descarregada">Descarregada</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Estabilizador Funciona?:</label>
+        <select id="select-estabilizador">
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Patrimônio Estabilizador:</label>
+        <input type="text" id="input-patrimonio-estabilizador">
+      </div>
+      <div class="form-group">
+        <label>Detalhes Estabilizador:</label>
+        <input type="text" id="input-detalhes-estabilizador">
+      </div>
+      <div class="form-group">
+        <label>Tudo Funcionando?:</label>
+        <select id="select-tudo-funcionando" required>
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Motivo / Observação:</label>
+        <input type="text" id="input-motivo-problema">
+      </div>
+      <div class="form-group">
+        <label>Modelo Computador:</label>
+        <input type="text" id="input-modelo">
+      </div>
+      <div class="form-group">
+        <label>Sistema Operacional:</label>
+        <input type="text" id="input-so">
+      </div>
+      <div class="form-group">
+        <label>Verificado por (Nome):</label>
+        <input type="text" id="input-verificado-por" required>
+      </div>
+    </div>
+    <br>
+    <button type="submit" style="padding: 10px 20px; cursor: pointer;">Salvar Máquina</button>
+    <div id="form-erro" class="aviso-erro" style="display:none;"></div>
+  </form>
+
+  <hr>
+
+  <h2>Painel de Acompanhamento das Máquinas</h2>
+
+  <div class="cards-container">
+    <div class="card-stat card-total">
+      <small style="color: #666;">Máquinas Auditadas</small>
+      <h3 id="stat-total-pcs">0</h3>
+    </div>
+    <div class="card-stat card-ok">
+      <small style="color: green;">Totalmente Operacionais</small>
+      <h3 id="stat-pcs-ok">0</h3>
+    </div>
+    <div class="card-stat card-erro">
+      <small style="color: red;">Com Pendências / Falhas</small>
+      <h3 id="stat-pcs-erro">0</h3>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 10px;">
+    <button class="aba-btn ativa" data-lab="Todos">Todos</button>
+    <button class="aba-btn" data-lab="Informática, Bloco I">Informática, Bloco I</button>
+    <button class="aba-btn" data-lab="Programação Computacional">Programação Computacional</button>
+    <button class="aba-btn" data-lab="Simulações Numéricas">Simulações Numéricas</button>
+    <button id="btn-toggle-ocultar" style="float: right;">Ocultar Resolvidos</button>
+  </div>
+
+  <div style="margin-bottom: 15px;">
+    <button id="btn-limpar-concluidos" style="background-color: #ff9800; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer;">🧹 Limpar Histórico Concluído</button>
+    <button id="btn-limpar-todas-manutencoes" style="background-color: #f44336; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; margin-left: 5px;">⚠️ Apagar Todas as Manutenções</button>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>ID Máq.</th>
+          <th>Patrimônio CPU</th>
+          <th>Internet?</th>
+          <th>Det. Internet</th>
+          <th>Bateria</th>
+          <th>Estabilizador?</th>
+          <th>Pat. Estab.</th>
+          <th>Det. Estab.</th>
+          <th>Tudo OK?</th>
+          <th>Motivo / Problema</th>
+          <th>Modelo</th>
+          <th>S.O.</th>
+          <th>Verificador</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-chamados">
+        <tr><td colspan="15">Carregando dados...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <br><hr><br>
+
+  <button id="btn-toggle-historico" style="padding: 8px 16px; cursor: pointer;">📜 Mostrar Histórico de Resolvidos</button>
+
+  <div id="container-historico" style="display: none; margin-top: 15px;" class="table-container">
+    <h2>📜 Histórico de Resolvidos</h2>
+    <table style="background-color: #f9f9f9;">
+      <thead>
+        <tr>
+          <th>Laboratório</th>
+          <th>ID Máquina</th>
+          <th>Patrimônio CPU</th>
+          <th>Problema Relatado</th>
+          <th>Verificador</th>
+          <th>Data / Hora</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-historico">
+        <tr><td colspan="7">Carregando histórico...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script type="module">
+    import {
+      cadastrarManutencao,
+      buscarManutencoes,
+      renderizarPainel,
+      renderizarHistorico,
+      concluirManutencao,
+      limparSecaoManutencoes
+    } from './manutencao.js';
+
+    const formManutencao = document.getElementById('form-manutencao');
+    const formErro = document.getElementById('form-erro');
+    const tabela = document.getElementById('tabela-chamados');
+    const btnOcultar = document.getElementById('btn-toggle-ocultar');
+    const tabelaHistorico = document.getElementById('tabela-historico');
+    const btnHistorico = document.getElementById('btn-toggle-historico');
+    const containerHistorico = document.getElementById('container-historico');
+    const btnLimparConcluidos = document.getElementById('btn-limpar-concluidos');
+    const btnLimparTodasManutencoes = document.getElementById('btn-limpar-todas-manutencoes');
+
+    let labAtual = "Todos";
+    let ocultarResolvidos = false;
+    let registrosCache = [];
+
+    async function carregarDados() {
+      try {
+        registrosCache = await buscarManutencoes();
+      } catch (erro) {
+        console.error(erro);
+        registrosCache = [];
+      }
+      redesenhar();
+    }
+
+    function redesenhar() {
+      renderizarPainel(tabela, registrosCache, labAtual, ocultarResolvidos);
+      renderizarHistorico(tabelaHistorico, registrosCache);
+    }
+
+    carregarDados();
+
+    btnLimparConcluidos?.addEventListener('click', async () => {
+      if (await limparSecaoManutencoes("concluidos") > 0) carregarDados();
+    });
+
+    btnLimparTodasManutencoes?.addEventListener('click', async () => {
+      if (await limparSecaoManutencoes("todos") > 0) carregarDados();
+    });
+
+    document.querySelectorAll('.aba-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.aba-btn').forEach((b) => b.classList.remove('ativa'));
+        e.target.classList.add('ativa');
+        labAtual = e.target.getAttribute('data-lab');
+        redesenhar();
+      });
+    });
+
+    btnOcultar?.addEventListener('click', () => {
+      ocultarResolvidos = !ocultarResolvidos;
+      btnOcultar.textContent = ocultarResolvidos ? 'Exibir Resolvidos' : 'Ocultar Resolvidos';
+      redesenhar();
+    });
+
+    btnHistorico?.addEventListener('click', () => {
+      const estaEscondido = containerHistorico.style.display === 'none';
+      containerHistorico.style.display = estaEscondido ? 'block' : 'none';
+      btnHistorico.textContent = estaEscondido ? '📜 Ocultar Histórico' : '📜 Mostrar Histórico de Resolvidos';
+    });
+
+    tabela?.addEventListener('click', async (e) => {
+      if (!e.target.classList.contains('btn-concluir')) return;
+      try {
+        await concluirManutencao(e.target.getAttribute('data-id'));
+        carregarDados();
+      } catch (erro) {
+        alert('Erro ao atualizar chamado.');
+      }
+    });
+
+    formManutencao?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      formErro.style.display = 'none';
+
+      const dados = {
+        laboratorio: document.getElementById('select-laboratorio')?.value || '',
+        identificacao: document.getElementById('input-identificacao')?.value || '',
+        patrimonioCpu: document.getElementById('input-patrimonio-cpu')?.value || '',
+        internetFunciona: document.getElementById('select-internet')?.value || '',
+        detalhesInternet: document.getElementById('input-detalhes-internet')?.value || '',
+        bateria: document.getElementById('select-bateria')?.value || '',
+        estabilizadorFunciona: document.getElementById('select-estabilizador')?.value || '',
+        patrimonioEstabilizador: document.getElementById('input-patrimonio-estabilizador')?.value || '',
+        detalhesEstabilizador: document.getElementById('input-detalhes-estabilizador')?.value || '',
+        tudoFuncionando: document.getElementById('select-tudo-funcionando')?.value || '',
+        motivoProblema: document.getElementById('input-motivo-problema')?.value || '',
+        modeloComputador: document.getElementById('input-modelo')?.value || '',
+        so: document.getElementById('input-so')?.value || '',
+        verificadoPor: document.getElementById('input-verificado-por')?.value || '',
+      };
+
+      try {
+        await cadastrarManutencao(dados);
+        formManutencao.reset();
+        carregarDados();
+      } catch (erro) {
+        formErro.textContent = "Erro ao salvar registro. Verifique se está autenticado.";
+        formErro.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
