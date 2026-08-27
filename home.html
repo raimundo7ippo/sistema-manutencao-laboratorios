@@ -21,6 +21,57 @@
   <h1>Controle de Vistoria de Laboratórios</h1>
 
   <form id="form-manutencao">
+    <hr>
+<h3>Auditoria de Softwares</h3>
+<div class="form-grid">
+  <div class="form-group">
+    <label>Software:</label>
+    <select id="select-software" required>
+      <option value="">Selecione...</option>
+      <option value="Chrome">Chrome</option>
+      <option value="Firefox">Firefox</option>
+      <option value="Dev C++*">Dev C++*</option>
+      <option value="Wireshark 3.0">Wireshark 3.0</option>
+      <option value="MySQL Workbench">MySQL Workbench</option>
+      <option value="Blender">Blender</option>
+      <option value="MySQL Community Edition">MySQL Community Edition</option>
+      <option value="Stata*">Stata*</option>
+      <option value="Netbeans 11">Netbeans 11</option>
+      <option value="Java (latest)">Java (latest)</option>
+      <option value="Python 3">Python 3</option>
+      <option value="QGIS*">QGIS*</option>
+      <option value="GeoDA*">GeoDA*</option>
+      <option value="GeoDaSpace*">GeoDaSpace*</option>
+      <option value="TerraView*">TerraView*</option>
+      <option value="Musescore">Musescore</option>
+      <option value="Autocad*">Autocad*</option>
+      <option value="VS Code">VS Code</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label>Solicitante:</label>
+    <input type="text" id="input-solicitante" placeholder="Ex: Iális">
+  </div>
+
+  <div class="form-group">
+    <label>Curso:</label>
+    <input type="text" id="input-curso" placeholder="Ex: Eng. Computação">
+  </div>
+
+  <div class="form-group">
+    <label>Nº da Máquina Testada:</label>
+    <input type="number" id="input-num-maquina" min="1" max="14" placeholder="01 a 14" required>
+  </div>
+
+  <div class="form-group">
+    <label>Software Funciona?:</label>
+    <select id="select-software-status" required>
+      <option value="Sim">Sim</option>
+      <option value="Não">Não</option>
+    </select>
+  </div>
+</div>
     <h3>Registrar / Atualizar Máquina</h3>
     <div class="form-grid">
       <div class="form-group">

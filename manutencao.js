@@ -146,4 +146,21 @@ export async function concluirManutencao(idChamado) {
     console.error("Erro ao concluir chamado:", erro);
     throw erro;
   }
+  // Função para registrar a checagem de software por máquina
+export async function cadastrarChecagemSoftware(dadosSoftware) {
+  try {
+    const usuarioAtual = auth.currentUser;
+    if (!usuarioAtual) throw new Error("Usuário não autenticado.");
+
+    const docRef = await addDoc(collection(db, "softwares_laboratorio"), {
+      ...dadosSoftware,
+      cadastradoPor: usuarioAtual.email,
+      criadoEm: serverTimestamp()
+    });
+    return docRef.id;
+  } catch (erro) {
+    console.error("Erro ao registrar software:", erro);
+    throw erro;
+  }
+}
 }
