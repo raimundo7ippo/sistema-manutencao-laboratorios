@@ -22,56 +22,57 @@
 
   <form id="form-manutencao">
     <hr>
-<h3>Auditoria de Softwares</h3>
-<div class="form-grid">
-  <div class="form-group">
-    <label>Software:</label>
-    <select id="select-software" required>
-      <option value="">Selecione...</option>
-      <option value="Chrome">Chrome</option>
-      <option value="Firefox">Firefox</option>
-      <option value="Dev C++*">Dev C++*</option>
-      <option value="Wireshark 3.0">Wireshark 3.0</option>
-      <option value="MySQL Workbench">MySQL Workbench</option>
-      <option value="Blender">Blender</option>
-      <option value="MySQL Community Edition">MySQL Community Edition</option>
-      <option value="Stata*">Stata*</option>
-      <option value="Netbeans 11">Netbeans 11</option>
-      <option value="Java (latest)">Java (latest)</option>
-      <option value="Python 3">Python 3</option>
-      <option value="QGIS*">QGIS*</option>
-      <option value="GeoDA*">GeoDA*</option>
-      <option value="GeoDaSpace*">GeoDaSpace*</option>
-      <option value="TerraView*">TerraView*</option>
-      <option value="Musescore">Musescore</option>
-      <option value="Autocad*">Autocad*</option>
-      <option value="VS Code">VS Code</option>
-    </select>
-  </div>
+    <h3>Auditoria de Softwares</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Software:</label>
+        <select id="select-software">
+          <option value="">Selecione...</option>
+          <option value="Chrome">Chrome</option>
+          <option value="Firefox">Firefox</option>
+          <option value="Dev C++*">Dev C++*</option>
+          <option value="Wireshark 3.0">Wireshark 3.0</option>
+          <option value="MySQL Workbench">MySQL Workbench</option>
+          <option value="Blender">Blender</option>
+          <option value="MySQL Community Edition">MySQL Community Edition</option>
+          <option value="Stata*">Stata*</option>
+          <option value="Netbeans 11">Netbeans 11</option>
+          <option value="Java (latest)">Java (latest)</option>
+          <option value="Python 3">Python 3</option>
+          <option value="QGIS*">QGIS*</option>
+          <option value="GeoDA*">GeoDA*</option>
+          <option value="GeoDaSpace*">GeoDaSpace*</option>
+          <option value="TerraView*">TerraView*</option>
+          <option value="Musescore">Musescore</option>
+          <option value="Autocad*">Autocad*</option>
+          <option value="VS Code">VS Code</option>
+        </select>
+      </div>
 
-  <div class="form-group">
-    <label>Solicitante:</label>
-    <input type="text" id="input-solicitante" placeholder="Ex: Iális">
-  </div>
+      <div class="form-group">
+        <label>Solicitante:</label>
+        <input type="text" id="input-solicitante" placeholder="Ex: Iális">
+      </div>
 
-  <div class="form-group">
-    <label>Curso:</label>
-    <input type="text" id="input-curso" placeholder="Ex: Eng. Computação">
-  </div>
+      <div class="form-group">
+        <label>Curso:</label>
+        <input type="text" id="input-curso" placeholder="Ex: Eng. Computação">
+      </div>
 
-  <div class="form-group">
-  <label>Identificação / Nº da Máquina:</label>
-  <input type="text" id="input-num-maquina" placeholder="Ex: 01, 15, 40" required>
-</div>
+      <div class="form-group">
+        <label>Identificação / Nº da Máquina:</label>
+        <input type="text" id="input-num-maquina" placeholder="Ex: 01, 15, 40">
+      </div>
 
-  <div class="form-group">
-    <label>Software Funciona?:</label>
-    <select id="select-software-status" required>
-      <option value="Sim">Sim</option>
-      <option value="Não">Não</option>
-    </select>
-  </div>
-</div>
+      <div class="form-group">
+        <label>Software Funciona?:</label>
+        <select id="select-software-status">
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+      </div>
+    </div>
+
     <h3>Registrar / Atualizar Máquina</h3>
     <div class="form-grid">
       <div class="form-group">
@@ -228,25 +229,53 @@
       </tbody>
     </table>
   </div>
+
   <br><hr><br>
-<h2>💻 Status dos Softwares Instalados</h2>
-<div class="table-container">
-  <table border="1">
-    <thead>
-      <tr>
-        <th>Software</th>
-        <th>Solicitante</th>
-        <th>Curso</th>
-        <th>Nº Máquina</th>
-        <th>Funciona?</th>
-        <th>Auditado por</th>
-      </tr>
-    </thead>
-    <tbody id="tabela-softwares">
-      <tr><td colspan="6">Carregando auditoria de softwares...</td></tr>
-    </tbody>
-  </table>
-</div>
+  <h2>💻 Status dos Softwares Instalados</h2>
+
+  <!-- Cards de Resumo -->
+  <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+    <div style="background: #eef2f5; padding: 12px 20px; border-radius: 8px; border-left: 4px solid #008080;">
+      <small style="color: #666;">Softwares Monitorados</small>
+      <h3 id="stat-total-softwares" style="margin: 5px 0 0 0;">0</h3>
+    </div>
+    <div style="background: #e6f4ea; padding: 12px 20px; border-radius: 8px; border-left: 4px solid green;">
+      <small style="color: green;">Totalmente Operacionais</small>
+      <h3 id="stat-softwares-ok" style="margin: 5px 0 0 0;">0</h3>
+    </div>
+    <div style="background: #fce8e6; padding: 12px 20px; border-radius: 8px; border-left: 4px solid red;">
+      <small style="color: red;">Com Falhas Reportadas</small>
+      <h3 id="stat-softwares-erro" style="margin: 5px 0 0 0;">0</h3>
+    </div>
+  </div>
+
+  <!-- Filtro e Busca -->
+  <div style="margin-bottom: 15px;">
+    <input 
+      type="text" 
+      id="filtro-software-busca" 
+      placeholder="🔍 Buscar por software, máquina ou curso..." 
+      style="padding: 8px 12px; width: 100%; max-width: 400px; border: 1px solid #ccc; border-radius: 5px;"
+    >
+  </div>
+
+  <!-- Tabela Agrupada -->
+  <div class="table-container">
+    <table border="1" style="width: 100%; text-align: left;">
+      <thead>
+        <tr>
+          <th>Software</th>
+          <th>Auditadas</th>
+          <th>Status Geral</th>
+          <th>Última Auditoria</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-softwares">
+        <tr><td colspan="5">Carregando auditoria de softwares...</td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <script type="module">
     import { 
@@ -270,6 +299,7 @@
 
     // Elementos da tabela de Softwares
     const tabelaSoftwares = document.getElementById('tabela-softwares');
+    const inputBuscaSoft = document.getElementById('filtro-software-busca');
 
     // Estados dos filtros
     let labAtual = "Todos";
@@ -279,7 +309,8 @@
     function renderizar() {
       listarManutencoes(tabela, labAtual, ocultarResolvidos);
       listarHistorico(tabelaHistorico);
-      listarAuditoriaSoftwares(tabelaSoftwares);
+      const termo = inputBuscaSoft ? inputBuscaSoft.value : "";
+      listarAuditoriaSoftwares(tabelaSoftwares, termo);
     }
 
     // Inicializa os dados na tela
@@ -295,79 +326,109 @@
       });
     });
 
+    // Filtro de Busca em Tempo Real (Softwares)
+    if (inputBuscaSoft) {
+      inputBuscaSoft.addEventListener('input', (e) => {
+        listarAuditoriaSoftwares(tabelaSoftwares, e.target.value);
+      });
+    }
+
+    // Clique no botão "Ver Detalhes" da tabela de softwares
+    if (tabelaSoftwares) {
+      tabelaSoftwares.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-detalhes-soft');
+        if (btn) {
+          const targetId = btn.getAttribute('data-target');
+          const detalheEl = document.getElementById(targetId);
+          if (detalheEl) {
+            const visivel = detalheEl.style.display !== 'none';
+            detalheEl.style.display = visivel ? 'none' : 'table-row';
+            btn.textContent = visivel ? '👁️ Ver Detalhes' : '🔽 Ocultar Detalhes';
+          }
+        }
+      });
+    }
+
     // Alternar visibilidade de resolvidos na tabela principal
-    btnOcultar.addEventListener('click', () => {
-      ocultarResolvidos = !ocultarResolvidos;
-      btnOcultar.textContent = ocultarResolvidos ? 'Exibir Resolvidos' : 'Ocultar Resolvidos';
-      renderizar();
-    });
+    if (btnOcultar) {
+      btnOcultar.addEventListener('click', () => {
+        ocultarResolvidos = !ocultarResolvidos;
+        btnOcultar.textContent = ocultarResolvidos ? 'Exibir Resolvidos' : 'Ocultar Resolvidos';
+        renderizar();
+      });
+    }
 
     // Alternar exibição da caixa de Histórico
-    btnHistorico.addEventListener('click', () => {
-      const estaEscondido = containerHistorico.style.display === 'none';
-      containerHistorico.style.display = estaEscondido ? 'block' : 'none';
-      btnHistorico.textContent = estaEscondido ? '📜 Ocultar Histórico' : '📜 Mostrar Histórico de Resolvidos';
-    });
+    if (btnHistorico) {
+      btnHistorico.addEventListener('click', () => {
+        const estaEscondido = containerHistorico.style.display === 'none';
+        containerHistorico.style.display = estaEscondido ? 'block' : 'none';
+        btnHistorico.textContent = estaEscondido ? '📜 Ocultar Histórico' : '📜 Mostrar Histórico de Resolvidos';
+      });
+    }
 
     // Ação do botão Resolver/Concluir
-    tabela.addEventListener('click', async (e) => {
-      if (e.target.classList.contains('btn-concluir')) {
-        const id = e.target.getAttribute('data-id');
-        try {
-          await concluirManutencao(id);
-          alert('Status atualizado para resolvido!');
-          renderizar();
-        } catch (erro) {
-          alert('Erro ao atualizar chamado.');
+    if (tabela) {
+      tabela.addEventListener('click', async (e) => {
+        if (e.target.classList.contains('btn-concluir')) {
+          const id = e.target.getAttribute('data-id');
+          try {
+            await concluirManutencao(id);
+            alert('Status atualizado para resolvido!');
+            renderizar();
+          } catch (erro) {
+            alert('Erro ao atualizar chamado.');
+          }
         }
-      }
-    });
+      });
+    }
 
     // Envio do formulário (Salva Manutenção e/ou Checagem de Software)
-    formManutencao.addEventListener('submit', async (e) => {
-      e.preventDefault();
+    if (formManutencao) {
+      formManutencao.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-      const dadosManutencao = {
-        laboratorio: document.getElementById('select-laboratorio').value,
-        identificacao: document.getElementById('input-identificacao').value,
-        patrimonioCpu: document.getElementById('input-patrimonio-cpu').value,
-        internetFunciona: document.getElementById('select-internet').value,
-        detalhesInternet: document.getElementById('input-detalhes-internet').value,
-        bateria: document.getElementById('select-bateria').value,
-        estabilizadorFunciona: document.getElementById('select-estabilizador').value,
-        patrimonioEstabilizador: document.getElementById('input-patrimonio-estabilizador').value,
-        detalhesEstabilizador: document.getElementById('input-detalhes-estabilizador').value,
-        tudoFuncionando: document.getElementById('select-tudo-funcionando').value,
-        motivoProblema: document.getElementById('input-motivo-problema').value,
-        modeloComputador: document.getElementById('input-modelo').value,
-        so: document.getElementById('input-so').value,
-        verificadoPor: document.getElementById('input-verificado-por').value
-      };
+        const dadosManutencao = {
+          laboratorio: document.getElementById('select-laboratorio')?.value || '',
+          identificacao: document.getElementById('input-identificacao')?.value || '',
+          patrimonioCpu: document.getElementById('input-patrimonio-cpu')?.value || '',
+          internetFunciona: document.getElementById('select-internet')?.value || '',
+          detalhesInternet: document.getElementById('input-detalhes-internet')?.value || '',
+          bateria: document.getElementById('select-bateria')?.value || '',
+          estabilizadorFunciona: document.getElementById('select-estabilizador')?.value || '',
+          patrimonioEstabilizador: document.getElementById('input-patrimonio-estabilizador')?.value || '',
+          detalhesEstabilizador: document.getElementById('input-detalhes-estabilizador')?.value || '',
+          tudoFuncionando: document.getElementById('select-tudo-funcionando')?.value || '',
+          motivoProblema: document.getElementById('input-motivo-problema')?.value || '',
+          modeloComputador: document.getElementById('input-modelo')?.value || '',
+          so: document.getElementById('input-so')?.value || '',
+          verificadoPor: document.getElementById('input-verificado-por')?.value || ''
+        };
 
-      try {
-        await cadastrarManutencao(dadosManutencao);
+        try {
+          await cadastrarManutencao(dadosManutencao);
 
-        // Se o software foi selecionado, salva também a checagem de software
-        const selectSoftware = document.getElementById('select-software');
-        if (selectSoftware && selectSoftware.value) {
-          const dadosSoftware = {
-            software: selectSoftware.value,
-            solicitante: document.getElementById('input-solicitante').value,
-            curso: document.getElementById('input-curso').value,
-            maquina: document.getElementById('input-num-maquina').value,
-            funciona: document.getElementById('select-software-status').value
-          };
-          await cadastrarChecagemSoftware(dadosSoftware);
+          const selectSoftware = document.getElementById('select-software');
+          if (selectSoftware && selectSoftware.value) {
+            const dadosSoftware = {
+              software: selectSoftware.value,
+              solicitante: document.getElementById('input-solicitante')?.value || '',
+              curso: document.getElementById('input-curso')?.value || '',
+              maquina: document.getElementById('input-num-maquina')?.value || '',
+              funciona: document.getElementById('select-software-status')?.value || ''
+            };
+            await cadastrarChecagemSoftware(dadosSoftware);
+          }
+
+          alert('Registro salvo com sucesso!');
+          formManutencao.reset();
+          renderizar();
+        } catch (erro) {
+          alert('Erro ao salvar registro. Verifique se você está autenticado.');
+          console.error(erro);
         }
-
-        alert('Registro salvo com sucesso!');
-        formManutencao.reset();
-        renderizar();
-      } catch (erro) {
-        alert('Erro ao salvar registro. Verifique se você está autenticado.');
-        console.error(erro);
-      }
-    });
+      });
+    }
   </script>
 </body>
 </html>
