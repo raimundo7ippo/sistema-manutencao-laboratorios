@@ -3,82 +3,177 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Página Inicial</title>
+  <title>Sistema de Vistoria e Manutenção</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .form-group { display: flex; flex-direction: column; }
+    .aba-btn { padding: 8px 16px; margin-right: 4px; cursor: pointer; border: 1px solid #ccc; background: #e0e0e0; }
+    .aba-btn.ativa { background: #007bff; color: white; font-weight: bold; border-color: #007bff; }
+    .table-container { overflow-x: auto; max-width: 100%; margin-top: 15px; }
+    table { width: 100%; border-collapse: collapse; min-width: 1200px; }
+    th, td { border: 1px solid #ddd; padding: 6px; text-align: left; font-size: 13px; }
+    th { background-color: #008b8b; color: white; }
+  </style>
 </head>
 <body>
-  <h1>Bem-vindo ao sistema!</h1>
-  <h3>funções do sistema</h3>
+
+  <h1>Controle de Vistoria de Laboratórios</h1>
 
   <form id="form-manutencao">
-    <div>
-      <label for="select-laboratorio">Laboratório:</label>
-      <select id="select-laboratorio" required>
-        <option value="">Selecione o laboratório</option>
-        <option value="Lab de Simulações Numéricas">Lab de Simulações Numéricas</option>
-        <option value="Lab de Programação">Lab de Programação</option>
-      </select>
+    <h3>Registrar / Atualizar Máquina</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Laboratório:</label>
+        <select id="select-laboratorio" required>
+          <option value="">Selecione...</option>
+          <option value="Informática, Bloco I">Informática, Bloco I</option>
+          <option value="Programação Computacional">Programação Computacional</option>
+          <option value="Simulações Numéricas">Simulações Numéricas</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>ID da Máquina:</label>
+        <input type="text" id="input-identificacao" placeholder="Ex: 1, PC Bolsista" required>
+      </div>
+
+      <div class="form-group">
+        <label>Patrimônio CPU:</label>
+        <input type="text" id="input-patrimonio-cpu" placeholder="Ex: 2020004452">
+      </div>
+
+      <div class="form-group">
+        <label>Internet Funciona?:</label>
+        <select id="select-internet">
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Detalhes da Internet:</label>
+        <input type="text" id="input-detalhes-internet" placeholder="Se houver problema...">
+      </div>
+
+      <div class="form-group">
+        <label>Bateria:</label>
+        <select id="select-bateria">
+          <option value="Operante">Operante</option>
+          <option value="Descarregada">Descarregada</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Estabilizador Funciona?:</label>
+        <select id="select-estabilizador">
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Patrimônio Estabilizador:</label>
+        <input type="text" id="input-patrimonio-estabilizador" placeholder="Ex: 269383">
+      </div>
+
+      <div class="form-group">
+        <label>Detalhes Estabilizador:</label>
+        <input type="text" id="input-detalhes-estabilizador" placeholder="Ex: Não tem estabilizador">
+      </div>
+
+      <div class="form-group">
+        <label>Tudo Funcionando?:</label>
+        <select id="select-tudo-funcionando" required>
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Motivo / Observação:</label>
+        <input type="text" id="input-motivo-problema" placeholder="Ex: Tela apaga de vez em quando">
+      </div>
+
+      <div class="form-group">
+        <label>Modelo Computador:</label>
+        <input type="text" id="input-modelo" placeholder="Ex: Optiplex 3070">
+      </div>
+
+      <div class="form-group">
+        <label>Sistema Operacional:</label>
+        <input type="text" id="input-so" placeholder="Ex: Linux Ubuntu 24.04.2">
+      </div>
+
+      <div class="form-group">
+        <label>Verificado por (Nome):</label>
+        <input type="text" id="input-verificado-por" placeholder="Ex: Marco / Daniel" required>
+      </div>
     </div>
     <br>
-    <div>
-      <label for="input-equipamento">Equipamento:</label>
-      <input type="text" id="input-equipamento" placeholder="Ex: Computador 05, Impressora" required>
-    </div>
-    <br>
-    <div>
-      <label for="input-descricao">Descrição do Problema:</label>
-      <textarea id="input-descricao" placeholder="Descreva o defeito..." required></textarea>
-    </div>
-    <br>
-    <button type="submit">Solicitar Manutenção</button>
+    <button type="submit" style="padding: 10px 20px; cursor: pointer;">Salvar Registro</button>
   </form>
 
   <hr>
 
-  <div style="display: flex; justify-content: space-between; align-items: center;">
-    <h2>Meus Chamados de Manutenção</h2>
-    <button id="btn-toggle-ocultar">Ocultar Resolvidos</button>
+  <h2>Painel de Acompanhamento</h2>
+
+  <!-- Abas de Laboratórios -->
+  <div>
+    <button class="aba-btn ativa" data-lab="Todos">Todos</button>
+    <button class="aba-btn" data-lab="Informática, Bloco I">Informática, Bloco I</button>
+    <button class="aba-btn" data-lab="Programação Computacional">Programação Computacional</button>
+    <button class="aba-btn" data-lab="Simulações Numéricas">Simulações Numéricas</button>
+    <button id="btn-toggle-ocultar" style="float: right;">Ocultar Resolvidos</button>
   </div>
 
-  <table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%;">
-    <thead>
-      <tr>
-        <th>Laboratório</th>
-        <th>Equipamento</th>
-        <th>Descrição</th>
-        <th>Status</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody id="tabela-chamados">
-      <tr>
-        <td colspan="5">Carregando chamados...</td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="table-container">
+    <table border="1">
+      <thead>
+        <tr>
+          <th>ID Máq.</th>
+          <th>Patrimônio CPU</th>
+          <th>Internet?</th>
+          <th>Det. Internet</th>
+          <th>Bateria</th>
+          <th>Estabilizador?</th>
+          <th>Pat. Estab.</th>
+          <th>Det. Estab.</th>
+          <th>Tudo OK?</th>
+          <th>Motivo / Problema</th>
+          <th>Modelo</th>
+          <th>S.O.</th>
+          <th>Verificador</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabela-chamados">
+        <tr><td colspan="15">Carregando dados...</td></tr>
+      </tbody>
+    </table>
+  </div>
 
   <br><hr><br>
 
-  <!-- Botão para alternar a exibição do Histórico -->
   <button id="btn-toggle-historico" style="padding: 8px 16px; cursor: pointer;">📜 Mostrar Histórico de Resolvidos</button>
 
-  <!-- Container do Histórico (Inicia Escondido) -->
-  <div id="container-historico" style="display: none; margin-top: 15px;">
-    <h2>📜 Histórico de Chamados Resolvidos</h2>
-
-    <table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%; background-color: #f9f9f9;">
+  <div id="container-historico" style="display: none; margin-top: 15px;" class="table-container">
+    <h2>📜 Histórico de Resolvidos</h2>
+    <table border="1" style="background-color: #f9f9f9;">
       <thead>
         <tr>
           <th>Laboratório</th>
-          <th>Equipamento</th>
-          <th>Descrição</th>
-          <th>Data</th>
+          <th>ID Máquina</th>
+          <th>Patrimônio CPU</th>
+          <th>Problema Relatado</th>
+          <th>Verificador</th>
+          <th>Data / Hora</th>
           <th>Status</th>
         </tr>
       </thead>
       <tbody id="tabela-historico">
-        <tr>
-          <td colspan="5">Carregando histórico...</td>
-        </tr>
+        <tr><td colspan="7">Carregando histórico...</td></tr>
       </tbody>
     </table>
   </div>
@@ -86,73 +181,85 @@
   <script type="module">
     import { cadastrarManutencao, listarManutencoes, concluirManutencao, listarHistorico } from './manutencao.js';
 
-    const formManutencao = document.getElementById('form-manutencao');
+    const form = document.getElementById('form-manutencao');
     const tabela = document.getElementById('tabela-chamados');
     const tabelaHistorico = document.getElementById('tabela-historico');
     const btnOcultar = document.getElementById('btn-toggle-ocultar');
-    
-    // Elementos do controle de visibilidade do histórico
     const btnHistorico = document.getElementById('btn-toggle-historico');
     const containerHistorico = document.getElementById('container-historico');
 
+    let labAtual = "Todos";
     let ocultarResolvidos = false;
 
-    function atualizarTabelas() {
-      listarManutencoes(tabela, ocultarResolvidos);
+    function renderizar() {
+      listarManutencoes(tabela, labAtual, ocultarResolvidos);
       listarHistorico(tabelaHistorico);
     }
 
-    atualizarTabelas();
+    renderizar();
 
-    // Botão Ocultar/Exibir Resolvidos da tabela principal
+    // Controle de Filtro por Abas
+    document.querySelectorAll('.aba-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.aba-btn').forEach(b => b.classList.remove('ativa'));
+        e.target.classList.add('ativa');
+        labAtual = e.target.getAttribute('data-lab');
+        renderizar();
+      });
+    });
+
     btnOcultar.addEventListener('click', () => {
       ocultarResolvidos = !ocultarResolvidos;
       btnOcultar.textContent = ocultarResolvidos ? 'Exibir Resolvidos' : 'Ocultar Resolvidos';
-      listarManutencoes(tabela, ocultarResolvidos);
+      renderizar();
     });
 
-    // Botão Mostrar/Ocultar a tabela inteira de Histórico
     btnHistorico.addEventListener('click', () => {
       const estaEscondido = containerHistorico.style.display === 'none';
-      if (estaEscondido) {
-        containerHistorico.style.display = 'block';
-        btnHistorico.textContent = '📜 Ocultar Histórico';
-      } else {
-        containerHistorico.style.display = 'none';
-        btnHistorico.textContent = '📜 Mostrar Histórico de Resolvidos';
-      }
+      containerHistorico.style.display = estaEscondido ? 'block' : 'none';
+      btnHistorico.textContent = estaEscondido ? '📜 Ocultar Histórico' : '📜 Mostrar Histórico de Resolvidos';
     });
 
-    // Concluir Chamado
-    tabela.addEventListener('click', async (event) => {
-      if (event.target.classList.contains('btn-concluir')) {
-        const idChamado = event.target.getAttribute('data-id');
+    tabela.addEventListener('click', async (e) => {
+      if (e.target.classList.contains('btn-concluir')) {
+        const id = e.target.getAttribute('data-id');
         try {
-          await concluirManutencao(idChamado);
-          alert('Chamado marcado como resolvido!');
-          atualizarTabelas();
+          await concluirManutencao(id);
+          alert('Status atualizado para resolvido!');
+          renderizar();
         } catch (erro) {
-          alert('Erro ao atualizar chamado.');
+          alert('Erro ao atualizar.');
         }
       }
     });
 
-    // Criar chamado
-    formManutencao.addEventListener('submit', async (event) => {
-      event.preventDefault();
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-      const laboratorio = document.getElementById('select-laboratorio').value;
-      const equipamento = document.getElementById('input-equipamento').value;
-      const descricao = document.getElementById('input-descricao').value;
+      const dados = {
+        laboratorio: document.getElementById('select-laboratorio').value,
+        identificacao: document.getElementById('input-identificacao').value,
+        patrimonioCpu: document.getElementById('input-patrimonio-cpu').value,
+        internetFunciona: document.getElementById('select-internet').value,
+        detalhesInternet: document.getElementById('input-detalhes-internet').value,
+        bateria: document.getElementById('select-bateria').value,
+        estabilizadorFunciona: document.getElementById('select-estabilizador').value,
+        patrimonioEstabilizador: document.getElementById('input-patrimonio-estabilizador').value,
+        detalhesEstabilizador: document.getElementById('input-detalhes-estabilizador').value,
+        tudoFuncionando: document.getElementById('select-tudo-funcionando').value,
+        motivoProblema: document.getElementById('input-motivo-problema').value,
+        modeloComputador: document.getElementById('input-modelo').value,
+        so: document.getElementById('input-so').value,
+        verificadoPor: document.getElementById('input-verificado-por').value
+      };
 
       try {
-        await cadastrarManutencao(laboratorio, equipamento, descricao);
-        alert('Chamado registrado com sucesso!');
-        formManutencao.reset();
-        atualizarTabelas();
+        await cadastrarManutencao(dados);
+        alert('Registro salvo com sucesso!');
+        form.reset();
+        renderizar();
       } catch (erro) {
-        alert('Erro ao registrar chamado. Confira se você está logado!');
-        console.error(erro);
+        alert('Erro ao salvar registro.');
       }
     });
   </script>

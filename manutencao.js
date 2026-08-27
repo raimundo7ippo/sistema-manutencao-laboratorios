@@ -10,18 +10,17 @@ import {
   updateDoc 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-export async function cadastrarManutencao(laboratorio, equipamento, descricao) {
+// 1. Cadastrar auditoria/manutenção completa com base na planilha
+export async function cadastrarManutencao(dadosFormulario) {
   try {
     const usuarioAtual = auth.currentUser;
     if (!usuarioAtual) throw new Error("Usuário não autenticado.");
 
     const docRef = await addDoc(collection(db, "manutencoes"), {
-      laboratorio,
-      equipamento,
-      descricao,
+      ...dadosFormulario,
       solicitanteEmail: usuarioAtual.email,
       solicitanteUid: usuarioAtual.uid,
-      status: "Pendente",
+      status: dadosFormulario.tudoFuncionando === "Não" ? "Pendente" : "OK",
       criadoEm: serverTimestamp()
     });
     return docRef.id;
@@ -31,7 +30,8 @@ export async function cadastrarManutencao(laboratorio, equipamento, descricao) {
   }
 }
 
-export async function listarManutencoes(tabelaElemento, ocultarConcluidos = false) {
+// 2. Listar chamados com filtro por aba de Laboratório
+export async function listarManutencoes(tabelaElemento, labFiltro = "Todos", ocultarConcluidos = false) {
   try {
     const q = query(collection(db, "manutencoes"), orderBy("criadoEm", "desc"));
     const querySnapshot = await getDocs(q);
@@ -39,7 +39,7 @@ export async function listarManutencoes(tabelaElemento, ocultarConcluidos = fals
     tabelaElemento.innerHTML = ""; 
 
     if (querySnapshot.empty) {
-      tabelaElemento.innerHTML = '<tr><td colspan="5">Nenhum chamado encontrado.</td></tr>';
+      tabelaElemento.innerHTML = '<tr><td colspan="15">Nenhum registro encontrado.</td></tr>';
       return;
     }
 
@@ -50,23 +50,37 @@ export async function listarManutencoes(tabelaElemento, ocultarConcluidos = fals
       const id = docSnap.id;
       const estaConcluido = dados.status === "Concluído";
 
-      if (ocultarConcluidos && estaConcluido) {
-        return; // Pula este item se a opção de ocultar estiver ativa
-      }
+      // Filtro de laboratório (Aba)
+      if (labFiltro !== "Todos" && dados.laboratorio !== labFiltro) return;
+
+      // Filtro para ocultar resolvidos
+      if (ocultarConcluidos && estaConcluido) return;
 
       contador++;
 
       const linha = `
         <tr>
-          <td>${dados.laboratorio || '-'}</td>
-          <td>${dados.equipamento || '-'}</td>
-          <td>${dados.descricao || '-'}</td>
+          <td>${dados.identificacao || '-'}</td>
+          <td>${dados.patrimonioCpu || '-'}</td>
+          <td>${dados.internetFunciona || '-'}</td>
+          <td>${dados.detalhesInternet || '-'}</td>
+          <td>${dados.bateria || '-'}</td>
+          <td>${dados.estabilizadorFunciona || '-'}</td>
+          <td>${dados.patrimonioEstabilizador || '-'}</td>
+          <td>${dados.detalhesEstabilizador || '-'}</td>
+          <td style="color: ${dados.tudoFuncionando === 'Não' ? 'red' : 'green'}; font-weight: bold;">
+            ${dados.tudoFuncionando || '-'}
+          </td>
+          <td>${dados.motivoProblema || '-'}</td>
+          <td>${dados.modeloComputador || '-'}</td>
+          <td>${dados.so || '-'}</td>
+          <td>${dados.verificadoPor || '-'}</td>
           <td><strong>${dados.status || 'Pendente'}</strong></td>
           <td>
             ${
               estaConcluido 
                 ? '✅ Finalizado' 
-                : `<button class="btn-concluir" data-id="${id}">Marcar como Resolvido</button>`
+                : `<button class="btn-concluir" data-id="${id}">Resolver</button>`
             }
           </td>
         </tr>
@@ -75,35 +89,37 @@ export async function listarManutencoes(tabelaElemento, ocultarConcluidos = fals
     });
 
     if (contador === 0) {
-      tabelaElemento.innerHTML = '<tr><td colspan="5">Nenhum chamado pendente encontrado.</td></tr>';
+      tabelaElemento.innerHTML = '<tr><td colspan="15">Nenhum registro encontrado para este filtro.</td></tr>';
     }
 
   } catch (erro) {
     console.error("Erro ao carregar chamados:", erro);
-    tabelaElemento.innerHTML = '<tr><td colspan="5">Erro ao carregar chamados.</td></tr>';
+    tabelaElemento.innerHTML = '<tr><td colspan="15">Erro ao carregar chamados.</td></tr>';
   }
 }
 
+// 3. Histórico de registros resolvidos
 export async function listarHistorico(tabelaHistoricoElemento) {
   try {
     const q = query(collection(db, "manutencoes"), orderBy("criadoEm", "desc"));
     const querySnapshot = await getDocs(q);
 
     tabelaHistoricoElemento.innerHTML = "";
-
     let totalHistorico = 0;
 
     querySnapshot.forEach((docSnap) => {
       const dados = docSnap.data();
       if (dados.status === "Concluído") {
         totalHistorico++;
-        const dataFormatada = dados.criadoEm?.toDate ? dados.criadoEm.toDate().toLocaleDateString('pt-BR') : '-';
+        const dataFormatada = dados.criadoEm?.toDate ? dados.criadoEm.toDate().toLocaleString('pt-BR') : '-';
 
         const linha = `
           <tr>
             <td>${dados.laboratorio || '-'}</td>
-            <td>${dados.equipamento || '-'}</td>
-            <td>${dados.descricao || '-'}</td>
+            <td>${dados.identificacao || '-'}</td>
+            <td>${dados.patrimonioCpu || '-'}</td>
+            <td>${dados.motivoProblema || '-'}</td>
+            <td>${dados.verificadoPor || '-'}</td>
             <td>${dataFormatada}</td>
             <td><span style="color: green;"><strong>Resolvido</strong></span></td>
           </tr>
@@ -113,14 +129,15 @@ export async function listarHistorico(tabelaHistoricoElemento) {
     });
 
     if (totalHistorico === 0) {
-      tabelaHistoricoElemento.innerHTML = '<tr><td colspan="5">Nenhum histórico de chamados resolvidos.</td></tr>';
+      tabelaHistoricoElemento.innerHTML = '<tr><td colspan="7">Nenhum histórico de chamados resolvidos.</td></tr>';
     }
   } catch (erro) {
     console.error("Erro ao carregar histórico:", erro);
-    tabelaHistoricoElemento.innerHTML = '<tr><td colspan="5">Erro ao carregar histórico.</td></tr>';
+    tabelaHistoricoElemento.innerHTML = '<tr><td colspan="7">Erro ao carregar histórico.</td></tr>';
   }
 }
 
+// 4. Marcar como resolvido
 export async function concluirManutencao(idChamado) {
   try {
     const chamadoRef = doc(db, "manutencoes", idChamado);
