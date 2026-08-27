@@ -7,7 +7,8 @@ import {
   serverTimestamp,
   doc,
   setDoc,
-  updateDoc 
+  updateDoc,
+  deleteDoc,
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // 1. Cadastrar/Atualizar manutenção mantendo chave única por máquina (sem duplicar)
@@ -328,5 +329,70 @@ export async function listarAuditoriaSoftwares(tabelaElemento, termoBusca = "") 
   } catch (erro) {
     console.error("Erro ao listar softwares:", erro);
     tabelaElemento.innerHTML = '<tr><td colspan="5">Erro ao carregar dados.</td></tr>';
+  }
+}
+
+// 7. Limpar histórico de manutenções
+export async function limparSecaoManutencoes(tipoFiltro = "todos") {
+  try {
+    const querySnapshot = await getDocs(collection(db, "manutencoes"));
+    
+    if (querySnapshot.empty) {
+      alert("Não há registros de manutenção para limpar.");
+      return;
+    }
+
+    const confirmacao = confirm("Tem certeza que deseja apagar os registros da seção de manutenções? Esta ação não pode ser desfeita.");
+    if (!confirmacao) return;
+
+    let contadorDeletados = 0;
+    const promessasDelecao = [];
+
+    querySnapshot.forEach((docSnap) => {
+      const dados = docSnap.data();
+      if (tipoFiltro === "concluidos" && dados.status !== "Concluído") return;
+
+      const docRef = doc(db, "manutencoes", docSnap.id);
+      promessasDelecao.push(deleteDoc(docRef));
+      contadorDeletados++;
+    });
+
+    await Promise.all(promessasDelecao);
+    alert(`Sucesso! ${contadorDeletados} registros foram removidos.`);
+    window.location.reload();
+  } catch (erro) {
+    console.error("Erro ao limpar manutenções:", erro);
+    alert("Erro ao tentar limpar a seção.");
+  }
+}
+
+// 8. Limpar auditoria de softwares
+export async function limparSecaoSoftwares() {
+  try {
+    const querySnapshot = await getDocs(collection(db, "softwares_laboratorio"));
+    
+    if (querySnapshot.empty) {
+      alert("Não há registros de softwares para limpar.");
+      return;
+    }
+
+    const confirmacao = confirm("Tem certeza que deseja apagar TODA a auditoria de softwares? Esta ação não pode ser desfeita.");
+    if (!confirmacao) return;
+
+    let contadorDeletados = 0;
+    const promessasDelecao = [];
+
+    querySnapshot.forEach((docSnap) => {
+      const docRef = doc(db, "softwares_laboratorio", docSnap.id);
+      promessasDelecao.push(deleteDoc(docRef));
+      contadorDeletados++;
+    });
+
+    await Promise.all(promessasDelecao);
+    alert(`Sucesso! ${contadorDeletados} registros de softwares foram removidos.`);
+    window.location.reload();
+  } catch (erro) {
+    console.error("Erro ao limpar softwares:", erro);
+    alert("Erro ao tentar limpar a seção.");
   }
 }

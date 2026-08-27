@@ -204,6 +204,12 @@
     <button id="btn-toggle-ocultar" style="float: right;">Ocultar Resolvidos</button>
   </div>
 
+  <!-- BOTÕES DE LIMPEZA DO PAINEL DE COMPUTADORES -->
+  <div style="margin-bottom: 15px;">
+    <button id="btn-limpar-concluidos" style="background-color: #ff9800; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer;">🧹 Limpar Histórico Concluído</button>
+    <button id="btn-limpar-todas-manutencoes" style="background-color: #f44336; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; margin-left: 5px;">⚠️ Apagar Todas as Manutenções</button>
+  </div>
+
   <div class="table-container">
     <table border="1">
       <thead>
@@ -275,13 +281,15 @@
     </div>
   </div>
 
-  <div style="margin-bottom: 15px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
     <input 
       type="text" 
       id="filtro-software-busca" 
       placeholder="🔍 Buscar por software, máquina ou curso..." 
       style="padding: 8px 12px; width: 100%; max-width: 400px; border: 1px solid #ccc; border-radius: 5px;"
     >
+    <!-- BOTÃO DE LIMPEZA DE SOFTWARES -->
+    <button id="btn-limpar-softwares" style="background-color: #f44336; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">🗑️ Limpar Todos os Registros de Softwares</button>
   </div>
 
   <div class="table-container">
@@ -308,7 +316,9 @@
       concluirManutencao, 
       listarHistorico,
       cadastrarChecagemSoftware,
-      listarAuditoriaSoftwares 
+      listarAuditoriaSoftwares,
+      limparSecaoManutencoes,
+      limparSecaoSoftwares
     } from './manutencao.js';
 
     const formManutencao = document.getElementById('form-manutencao');
@@ -322,6 +332,11 @@
     const tabelaSoftwares = document.getElementById('tabela-softwares');
     const inputBuscaSoft = document.getElementById('filtro-software-busca');
 
+    // Botões de Limpeza
+    const btnLimparConcluidos = document.getElementById('btn-limpar-concluidos');
+    const btnLimparTodasManutencoes = document.getElementById('btn-limpar-todas-manutencoes');
+    const btnLimparSoftwares = document.getElementById('btn-limpar-softwares');
+
     let labAtual = "Todos";
     let ocultarResolvidos = false;
 
@@ -333,6 +348,25 @@
     }
 
     renderizar();
+
+    // Eventos dos botões de limpeza
+    if (btnLimparConcluidos) {
+      btnLimparConcluidos.addEventListener('click', () => {
+        limparSecaoManutencoes("concluidos");
+      });
+    }
+
+    if (btnLimparTodasManutencoes) {
+      btnLimparTodasManutencoes.addEventListener('click', () => {
+        limparSecaoManutencoes("todos");
+      });
+    }
+
+    if (btnLimparSoftwares) {
+      btnLimparSoftwares.addEventListener('click', () => {
+        limparSecaoSoftwares();
+      });
+    }
 
     document.querySelectorAll('.aba-btn').forEach(btn => {
       btn.addEventListener('click', (e) => {
