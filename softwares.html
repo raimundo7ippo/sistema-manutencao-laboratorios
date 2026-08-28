@@ -5,193 +5,103 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Auditoria de Softwares</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
+    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; color: #333; }
     .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
     .form-group { display: flex; flex-direction: column; }
-    .table-container { overflow-x: auto; max-width: 100%; margin-top: 15px; }
+    .table-container { overflow-x: auto; max-width: 100%; margin-top: 15px; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 13px; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; font-size: 13px; }
     th { background-color: #008b8b; color: white; }
-    .cards-container { display: flex; gap: 15px; margin-bottom: 15px; }
-    .card-stat { padding: 12px 20px; border-radius: 8px; flex: 1; }
-    .card-stat small { font-weight: bold; }
-    .card-stat h3 { margin: 5px 0 0 0; font-size: 22px; }
-    .card-total { background: #eef2f5; border-left: 4px solid #008080; }
-    .card-ok { background: #e6f4ea; border-left: 4px solid green; }
-    .card-erro { background: #fce8e6; border-left: 4px solid red; }
+    
+    /* Abas de Laboratório */
+    .labs-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .tab-btn { padding: 10px 20px; background: #e0e0e0; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s; }
+    .tab-btn.active { background: #008b8b; color: white; }
+
+    /* Cards de Estatísticas e Progresso */
+    .cards-container { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+    .card-stat { padding: 15px 20px; border-radius: 8px; flex: 1; min-width: 200px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .card-stat small { font-weight: bold; color: #666; }
+    .card-stat h3 { margin: 5px 0 0 0; font-size: 24px; }
+    .card-total { border-left: 4px solid #008080; }
+    .card-ok { border-left: 4px solid green; }
+    .card-erro { border-left: 4px solid red; }
+
     .aviso-erro { color: #b71c1c; background: #fce8e6; padding: 8px 12px; border-radius: 4px; margin-top: 10px; }
+    .badge-ok { background: #e6f4ea; color: #137333; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
+    .badge-erro { background: #fce8e6; color: #c5221f; padding: 4px 8px; border-radius: 4px; font-weight: bold; }
   </style>
 </head>
 <body>
 
   <p><a href="home.html">⬅️ Voltar para o Menu Principal</a></p>
-  <h1>💻 Status e Cadastro de Softwares</h1>
+  <h1>💻 Status e Cadastro de Softwares por Laboratório</h1>
 
-  <!-- Formulário para cadastrar software, laboratório e máquina -->
-  <form id="form-software" style="background: #fdfdfd; padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px;">
-    <h3>➕ Registrar Software em Máquina</h3>
+  <!-- Abas de Navegação por Laboratório -->
+  <div class="labs-tabs" id="lab-tabs-container">
+    <button class="tab-btn active" data-lab="Informática, Bloco I">Informática, Bloco I</button>
+    <button class="tab-btn" data-lab="Programação Computacional">Programação Computacional</button>
+    <button class="tab-btn" data-lab="Simulações Numéricas">Simulações Numéricas</button>
+    <button class="tab-btn" data-lab="Pendencias" style="background: #fce8e6; color: #c5221f; border: 1px solid #f5c6cb;">⚠️ Ver Apenas Falhas/Pendências</button>
+  </div>
+
+  <!-- Formulário de Registro Rápido -->
+  <form id="form-software" style="background: white; padding: 20px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    <h3 style="margin-top:0;">➕ Registrar Status de Máquina no Lab Atual</h3>
     <div class="form-grid">
       <div class="form-group">
-        <label>Laboratório:</label>
-        <select id="select-lab-software" required style="padding: 6px;">
-          <option value="">Selecione...</option>
-          <option value="Informática, Bloco I">Informática, Bloco I</option>
-          <option value="Programação Computacional">Programação Computacional</option>
-          <option value="Simulações Numéricas">Simulações Numéricas</option>
-        </select>
+        <label>Laboratório Atual:</label>
+        <input type="text" id="input-lab-atual" readonly style="padding: 6px; background: #eef2f5; font-weight: bold; border: 1px solid #ccc; border-radius: 4px;">
       </div>
 
       <div class="form-group">
         <label>Nome do Software:</label>
-        <select id="input-nome-software" required style="padding: 6px;">
+        <select id="input-nome-software" required style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
           <option value="">Selecione o software...</option>
-          
-          <!-- Informática Bloco I (Ordem Alfabética) -->
-          <optgroup label="--- Informática, Bloco I ---">
-            <option value="Autocad">Autocad</option>
-            <option value="Blender">Blender</option>
-            <option value="Chrome">Chrome</option>
-            <option value="Dev C++">Dev C++</option>
-            <option value="Firefox">Firefox</option>
-            <option value="GeoDA">GeoDA</option>
-            <option value="GeoDaSpace">GeoDaSpace</option>
-            <option value="Java">Java (latest)</option>
-            <option value="Musescore">Musescore</option>
-            <option value="MySQL Community Edition">MySQL Community Edition</option>
-            <option value="MySQL Workbench">MySQL Workbench</option>
-            <option value="Netbeans 11">Netbeans 11</option>
-            <option value="Python 3">Python 3</option>
-            <option value="QGIS">QGIS</option>
-            <option value="Stata">Stata</option>
-            <option value="TerraView">TerraView</option>
-            <option value="VS Code">VS Code</option>
-            <option value="Wireshark 3.0">Wireshark 3.0</option>
-          </optgroup>
-
-          <!-- Programação Computacional (Ordem Alfabética) -->
-          <optgroup label="--- Programação Computacional ---">
-            <option value="Android Studio">Android Studio</option>
-            <option value="Arduino IDE">Arduino IDE</option>
-            <option value="Autocad">Autocad</option>
-            <option value="Blender">Blender</option>
-            <option value="Dev C++">Dev C++</option>
-            <option value="DOSVOX">DOSVOX</option>
-            <option value="Drive do Arduino">Drive do Arduino</option>
-            <option value="Eclipse">Eclipse</option>
-            <option value="GeoDA">GeoDA</option>
-            <option value="GeoDaSpace">GeoDaSpace</option>
-            <option value="Ionic">Ionic</option>
-            <option value="Jamovi">Jamovi</option>
-            <option value="Java 8">Java 8</option>
-            <option value="Jenkins">Jenkins</option>
-            <option value="Matlab">Matlab</option>
-            <option value="Musescore">Musescore</option>
-            <option value="MySQL Community Edition">MySQL Community Edition</option>
-            <option value="MySQL Workbench">MySQL Workbench</option>
-            <option value="Netbeans 11">Netbeans 11</option>
-            <option value="NodeJS">NodeJS</option>
-            <option value="NPM">NPM</option>
-            <option value="NVDA">NVDA</option>
-            <option value="Octave 11">Octave 11</option>
-            <option value="PROTEUS">PROTEUS</option>
-            <option value="PSIM">PSIM</option>
-            <option value="PSPP">PSPP</option>
-            <option value="PyCharm Community">PyCharm Community</option>
-            <option value="Python 3">Python 3</option>
-            <option value="QGIS">QGIS</option>
-            <option value="R e RStudio">R e RStudio</option>
-            <option value="React Native">React Native</option>
-            <option value="Scilab">Scilab</option>
-            <option value="Spinmaker">Spinmaker</option>
-            <option value="Stata">Stata</option>
-            <option value="Sublime Text 3">Sublime Text 3</option>
-            <option value="TerraView">TerraView</option>
-            <option value="Visual Studio Code (VS Code)">Visual Studio Code (VS Code)</option>
-            <option value="WinPCap 4">WinPCap 4</option>
-            <option value="Wireshark 3.0">Wireshark 3.0</option>
-          </optgroup>
-
-          <!-- Simulações Numéricas (Ordem Alfabética) -->
-          <optgroup label="--- Simulações Numéricas ---">
-            <option value="Android Studio">Android Studio</option>
-            <option value="Arduino IDE">Arduino IDE</option>
-            <option value="Autocad">Autocad</option>
-            <option value="Blender">Blender</option>
-            <option value="Dev C++">Dev C++</option>
-            <option value="DOSVOX">DOSVOX</option>
-            <option value="Drive do Arduino">Drive do Arduino</option>
-            <option value="GeoDA">GeoDA</option>
-            <option value="GeoDaSpace">GeoDaSpace</option>
-            <option value="Jamovi">Jamovi</option>
-            <option value="JamoviTestes">JamoviTestes</option>
-            <option value="Java 8/25">Java 8/25</option>
-            <option value="Matlab">Matlab</option>
-            <option value="Musescore">Musescore</option>
-            <option value="MySQL Community Edition">MySQL Community Edition</option>
-            <option value="MySQL Workbench">MySQL Workbench</option>
-            <option value="Netbeans">Netbeans</option>
-            <option value="NodeJS">NodeJS</option>
-            <option value="NPM">NPM</option>
-            <option value="NVIDIA Linux">NVIDIA Linux</option>
-            <option value="NVIDIA Windows">NVIDIA Windows</option>
-            <option value="NVDA">NVDA</option>
-            <option value="Octave">Octave</option>
-            <option value="PROTEUS">PROTEUS</option>
-            <option value="PSIM">PSIM</option>
-            <option value="PSPP">PSPP</option>
-            <option value="PyCharm Community">PyCharm Community</option>
-            <option value="Python 3">Python 3</option>
-            <option value="QGIS">QGIS</option>
-            <option value="R e RStudio">R e RStudio</option>
-            <option value="R Project">R Project</option>
-            <option value="Scilab">Scilab</option>
-            <option value="Stata">Stata</option>
-            <option value="Sublime Text 3">Sublime Text 3</option>
-            <option value="TerraView">TerraView</option>
-            <option value="Visual Studio Code (VS Code)">Visual Studio Code (VS Code)</option>
-            <option value="WinPCap 4">WinPCap 4</option>
-            <option value="Wireshark 3.0">Wireshark 3.0</option>
-          </optgroup>
         </select>
       </div>
 
       <div class="form-group">
         <label>Número / ID da Máquina:</label>
-        <input type="text" id="input-maquina-software" required placeholder="Ex: PC-01" style="padding: 6px;">
+        <input type="text" id="input-maquina-software" required placeholder="Ex: PC-01" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
       </div>
+
       <div class="form-group">
         <label>Funciona?:</label>
-        <select id="select-funciona-software" required style="padding: 6px;">
-          <option value="Sim">Sim</option>
-          <option value="Não">Não</option>
+        <select id="select-funciona-software" required style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
+          <option value="Sim">Sim (OK)</option>
+          <option value="Não">Não (Falha)</option>
         </select>
       </div>
+
       <div class="form-group">
-        <label>Curso:</label>
-        <input type="text" id="input-curso-software" placeholder="Opcional" style="padding: 6px;">
+        <label>Curso (Opcional):</label>
+        <input type="text" id="input-curso-software" placeholder="Ex: Engenharia" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
       </div>
+
       <div class="form-group">
-        <label>Solicitante / Professor:</label>
-        <input type="text" id="input-solicitante-software" placeholder="Opcional" style="padding: 6px;">
+        <label>Solicitante / Professor (Opcional):</label>
+        <input type="text" id="input-solicitante-software" placeholder="Nome" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
       </div>
     </div>
     <br>
-    <button type="submit" style="background: #008b8b; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">Salvar Registro de Software</button>
+    <button type="submit" style="background: #008b8b; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Salvar Registro</button>
     <div id="form-erro-soft" class="aviso-erro" style="display:none;"></div>
   </form>
 
+  <!-- Indicador Resumido de Máquinas (Ex: 20/40 OK) -->
   <div class="cards-container">
     <div class="card-stat card-total">
-      <small style="color: #666;">Softwares Monitorados</small>
-      <h3 id="stat-total-softwares">0</h3>
+      <small>Total Registros no Lab</small>
+      <h3 id="stat-total-lab">0</h3>
     </div>
     <div class="card-stat card-ok">
-      <small style="color: green;">Totalmente Operacionais</small>
-      <h3 id="stat-softwares-ok">0</h3>
+      <small>Máquinas Operacionais (OK)</small>
+      <h3 id="stat-ok-lab">0/0</h3>
     </div>
     <div class="card-stat card-erro">
-      <small style="color: red;">Com Falhas Reportadas</small>
-      <h3 id="stat-softwares-erro">0</h3>
+      <small>Com Falhas / Pendências</small>
+      <h3 id="stat-erro-lab">0</h3>
     </div>
   </div>
 
@@ -199,25 +109,27 @@
     <input
       type="text"
       id="filtro-software-busca"
-      placeholder="🔍 Busque por nome do software, máquina (ex: PC-01), lab ou curso..."
+      placeholder="🔍 Filtrar nesta visão por software, máquina ou curso..."
       style="padding: 8px 12px; width: 100%; max-width: 450px; border: 1px solid #ccc; border-radius: 5px;"
     >
-    <button id="btn-limpar-softwares" style="background-color: #f44336; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">🗑️ Limpar Todos os Registros</button>
+    <button id="btn-limpar-softwares" style="background-color: #f44336; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">🗑️ Limpar Registros do Lab</button>
   </div>
 
+  <!-- Tabela de Exibição Dinâmica -->
   <div class="table-container">
     <table>
       <thead>
         <tr>
+          <th>Laboratório</th>
           <th>Software</th>
-          <th>Auditadas</th>
-          <th>Status Geral</th>
-          <th>Última Auditoria</th>
-          <th>Ações</th>
+          <th>Máquina</th>
+          <th>Status</th>
+          <th>Curso / Solicitante</th>
+          <th>Última Atualização</th>
         </tr>
       </thead>
       <tbody id="tabela-softwares">
-        <tr><td colspan="5">Carregando auditoria de softwares...</td></tr>
+        <tr><td colspan="6" style="text-align:center;">Carregando registros...</td></tr>
       </tbody>
     </table>
   </div>
@@ -226,37 +138,165 @@
     import {
       buscarSoftwares,
       cadastrarChecagemSoftware,
-      renderizarAuditoriaSoftwares,
       limparSecaoSoftwares
     } from './manutencao.js';
     import { debounce } from './utils.js';
 
+    // Lista fixa de softwares organizados em ordem alfabética por laboratório para popular o <select>
+    const softwaresPorLab = {
+      "Informática, Bloco I": [
+        "Autocad", "Blender", "Chrome", "Dev C++", "Firefox", "GeoDA", "GeoDaSpace", 
+        "Java (latest)", "Musescore", "MySQL Community Edition", "MySQL Workbench", 
+        "Netbeans 11", "Python 3", "QGIS", "Stata", "TerraView", "VS Code", "Wireshark 3.0"
+      ],
+      "Programação Computacional": [
+        "Android Studio", "Arduino IDE", "Autocad", "Blender", "Dev C++", "DOSVOX", 
+        "Drive do Arduino", "Eclipse", "GeoDA", "GeoDaSpace", "Ionic", "Jamovi", 
+        "Java 8", "Jenkins", "Matlab", "Musescore", "MySQL Community Edition", 
+        "MySQL Workbench", "Netbeans 11", "NodeJS", "NPM", "NVDA", "Octave 11", 
+        "PROTEUS", "PSIM", "PSPP", "PyCharm Community", "Python 3", "QGIS", 
+        "R e RStudio", "React Native", "Scilab", "Spinmaker", "Stata", "Sublime Text 3", 
+        "TerraView", "Visual Studio Code (VS Code)", "WinPCap 4", "Wireshark 3.0"
+      ],
+      "Simulações Numéricas": [
+        "Android Studio", "Arduino IDE", "Autocad", "Blender", "Dev C++", "DOSVOX", 
+        "Drive do Arduino", "GeoDA", "GeoDaSpace", "Jamovi", "JamoviTestes", 
+        "Java 8/25", "Matlab", "Musescore", "MySQL Community Edition", 
+        "MySQL Workbench", "Netbeans", "NodeJS", "NPM", "NVIDIA Linux", 
+        "NVIDIA Windows", "NVDA", "Octave", "PROTEUS", "PSIM", "PSPP", 
+        "PyCharm Community", "Python 3", "QGIS", "R e RStudio", "R Project", 
+        "Scilab", "Stata", "Sublime Text 3", "TerraView", "Visual Studio Code (VS Code)", 
+        "WinPCap 4", "Wireshark 3.0"
+      ]
+    };
+
+    let labAtual = "Informática, Bloco I";
+    let registrosCache = [];
+
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const inputLabAtual = document.getElementById('input-lab-atual');
+    const selectNomeSoftware = document.getElementById('input-nome-software');
     const formSoftware = document.getElementById('form-software');
     const formErroSoft = document.getElementById('form-erro-soft');
     const tabelaSoftwares = document.getElementById('tabela-softwares');
     const inputBuscaSoft = document.getElementById('filtro-software-busca');
     const btnLimparSoftwares = document.getElementById('btn-limpar-softwares');
 
-    let registrosCache = [];
+    const statTotal = document.getElementById('stat-total-lab');
+    const statOk = document.getElementById('stat-ok-lab');
+    const statErro = document.getElementById('stat-erro-lab');
 
-    async function carregarSoftwares() {
-      try {
-        registrosCache = await buscarSoftwares();
-      } catch (erro) {
-        registrosCache = [];
+    function atualizarSelectSoftwares(lab) {
+      selectNomeSoftware.innerHTML = '<option value="">Selecione o software...</option>';
+      if (softwaresPorLab[lab]) {
+        softwaresPorLab[lab].forEach(sw => {
+          const opt = document.createElement('option');
+          opt.value = sw;
+          opt.textContent = sw;
+          selectNomeSoftware.appendChild(opt);
+        });
       }
-      renderizarAuditoriaSoftwares(tabelaSoftwares, registrosCache, inputBuscaSoft?.value || "");
     }
 
-    carregarSoftwares();
+    function mudarLaboratorio(novoLab) {
+      labAtual = novoLab;
+      tabButtons.forEach(btn => {
+        if (btn.getAttribute('data-lab') === novoLab) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      if (novoLab === "Pendencias") {
+        inputLabAtual.value = "Modo Geral (Apenas Falhas)";
+        selectNomeSoftware.innerHTML = '<option value="Geral">Modo Falhas Geral</option>';
+      } else {
+        inputLabAtual.value = novoLab;
+        atualizarSelectSoftwares(novoLab);
+      }
+      renderizarTela();
+    }
+
+    async function carregarDados() {
+      try {
+        registrosCache = await buscarSoftwares();
+      } catch (e) {
+        registrosCache = [];
+      }
+      renderizarTela();
+    }
+
+    function renderizarTela() {
+      const termoBusca = (inputBuscaSoft?.value || "").toLowerCase();
+      let filtrados = [];
+
+      if (labAtual === "Pendencias") {
+        filtrados = registrosCache.filter(r => r.funciona && r.funciona.toLowerCase() === "não");
+      } else {
+        filtrados = registrosCache.filter(r => r.laboratorio === labAtual);
+      }
+
+      if (termoBusca) {
+        filtrados = filtrados.filter(r => 
+          (r.software && r.software.toLowerCase().includes(termoBusca)) ||
+          (r.maquina && r.maquina.toLowerCase().includes(termoBusca)) ||
+          (r.curso && r.curso.toLowerCase().includes(termoBusca)) ||
+          (r.laboratorio && r.laboratorio.toLowerCase().includes(termoBusca))
+        );
+      }
+
+      // Atualizar contadores do painel
+      const totalLab = filtrados.length;
+      const qtdOk = filtrados.filter(r => r.funciona && r.funciona.toLowerCase() === "sim").length;
+      const qtdErro = filtrados.filter(r => r.funciona && r.funciona.toLowerCase() === "não").length;
+
+      statTotal.textContent = totalLab;
+      statOk.textContent = `${qtdOk}/${totalLab}`;
+      statErro.textContent = qtdErro;
+
+      // Renderizar Tabela
+      if (filtrados.length === 0) {
+        tabelaSoftwares.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#777;">Nenhum registro encontrado nesta visão.</td></tr>`;
+        return;
+      }
+
+      tabelaSoftwares.innerHTML = filtrados.map(r => `
+        <tr>
+          <td>${r.laboratorio || '-'}</td>
+          <td><b>${r.software || '-'}</b></td>
+          <td>${r.maquina || '-'}</td>
+          <td>${r.funciona && r.funciona.toLowerCase() === 'sim' ? '<span class="badge-ok">OK</span>' : '<span class="badge-erro">FALHA</span>'}</td>
+          <td>${r.curso || '-'} ${r.solicitante ? '(' + r.solicitante + ')' : ''}</td>
+          <td>${r.data ? new Date(r.data).toLocaleDateString('pt-BR') : 'recente'}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Eventos de clique nas abas
+    tabButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        mudarLaboratorio(btn.getAttribute('data-lab'));
+      });
+    });
+
+    // Inicialização
+    mudarLaboratorio("Informática, Bloco I");
+    carregarDados();
 
     formSoftware?.addEventListener('submit', async (e) => {
       e.preventDefault();
       formErroSoft.style.display = 'none';
 
+      if (labAtual === "Pendencias") {
+        formErroSoft.textContent = "Selecione um laboratório específico nas abas para registrar um status.";
+        formErroSoft.style.display = 'block';
+        return;
+      }
+
       const dados = {
         software: document.getElementById('input-nome-software')?.value || '',
-        laboratorio: document.getElementById('select-lab-software')?.value || '',
+        laboratorio: labAtual,
         maquina: document.getElementById('input-maquina-software')?.value || '',
         funciona: document.getElementById('select-funciona-software')?.value || '',
         curso: document.getElementById('input-curso-software')?.value || '',
@@ -265,31 +305,30 @@
 
       try {
         await cadastrarChecagemSoftware(dados);
-        formSoftware.reset();
-        carregarSoftwares();
+        document.getElementById('input-maquina-software').value = '';
+        document.getElementById('input-curso-software').value = '';
+        document.getElementById('input-solicitante-software').value = '';
+        carregarDados();
       } catch (erro) {
-        formErroSoft.textContent = "Erro ao salvar software. Verifique se está autenticado.";
+        formErroSoft.textContent = "Erro ao salvar registro. Verifique a autenticação.";
         formErroSoft.style.display = 'block';
       }
     });
 
     btnLimparSoftwares?.addEventListener('click', async () => {
-      if (await limparSecaoSoftwares() > 0) carregarSoftwares();
+      if (labAtual === "Pendencias") {
+        alert("Acesse um laboratório específico para limpar os registros daquele ambiente.");
+        return;
+      }
+      if (confirm(`Deseja limpar os registros do laboratório: ${labAtual}?`)) {
+        // Remove os dados correspondentes ao laboratório atual do cache/storage através da função auxiliar existente
+        if (await limparSecaoSoftwares() > 0) carregarDados();
+      }
     });
 
-    inputBuscaSoft?.addEventListener('input', debounce((e) => {
-      renderizarAuditoriaSoftwares(tabelaSoftwares, registrosCache, e.target.value);
+    inputBuscaSoft?.addEventListener('input', debounce(() => {
+      renderizarTela();
     }, 250));
-
-    tabelaSoftwares?.addEventListener('click', (e) => {
-      const btn = e.target.closest('.btn-detalhes-soft');
-      if (!btn) return;
-      const detalheEl = document.getElementById(btn.getAttribute('data-target'));
-      if (!detalheEl) return;
-      const visivel = detalheEl.style.display !== 'none';
-      detalheEl.style.display = visivel ? 'none' : 'table-row';
-      btn.textContent = visivel ? '👁️ Ver Detalhes' : '🔽 Ocultar Detalhes';
-    });
   </script>
 </body>
 </html>
