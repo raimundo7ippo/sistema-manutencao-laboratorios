@@ -6,6 +6,8 @@
   <title>Auditoria de Softwares</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .form-group { display: flex; flex-direction: column; }
     .table-container { overflow-x: auto; max-width: 100%; margin-top: 15px; }
     table { width: 100%; border-collapse: collapse; }
     th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 13px; }
@@ -17,12 +19,55 @@
     .card-total { background: #eef2f5; border-left: 4px solid #008080; }
     .card-ok { background: #e6f4ea; border-left: 4px solid green; }
     .card-erro { background: #fce8e6; border-left: 4px solid red; }
+    .aviso-erro { color: #b71c1c; background: #fce8e6; padding: 8px 12px; border-radius: 4px; margin-top: 10px; }
   </style>
 </head>
 <body>
 
   <p><a href="home.html">⬅️ Voltar para o Menu Principal</a></p>
-  <h1>💻 Status dos Softwares Instalados</h1>
+  <h1>💻 Status e Cadastro de Softwares</h1>
+
+  <!-- Formulário para cadastrar software, laboratório e máquina -->
+  <form id="form-software" style="background: #fdfdfd; padding: 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px;">
+    <h3>➕ Registrar Software em Máquina</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Nome do Software:</label>
+        <input type="text" id="input-nome-software" required style="padding: 6px;">
+      </div>
+      <div class="form-group">
+        <label>Laboratório:</label>
+        <select id="select-lab-software" required style="padding: 6px;">
+          <option value="">Selecione...</option>
+          <option value="Informática, Bloco I">Informática, Bloco I</option>
+          <option value="Programação Computacional">Programação Computacional</option>
+          <option value="Simulações Numéricas">Simulações Numéricas</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Número / ID da Máquina:</label>
+        <input type="text" id="input-maquina-software" required placeholder="Ex: PC-01" style="padding: 6px;">
+      </div>
+      <div class="form-group">
+        <label>Funciona?:</label>
+        <select id="select-funciona-software" required style="padding: 6px;">
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Curso:</label>
+        <input type="text" id="input-curso-software" placeholder="Opcional" style="padding: 6px;">
+      </div>
+      <div class="form-group">
+        <label>Solicitante / Professor:</label>
+        <input type="text" id="input-solicitante-software" placeholder="Opcional" style="padding: 6px;">
+      </div>
+    </div>
+    <br>
+    <button type="submit" style="background: #008b8b; color: white; padding: 8px 16px; border: none; border-radius: 4px; cursor: pointer;">Salvar Registro de Software</button>
+    <div id="form-erro-soft" class="aviso-erro" style="display:none;"></div>
+  </form>
 
   <div class="cards-container">
     <div class="card-stat card-total">
@@ -39,12 +84,12 @@
     </div>
   </div>
 
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
     <input
       type="text"
       id="filtro-software-busca"
-      placeholder="🔍 Buscar por software, máquina ou curso..."
-      style="padding: 8px 12px; width: 100%; max-width: 400px; border: 1px solid #ccc; border-radius: 5px;"
+      placeholder="🔍 Busque por nome do software, máquina (ex: PC-01), lab ou curso..."
+      style="padding: 8px 12px; width: 100%; max-width: 450px; border: 1px solid #ccc; border-radius: 5px;"
     >
     <button id="btn-limpar-softwares" style="background-color: #f44336; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">🗑️ Limpar Todos os Registros</button>
   </div>
@@ -69,11 +114,14 @@
   <script type="module">
     import {
       buscarSoftwares,
+      cadastrarChecagemSoftware,
       renderizarAuditoriaSoftwares,
       limparSecaoSoftwares
     } from './manutencao.js';
     import { debounce } from './utils.js';
 
+    const formSoftware = document.getElementById('form-software');
+    const formErroSoft = document.getElementById('form-erro-soft');
     const tabelaSoftwares = document.getElementById('tabela-softwares');
     const inputBuscaSoft = document.getElementById('filtro-software-busca');
     const btnLimparSoftwares = document.getElementById('btn-limpar-softwares');
@@ -90,6 +138,29 @@
     }
 
     carregarSoftwares();
+
+    formSoftware?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      formErroSoft.style.display = 'none';
+
+      const dados = {
+        software: document.getElementById('input-nome-software')?.value || '',
+        laboratorio: document.getElementById('select-lab-software')?.value || '',
+        maquina: document.getElementById('input-maquina-software')?.value || '',
+        funciona: document.getElementById('select-funciona-software')?.value || '',
+        curso: document.getElementById('input-curso-software')?.value || '',
+        solicitante: document.getElementById('input-solicitante-software')?.value || '',
+      };
+
+      try {
+        await cadastrarChecagemSoftware(dados);
+        formSoftware.reset();
+        carregarSoftwares();
+      } catch (erro) {
+        formErroSoft.textContent = "Erro ao salvar software. Verifique se está autenticado.";
+        formErroSoft.style.display = 'block';
+      }
+    });
 
     btnLimparSoftwares?.addEventListener('click', async () => {
       if (await limparSecaoSoftwares() > 0) carregarSoftwares();
