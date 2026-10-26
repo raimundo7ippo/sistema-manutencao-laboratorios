@@ -44,8 +44,6 @@ export async function cadastrarManutencao(dadosFormulario) {
 
 /**
  * Busca TODOS os registros de manutenção uma única vez no Firestore.
- * O resultado deve ser reaproveitado tanto para o painel quanto para o histórico,
- * evitando duas leituras da mesma coleção.
  */
 export async function buscarManutencoes() {
   const q = query(collection(db, NOME_COLECAO_MANUTENCOES), orderBy("criadoEm", "desc"));
@@ -93,7 +91,7 @@ export function renderizarPainel(tabelaElemento, registros, labFiltro = "Todos",
   if (!tabelaElemento) return;
 
   if (registros.length === 0) {
-    tabelaElemento.innerHTML = '<tr><td colspan="15">Nenhum registro encontrado.</td></tr>';
+    tabelaElemento.innerHTML = '<tr><td colspan="15" style="text-align: center; padding: 20px;">Nenhum registro encontrado.</td></tr>';
     atualizarCardsPcs(0, 0, 0);
     return;
   }
@@ -112,28 +110,37 @@ export function renderizarPainel(tabelaElemento, registros, labFiltro = "Todos",
     const estaConcluido = dados.status === "Concluído";
     if (ocultarConcluidos && estaConcluido) continue;
 
+    // Lógica de cores e destaques
+    const corBateria = dados.bateria === 'Descarregada' ? 'background-color: #fff3cd; color: #856404; font-weight: bold; padding: 4px; border-radius: 4px;' : '';
+    const corInternet = dados.internetFunciona === 'Não' ? 'background-color: #f8d7da; color: #721c24; font-weight: bold; padding: 4px; border-radius: 4px;' : '';
+    const corEstabilizador = dados.estabilizadorFunciona === 'Não' ? 'background-color: #f8d7da; color: #721c24; font-weight: bold; padding: 4px; border-radius: 4px;' : '';
+
     linhasHtml.push(`
-      <tr>
-        <td>${escapeHtml(dados.identificacao) || '-'}</td>
+      <tr style="border-bottom: 1px solid #eee;">
+        <td><strong>${escapeHtml(dados.identificacao) || '-'}</strong></td>
         <td>${escapeHtml(dados.patrimonioCpu) || '-'}</td>
-        <td>${escapeHtml(dados.internetFunciona) || '-'}</td>
-        <td>${escapeHtml(dados.detalhesInternet) || '-'}</td>
-        <td>${escapeHtml(dados.bateria) || '-'}</td>
-        <td>${escapeHtml(dados.estabilizadorFunciona) || '-'}</td>
+        <td><span style="${corInternet}">${escapeHtml(dados.internetFunciona) || '-'}</span></td>
+        <td><small style="color: #666;">${escapeHtml(dados.detalhesInternet) || '-'}</small></td>
+        <td><span style="${corBateria}">${escapeHtml(dados.bateria) || '-'}</span></td>
+        <td><span style="${corEstabilizador}">${escapeHtml(dados.estabilizadorFunciona) || '-'}</span></td>
         <td>${escapeHtml(dados.patrimonioEstabilizador) || '-'}</td>
-        <td>${escapeHtml(dados.detalhesEstabilizador) || '-'}</td>
-        <td style="color: ${dados.tudoFuncionando === 'Não' ? 'red' : 'green'}; font-weight: bold;">
-          ${escapeHtml(dados.tudoFuncionando) || '-'}
+        <td><small style="color: #666;">${escapeHtml(dados.detalhesEstabilizador) || '-'}</small></td>
+        <td style="color: ${dados.tudoFuncionando === 'Não' ? 'red' : 'green'}; font-weight: bold; font-size: 1.1em;">
+          ${dados.tudoFuncionando === 'Sim' ? '✅ Sim' : '❌ Não'}
         </td>
-        <td>${escapeHtml(dados.motivoProblema) || '-'}</td>
-        <td>${escapeHtml(dados.modeloComputador) || '-'}</td>
+        <td><strong style="color: #d32f2f;">${escapeHtml(dados.motivoProblema) || '-'}</strong></td>
+        <td><span style="font-size: 0.9em; background: #e0e0e0; padding: 2px 6px; border-radius: 10px;">${escapeHtml(dados.modeloComputador) || '-'}</span></td>
         <td>${escapeHtml(dados.so) || '-'}</td>
-        <td>${escapeHtml(dados.verificadoPor) || '-'}</td>
-        <td><strong>${escapeHtml(dados.status) || 'Pendente'}</strong></td>
+        <td>👤 ${escapeHtml(dados.verificadoPor) || '-'}</td>
+        <td>
+          <span style="background-color: ${estaConcluido ? '#d4edda' : '#fff3cd'}; color: ${estaConcluido ? '#155724' : '#856404'}; padding: 4px 8px; border-radius: 12px; font-size: 0.85em; font-weight: bold;">
+            ${escapeHtml(dados.status) || 'Pendente'}
+          </span>
+        </td>
         <td>
           ${estaConcluido
-            ? '✅ Finalizado'
-            : `<button class="btn-concluir" data-id="${escapeHtml(id)}">Resolver</button>`}
+            ? '<span>-</span>'
+            : `<button class="btn-concluir" data-id="${escapeHtml(id)}" style="background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; transition: 0.2s;">✔️ Resolver</button>`}
         </td>
       </tr>
     `);
@@ -143,7 +150,7 @@ export function renderizarPainel(tabelaElemento, registros, labFiltro = "Todos",
 
   tabelaElemento.innerHTML = linhasHtml.length > 0
     ? linhasHtml.join('')
-    : '<tr><td colspan="15">Nenhum registro encontrado para este filtro.</td></tr>';
+    : '<tr><td colspan="15" style="text-align: center; padding: 20px;">Nenhum registro encontrado para este filtro.</td></tr>';
 }
 
 function atualizarCardsPcs(total, ok, erro) {
