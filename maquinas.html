@@ -99,6 +99,9 @@
 
   <p><a href="home.html">⬅️ Voltar para o Menu Principal</a></p>
   <h1>Controle de Vistoria de Máquinas</h1>
+  <button id="btn-importar" style="background-color: #6f42c1; color: white; padding: 12px 24px; margin: 15px 0; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%;">
+  🚀 Importar TODOS os 86 Computadores da Planilha
+</button>
 
   <form id="form-manutencao">
     <h3>Registrar / Atualizar Máquina</h3>
@@ -374,6 +377,125 @@
         formErro.textContent = "Erro ao salvar registro. Verifique se está autenticado.";
         formErro.style.display = 'block';
       }
+    });
+    // =========================================================
+    // SCRIPT DE IMPORTAÇÃO COM TODAS AS 86 MÁQUINAS REAIS
+    // =========================================================
+    const btnImportar = document.getElementById('btn-importar');
+    btnImportar?.addEventListener('click', async () => {
+      const confirmacao = confirm("Isso vai importar todos os 86 computadores de uma vez para o Firebase. Deseja continuar?");
+      if (!confirmacao) return;
+
+      btnImportar.innerText = "Importando 86 máquinas, aguarde...";
+      btnImportar.disabled = true;
+
+      const computadores = [
+        // --- INFORMÁTICA, BLOCO I (16 Máquinas) ---
+        { laboratorio: "Informática, Bloco I", identificacao: "1", patrimonioCpu: "2020004452", internetFunciona: "Sim", bateria: "Descarregada", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim", verificadoPor: "Gisele" },
+        { laboratorio: "Informática, Bloco I", identificacao: "2", patrimonioCpu: "371843", internetFunciona: "Sim", bateria: "Descarregada", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim", verificadoPor: "Gisele" },
+        { laboratorio: "Informática, Bloco I", identificacao: "3", patrimonioCpu: "2020004458", internetFunciona: "Sim", bateria: "Descarregada", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim", verificadoPor: "Gisele" },
+        { laboratorio: "Informática, Bloco I", identificacao: "4", patrimonioCpu: "202004449", internetFunciona: "Sim", bateria: "Descarregada", estabilizadorFunciona: "Não", tudoFuncionando: "Sim", verificadoPor: "Gisele" },
+        { laboratorio: "Informática, Bloco I", identificacao: "5", patrimonioCpu: "2020004456", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Não", tudoFuncionando: "Sim", verificadoPor: "Gisele" },
+        { laboratorio: "Informática, Bloco I", identificacao: "6", patrimonioCpu: "2020004450", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Não", tudoFuncionando: "Sim", verificadoPor: "Gisele" },
+        { laboratorio: "Informática, Bloco I", identificacao: "7", patrimonioCpu: "371845", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Não", tudoFuncionando: "Sim", verificadoPor: "Gisele" },
+        { laboratorio: "Informática, Bloco I", identificacao: "8", patrimonioCpu: "2020004454", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Não", tudoFuncionando: "Sim", verificadoPor: "Gisele" },
+        { laboratorio: "Informática, Bloco I", identificacao: "9", patrimonioCpu: "2020004453", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Não", tudoFuncionando: "Sim", verificadoPor: "Gisele" },
+        { laboratorio: "Informática, Bloco I", identificacao: "10", patrimonioCpu: "não tem", internetFunciona: "Sim", bateria: "Descarregada", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim", verificadoPor: "Gisele" },
+        { laboratorio: "Informática, Bloco I", identificacao: "11", patrimonioCpu: "*", internetFunciona: "Não", bateria: "Descarregada", estabilizadorFunciona: "Não", tudoFuncionando: "Não", motivoProblema: "Falta PC" },
+        { laboratorio: "Informática, Bloco I", identificacao: "12", patrimonioCpu: "*", internetFunciona: "Não", bateria: "Descarregada", estabilizadorFunciona: "Não", tudoFuncionando: "Não", motivoProblema: "Falta PC" },
+        { laboratorio: "Informática, Bloco I", identificacao: "13", patrimonioCpu: "*", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Informática, Bloco I", identificacao: "14", patrimonioCpu: "*", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Informática, Bloco I", identificacao: "15", patrimonioCpu: "*", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Informática, Bloco I", identificacao: "PC Bolsista", patrimonioCpu: "2020004451", internetFunciona: "Sim", bateria: "Descarregada", estabilizadorFunciona: "Sim", tudoFuncionando: "Não", motivoProblema: "Tela apaga de vez enquando" },
+
+        // --- PROGRAMAÇÃO COMPUTACIONAL (30 Máquinas) ---
+        { laboratorio: "Programação Computacional", identificacao: "1", patrimonioCpu: "346813", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "2", patrimonioCpu: "346777", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "3", patrimonioCpu: "346785", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "4", patrimonioCpu: "285557", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "5", patrimonioCpu: "346750", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "6", patrimonioCpu: "285561", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "7", patrimonioCpu: "346767", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "8", patrimonioCpu: "346740", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "9", patrimonioCpu: "346795", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "10", patrimonioCpu: "371865", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "11", patrimonioCpu: "264592", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "12", patrimonioCpu: "285566", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "13", patrimonioCpu: "346790", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "14", patrimonioCpu: "285571", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "15", patrimonioCpu: "285578", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "16", patrimonioCpu: "265826", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "17", patrimonioCpu: "371866", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "18", patrimonioCpu: "285581", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "19", patrimonioCpu: "285558", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "20", patrimonioCpu: "285579", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "21", patrimonioCpu: "285573", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "22", patrimonioCpu: "265833", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "23", patrimonioCpu: "265835", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "24", patrimonioCpu: "285563", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "25", patrimonioCpu: "285582", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "26", patrimonioCpu: "265830", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "27", patrimonioCpu: "285565", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "28", patrimonioCpu: "265834", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "29", patrimonioCpu: "285577", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Programação Computacional", identificacao: "30", patrimonioCpu: "285559", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+
+        // --- SIMULAÇÕES NUMÉRICAS (40 Máquinas) ---
+        { laboratorio: "Simulações Numéricas", identificacao: "01", patrimonioCpu: "2024001330", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "02", patrimonioCpu: "2024001356", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "03", patrimonioCpu: "346728", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "04", patrimonioCpu: "2020004452", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "05", patrimonioCpu: "2020004450", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "06", patrimonioCpu: "346725", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "07", patrimonioCpu: "346743", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "08", patrimonioCpu: "346765", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "09", patrimonioCpu: "2024001345", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "10", patrimonioCpu: "2024001326", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "11", patrimonioCpu: "2024001323", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "12", patrimonioCpu: "2020004453", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "13", patrimonioCpu: "2020004451", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "14", patrimonioCpu: "346795", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "15", patrimonioCpu: "346731", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "16", patrimonioCpu: "346805", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "17", patrimonioCpu: "2024001340", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "18", patrimonioCpu: "346756", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "19", patrimonioCpu: "346723", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "20", patrimonioCpu: "2024001331", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "21", patrimonioCpu: "2020004454", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "22", patrimonioCpu: "0346804", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "23", patrimonioCpu: "0346814", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "24", patrimonioCpu: "2024001216", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "25", patrimonioCpu: "2024001337", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "26", patrimonioCpu: "2024001353", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "27", patrimonioCpu: "2024001217", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "28", patrimonioCpu: "2024001325", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "29", patrimonioCpu: "2024001350", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "30", patrimonioCpu: "2024001339", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "31", patrimonioCpu: "2024001225", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "32", patrimonioCpu: "2024001335", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "33", patrimonioCpu: "2024001334", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "34", patrimonioCpu: "2024001346", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "35", patrimonioCpu: "2024001218", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "36", patrimonioCpu: "2024001348", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "37", patrimonioCpu: "2024001222", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "38", patrimonioCpu: "2024001215", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "39", patrimonioCpu: "2024001333", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" },
+        { laboratorio: "Simulações Numéricas", identificacao: "40", patrimonioCpu: "2024001219", internetFunciona: "Sim", bateria: "Operante", estabilizadorFunciona: "Sim", tudoFuncionando: "Sim" }
+      ];
+
+      let importados = 0;
+      for (const pc of computadores) {
+        try {
+          await cadastrarManutencao(pc);
+          importados++;
+        } catch (erro) {
+          console.error("Erro no PC " + pc.identificacao, erro);
+        }
+      }
+      
+      alert(`Fantástico! ${importados} computadores reais importados com sucesso!`);
+      btnImportar.style.display = 'none'; // Esconde o botão após terminar
+      carregarDados(); // Atualiza a tabela na tela imediatamente
     });
   </script>
 </body>
