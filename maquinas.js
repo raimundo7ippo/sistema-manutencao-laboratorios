@@ -5,7 +5,7 @@ import {
 
 import { escapeHtml, sanitizarParaId } from './utils.js';
 
-const COLECAO = "maquinas";
+const COLECAO = "manutencoes";
 
 // 1. DADOS (Criar, Atualizar e Buscar)
 export async function cadastrarMaquina(dados) {
