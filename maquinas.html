@@ -47,8 +47,8 @@
     .btn-ferramenta { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-family: 'Poppins', sans-serif; transition: 0.2s; color: white; }
     .btn-ocultar { background: #6c757d; } .btn-ocultar:hover { background: #5a6268; }
     .btn-imprimir { background: #17a2b8; } .btn-imprimir:hover { background: #138496; }
+    .btn-apagar { background: #dc3545; } .btn-apagar:hover { background: #c82333; }
 
-    /* Controlo de Scroll Duplo */
     .scroll-wrapper { position: relative; }
     .top-scroll { overflow-x: auto; overflow-y: hidden; height: 15px; margin-bottom: 5px; }
     .top-scroll-inner { height: 1px; }
@@ -220,9 +220,9 @@
   <div class="ferramentas-container">
     <button id="btn-toggle-ocultar" class="btn-ferramenta btn-ocultar">👀 Ocultar Resolvidos</button>
     <button id="btn-imprimir-relatorio" class="btn-ferramenta btn-imprimir">🖨️ Imprimir Relatório de Pendências</button>
+    <button id="btn-apagar-global" class="btn-ferramenta btn-apagar">🗑️ Excluir Máquina</button>
   </div>
 
-  <!-- Barra de Rolagem Sincronizada no Topo -->
   <div class="scroll-wrapper">
     <div id="top-scroll" class="top-scroll">
       <div id="top-scroll-inner" class="top-scroll-inner"></div>
@@ -243,15 +243,14 @@
     const cabecalhoTabela = document.getElementById('cabecalho-tabela');
     const btnOcultar = document.getElementById('btn-toggle-ocultar');
     const btnImprimir = document.getElementById('btn-imprimir-relatorio');
+    const btnApagarGlobal = document.getElementById('btn-apagar-global');
     const tituloPagina = document.getElementById('titulo-pagina');
     
-    // Elementos de edição
     const tituloForm = document.getElementById('titulo-form');
     const btnSubmitTexto = document.getElementById('btn-submit-texto');
     const btnCancelar = document.getElementById('btn-cancelar-edicao');
     let idEditando = null;
 
-    // Sincronização da barra de rolagem
     const topScroll = document.getElementById('top-scroll');
     const mainContainer = document.getElementById('main-table-container');
     const topScrollInner = document.getElementById('top-scroll-inner');
@@ -282,14 +281,13 @@
 
     carregarDados();
 
-    // Troca de Abas
     document.querySelectorAll('.aba-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         document.querySelectorAll('.aba-btn').forEach((b) => b.classList.remove('ativa'));
         e.target.classList.add('ativa');
         labAtual = e.target.getAttribute('data-lab');
         
-        cancelarEdicao(); // Limpa o modo edição se mudar de aba
+        cancelarEdicao(); 
         
         const selectElem = document.getElementById('select-laboratorio');
         selectElem.value = labAtual;
@@ -316,34 +314,49 @@
       setTimeout(() => { tituloPagina.innerHTML = `Painel de Vistoria e Manutenção (Máquinas)`; }, 500);
     });
 
-    // AÇÕES NA TABELA (Resolver, Editar, Apagar)
+    // Função global de apagar máquina pelo número
+    btnApagarGlobal?.addEventListener('click', async () => {
+      const numPC = prompt(`Qual o número da máquina que deseja excluir no laboratório "${labAtual}"? (Ex: 40)`);
+      if (!numPC) return;
+      
+      const numeroLimpo = String(numPC).replace(/PC-/gi, '').trim();
+      
+      const maquina = registosCache.find(r => 
+        r.dados.laboratorio === labAtual && 
+        String(r.dados.identificacao).replace(/PC-/gi, '').trim() === numeroLimpo
+      );
+
+      if (!maquina) {
+        alert(`❌ Máquina PC-${numeroLimpo} não encontrada no laboratório ${labAtual}.`);
+        return;
+      }
+
+      if (confirm(`Tem a certeza que deseja APAGAR DEFINITIVAMENTE o registo da máquina PC-${numeroLimpo}?`)) {
+        try {
+          await removerMaquina(maquina.id);
+          carregarDados();
+        } catch (e) {
+          alert('Erro ao apagar registo.');
+        }
+      }
+    });
+
     tabela?.addEventListener('click', async (e) => {
       const idReg = e.target.getAttribute('data-id');
       if (!idReg) return;
 
-      // Botão Resolver
       if (e.target.classList.contains('btn-concluir')) {
         try { await concluirMaquina(idReg); carregarDados(); } catch (e) { alert('Erro ao concluir manutenção.'); }
       } 
-      // Botão Apagar
-      else if (e.target.classList.contains('btn-remover')) {
-        if (confirm("Tens a certeza que desejas APAGAR este registo? Esta ação não pode ser desfeita.")) {
-          try {
-            await removerMaquina(idReg);
-            carregarDados();
-          } catch (e) { alert('Erro ao apagar registo.'); }
-        }
-      }
-      // Botão Editar
       else if (e.target.classList.contains('btn-editar')) {
         const item = registosCache.find(r => r.id === idReg);
         if (!item) return;
 
         idEditando = idReg;
         
-        // Preenche o formulário
         document.getElementById('select-laboratorio').value = item.dados.laboratorio || labAtual;
-        document.getElementById('input-identificacao').value = item.dados.identificacao || '';
+        // Limpa qualquer vestígio de "PC-" que tenha ficado guardado
+        document.getElementById('input-identificacao').value = String(item.dados.identificacao).replace(/PC-/gi, '').trim();
         document.getElementById('input-patrimonio-cpu').value = item.dados.patrimonioCpu || '';
         document.getElementById('select-internet').value = item.dados.internetFunciona || 'Sim';
         document.getElementById('input-detalhes-internet').value = item.dados.detalhesInternet || '';
@@ -354,7 +367,6 @@
         document.getElementById('input-motivo-problema').value = item.dados.motivoProblema || '';
         document.getElementById('input-verificado-por').value = item.dados.verificadoPor || '';
         
-        // Específicos
         document.getElementById('input-patrimonio-estabilizador').value = item.dados.patrimonioEstabilizador || '';
         document.getElementById('input-modelo').value = item.dados.modeloComputador || '';
         document.getElementById('input-so').value = item.dados.so || '';
@@ -366,21 +378,18 @@
         document.getElementById('input-armazenamento-tipo').value = item.dados.armazenamentoTipo || '';
         document.getElementById('input-armazenamento-qtde').value = item.dados.armazenamentoQtde || '';
 
-        // Mostra os campos do laboratório correto
         document.getElementById('select-laboratorio').dispatchEvent(new Event('change'));
 
-        // Bloqueia campos de ID para não duplicar dados
         document.getElementById('select-laboratorio').disabled = true;
         document.getElementById('input-identificacao').disabled = true;
 
-        tituloForm.innerHTML = `✏️ A editar registo da Máquina PC-${item.dados.identificacao}`;
+        tituloForm.innerHTML = `✏️ A editar registo da Máquina PC-${String(item.dados.identificacao).replace(/PC-/gi, '').trim()}`;
         btnSubmitTexto.innerHTML = "💾 Atualizar Registo da Máquina";
         btnCancelar.style.display = "inline-block";
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
 
-    // Função de cancelar edição
     function cancelarEdicao() {
       idEditando = null;
       formManutencao.reset();
@@ -399,27 +408,25 @@
 
     btnCancelar.addEventListener('click', cancelarEdicao);
 
-    // Salvar ou Atualizar
     formManutencao?.addEventListener('submit', async (e) => {
       e.preventDefault();
       
       const selectLabElem = document.getElementById('select-laboratorio');
       const inputIdElem = document.getElementById('input-identificacao');
       
-      // Quando disabled, .value funciona, mas é mais seguro ler do elemento
       const labSelecionado = selectLabElem.value;
       const numeroPC = inputIdElem.value.trim();
       const patrimonioDigitado = document.getElementById('input-patrimonio-cpu').value.trim();
       
-      // Validação de Duplicidade (Só ocorre se NÃO estivermos a editar o mesmo registo)
       const patrimonioExistente = registosCache.find(r => 
         r.dados.laboratorio === labSelecionado && 
         r.dados.patrimonioCpu === patrimonioDigitado && 
-        r.dados.identificacao !== numeroPC
+        r.id !== idEditando
       );
 
       if (patrimonioExistente) {
-        alert(`❌ Erro de Validação: O património "${patrimonioDigitado}" já está atribuído à máquina PC-${patrimonioExistente.dados.identificacao} neste laboratório!`);
+        const idClash = String(patrimonioExistente.dados.identificacao).replace(/PC-/gi, '').trim();
+        alert(`❌ Erro de Validação: O património "${patrimonioDigitado}" já está atribuído à máquina PC-${idClash} neste laboratório!`);
         return;
       }
 
@@ -448,9 +455,9 @@
         armazenamentoQtde: document.getElementById('input-armazenamento-qtde').value
       };
       
-      await cadastrarMaquina(dados);
+      // Passa o idEditando para não gerar duplicados!
+      await cadastrarMaquina(dados, idEditando);
       
-      // Sai do modo edição
       if (idEditando) cancelarEdicao();
       else formManutencao.reset();
       
