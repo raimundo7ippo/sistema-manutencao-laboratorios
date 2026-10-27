@@ -3,38 +3,186 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Manutenção - Login</title>
+  <title>Acesso ao Sistema - DTI UFC</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f7f6;
+      color: #2c3e50;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .login-container {
+      background-color: #ffffff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      border-top: 6px solid #008b8b;
+    }
+
+    .login-container h2 {
+      margin: 0 0 5px 0;
+      color: #1a252f;
+      font-weight: 600;
+      font-size: 1.8em;
+    }
+
+    .login-container p.subtitle {
+      color: #6c757d;
+      font-size: 0.9em;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      font-size: 0.9em;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #555;
+    }
+
+    .form-group input {
+      padding: 12px 15px;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95em;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #008b8b;
+      box-shadow: 0 0 0 3px rgba(0, 139, 139, 0.1);
+    }
+
+    .btn-login {
+      background-color: #008b8b;
+      color: white;
+      border: none;
+      padding: 14px;
+      width: 100%;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: 10px;
+    }
+
+    .btn-login:hover {
+      background-color: #006666;
+      transform: translateY(-2px);
+    }
+
+    .mensagem {
+      margin-top: 20px;
+      font-size: 0.9em;
+      font-weight: 500;
+      min-height: 20px;
+    }
+
+    .msg-erro { color: #dc3545; }
+    .msg-sucesso { color: #28a745; }
+    
+    /* Rodapé institucional */
+    .footer-login {
+      margin-top: 30px;
+      font-size: 0.75em;
+      color: #aaa;
+    }
+  </style>
 </head>
 <body>
 
-  <h2>Acesso ao Sistema</h2>
+  <div class="login-container">
+    <h2>Acesso ao Sistema</h2>
+    <p class="subtitle">DTI - Universidade Federal do Ceará</p>
 
-  <form id="form-auth">
-    <input type="email" id="email" placeholder="Seu e-mail" required />
-    <input type="password" id="senha" placeholder="Sua senha" required />
-    
-    <!-- Mantido apenas o botão de Entrar -->
-    <button type="button" id="btn-login">Entrar</button>
-  </form>
+    <form id="form-auth">
+      <div class="form-group">
+        <label for="email">E-mail Institucional</label>
+        <input type="email" id="email" placeholder="nome@ufc.br" required />
+      </div>
+      
+      <div class="form-group">
+        <label for="senha">Palavra-passe</label>
+        <input type="password" id="senha" placeholder="••••••••" required />
+      </div>
+      
+      <button type="button" id="btn-login" class="btn-login">Entrar</button>
+    </form>
 
-  <p id="mensagem"></p>
+    <p id="mensagem" class="mensagem"></p>
 
-  <!-- Script conectando o HTML ao JavaScript -->
+    <div class="footer-login">
+      &copy; 2026 - Gestão de Laboratórios DTI
+    </div>
+  </div>
+
+  <!-- Script conectando o HTML ao JavaScript do Firebase -->
   <script type="module">
-    // Importa apenas a função 'entrar'
     import { entrar } from './auth.js';
 
     const emailInput = document.getElementById('email');
     const senhaInput = document.getElementById('senha');
     const msg = document.getElementById('mensagem');
+    const btnLogin = document.getElementById('btn-login');
 
-    // Botão de Login
-    document.getElementById('btn-login').addEventListener('click', async () => {
+    btnLogin.addEventListener('click', async () => {
+      // Validação básica antes de enviar
+      if (!emailInput.value || !senhaInput.value) {
+        msg.className = 'mensagem msg-erro';
+        msg.innerText = "Por favor, preencha o e-mail e a palavra-passe.";
+        return;
+      }
+
       try {
+        btnLogin.innerText = "A autenticar...";
+        btnLogin.style.opacity = "0.8";
+        
         await entrar(emailInput.value, senhaInput.value);
-        msg.innerText = "Login realizado com sucesso!";
+        
+        msg.className = 'mensagem msg-sucesso';
+        msg.innerText = "Login realizado com sucesso! A redirecionar...";
+        
+        // O redirecionamento real é gerido dentro do auth.js
       } catch (erro) {
-        msg.innerText = "Erro no login: " + erro.message;
+        btnLogin.innerText = "Entrar";
+        btnLogin.style.opacity = "1";
+        msg.className = 'mensagem msg-erro';
+        
+        // Tratamento de mensagens de erro mais amigáveis
+        if (erro.code === 'auth/invalid-credential' || erro.code === 'auth/wrong-password' || erro.code === 'auth/user-not-found') {
+          msg.innerText = "Credenciais inválidas. Verifique o seu e-mail e palavra-passe.";
+        } else {
+          msg.innerText = "Erro na autenticação. Tente novamente.";
+        }
+      }
+    });
+
+    // Permite fazer login pressionando a tecla 'Enter'
+    document.getElementById('form-auth').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        btnLogin.click();
       }
     });
   </script>

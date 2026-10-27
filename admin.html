@@ -1,67 +1,215 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Administrador</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel do Administrador - DTI UFC</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f7f6;
+      color: #2c3e50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .header {
+      background-color: #1a252f;
+      width: 100%;
+      padding: 25px 0;
+      text-align: center;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 40px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 1.8em;
+      font-weight: 600;
+    }
+
+    .header span {
+      color: #008b8b;
+    }
+
+    .admin-container {
+      background-color: #ffffff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+      width: 100%;
+      max-width: 450px;
+      border-top: 6px solid #6f42c1; /* Cor roxa para diferenciar que é admin */
+    }
+
+    .admin-container h2 {
+      margin-top: 0;
+      font-weight: 600;
+      color: #1a252f;
+      margin-bottom: 25px;
+      font-size: 1.4em;
+      text-align: center;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      font-size: 0.9em;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #555;
+    }
+
+    .form-group input {
+      padding: 12px;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95em;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #6f42c1;
+    }
+
+    .btn-submit {
+      background-color: #6f42c1;
+      color: white;
+      border: none;
+      padding: 14px;
+      width: 100%;
+      border-radius: 6px;
+      font-size: 1em;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-submit:hover {
+      background-color: #5a32a3;
+      transform: translateY(-2px);
+    }
+
+    .mensagem {
+      margin-top: 20px;
+      font-size: 0.9em;
+      font-weight: 500;
+      text-align: center;
+      min-height: 20px;
+    }
+
+    .msg-erro { color: #dc3545; }
+    .msg-sucesso { color: #28a745; }
+
+    .logout-container {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .btn-sair {
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-sair:hover {
+      background-color: #5a6268;
+    }
+  </style>
 </head>
 <body>
-    <h1>Painel do Administrador</h1>
+
+  <div class="header">
+    <h1>Administração <span>DTI</span></h1>
+  </div>
+
+  <div class="admin-container">
+    <h2>👤 Registar Novo Técnico</h2>
     
-    <!-- Formulário para o Admin cadastrar novos usuários -->
-    <section>
-        <h2>Cadastrar Novo Usuário</h2>
-        <form id="form-cadastro">
-            <input type="email" id="cad-email" placeholder="E-mail do novo usuário" required>
-            <input type="password" id="cad-senha" placeholder="Senha temporária" required>
-            <button type="submit">Cadastrar Usuário</button>
-        </form>
-    </section>
+    <form id="form-cadastro">
+      <div class="form-group">
+        <label for="cad-email">E-mail Institucional</label>
+        <input type="email" id="cad-email" placeholder="tecnico@ufc.br" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="cad-senha">Palavra-passe Temporária</label>
+        <input type="password" id="cad-senha" placeholder="Mínimo de 6 caracteres" required minlength="6">
+      </div>
+      
+      <button type="submit" id="btn-submit" class="btn-submit">Criar Conta</button>
+    </form>
 
-    <!-- Script com type="module" para usar o Firebase -->
-    <script type="module">
-        import { cadastrar } from './auth.js';
+    <p id="mensagem" class="mensagem"></p>
+  </div>
 
-        const formCadastro = document.getElementById('form-cadastro');
+  <div class="logout-container">
+    <button type="button" id="btn-sair" class="btn-sair">🚪 Terminar Sessão</button>
+  </div>
 
-        formCadastro.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('cad-email').value;
-            const senha = document.getElementById('cad-senha').value;
+  <!-- Script para ligar o formulário à Autenticação -->
+  <script type="module">
+    import { cadastrar, sair } from './auth.js';
 
-            try {
-                await cadastrar(email, senha);
-                alert('Usuário cadastrado com sucesso!');
-                formCadastro.reset();
-            } catch (erro) {
-                alert('Erro ao cadastrar usuário: ' + erro.message);
-            }
-        });
-    </script>
-      <h3>funções do sistema</h3>
-      </form>
-<script type="module">
-  import { cadastrarManutencao } from './manutencao.js';
+    const formCadastro = document.getElementById('form-cadastro');
+    const msg = document.getElementById('mensagem');
+    const btnSubmit = document.getElementById('btn-submit');
+    const btnSair = document.getElementById('btn-sair');
 
-  const formManutencao = document.getElementById('form-manutencao');
+    formCadastro.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('cad-email').value;
+      const senha = document.getElementById('cad-senha').value;
 
-  formManutencao.addEventListener('submit', async (event) => {
-    event.preventDefault(); // Impede a página de recarregar
+      try {
+        btnSubmit.innerText = "A registar...";
+        btnSubmit.disabled = true;
 
-    // Pegando os valores digitados
-    const laboratorio = document.getElementById('select-laboratorio').value;
-    const equipamento = document.getElementById('input-equipamento').value;
-    const descricao = document.getElementById('input-descricao').value;
+        await cadastrar(email, senha);
+        
+        msg.className = 'mensagem msg-sucesso';
+        msg.innerText = `Técnico (${email}) registado com sucesso!`;
+        formCadastro.reset();
+      } catch (erro) {
+        msg.className = 'mensagem msg-erro';
+        // Tradução simples de erros comuns
+        if(erro.code === 'auth/email-already-in-use') {
+          msg.innerText = 'Este e-mail já está registado no sistema.';
+        } else if (erro.code === 'auth/weak-password') {
+          msg.innerText = 'A palavra-passe deve ter pelo menos 6 caracteres.';
+        } else {
+          msg.innerText = 'Erro ao registar: ' + erro.message;
+        }
+      } finally {
+        btnSubmit.innerText = "Criar Conta";
+        btnSubmit.disabled = false;
+      }
+    });
 
-    try {
-      await cadastrarManutencao(laboratorio, equipamento, descricao);
-      alert('Chamado registrado com sucesso!');
-      formManutencao.reset(); // Limpa os campos
-    } catch (erro) {
-      alert('Erro ao registrar chamado. Confira se você está logado!');
-      console.error(erro);
-    }
-  });
-</script>
+    // Ação do botão de terminar sessão
+    btnSair.addEventListener('click', async () => {
+      await sair();
+    });
+  </script>
 </body>
 </html>

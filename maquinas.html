@@ -12,6 +12,7 @@
     a { color: #007bff; text-decoration: none; font-weight: 500; transition: 0.2s; }
     a:hover { color: #0056b3; }
 
+    /* Estilização do Formulário */
     #form-manutencao {
       background: #ffffff; padding: 25px 30px; border-radius: 12px;
       box-shadow: 0 8px 16px rgba(0,0,0,0.05); margin-bottom: 30px;
@@ -20,13 +21,14 @@
     .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
     .form-group { display: flex; flex-direction: column; }
     
-    label { font-size: 0.9em; font-weight: 500; margin-bottom: 5px; color: #555; }
+    label { font-size: 0.9em; font-weight: 600; margin-bottom: 5px; color: #555; }
     input, select { padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.95em; transition: border-color 0.2s; }
     input:focus, select:focus { outline: none; border-color: #008b8b; }
 
     button.btn-salvar { background-color: #008b8b; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 15px; width: 100%; transition: 0.2s; }
     button.btn-salvar:hover { background-color: #006666; transform: translateY(-2px); }
 
+    /* Cards de Estatísticas */
     .cards-container { display: flex; gap: 20px; margin-bottom: 25px; flex-wrap: wrap; }
     .card-stat { background: #ffffff; padding: 20px; border-radius: 12px; flex: 1; min-width: 200px; box-shadow: 0 4px 8px rgba(0,0,0,0.04); }
     .card-stat small { font-weight: 600; text-transform: uppercase; font-size: 0.8em; }
@@ -35,27 +37,48 @@
     .card-ok { border-bottom: 4px solid #28a745; } .card-ok small { color: #28a745; }
     .card-erro { border-bottom: 4px solid #dc3545; } .card-erro small { color: #dc3545; }
 
+    /* Navegação */
     .abas-container { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
     .aba-btn { padding: 10px 20px; cursor: pointer; border: none; background: #e9ecef; color: #495057; border-radius: 6px; font-weight: 500; transition: 0.2s; font-family: 'Poppins', sans-serif; flex: 1; min-width: 150px; }
     .aba-btn.ativa { background: #007bff; color: white; box-shadow: 0 4px 8px rgba(0,123,255,0.3); }
 
+    /* Ações de Ferramentas (Ocultar e Imprimir) */
+    .ferramentas-container { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 15px; }
+    .btn-ferramenta { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-family: 'Poppins', sans-serif; transition: 0.2s; color: white; }
+    .btn-ocultar { background: #6c757d; } .btn-ocultar:hover { background: #5a6268; }
+    .btn-imprimir { background: #17a2b8; } .btn-imprimir:hover { background: #138496; }
+
+    /* Tabela Principal */
     .table-container { overflow-x: auto; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
     table { width: 100%; border-collapse: collapse; min-width: 1300px; }
     th, td { padding: 12px 15px; text-align: left; font-size: 0.85em; border-bottom: 1px solid #f0f0f0; }
     th { background-color: #f8f9fa; color: #495057; font-weight: 600; text-transform: uppercase; font-size: 0.75em; border-bottom: 2px solid #dee2e6; }
     tr:hover { background-color: #f8fbfb; }
 
+    /* Lógica de exibição condicional do formulário */
     .campo-info, .campo-prog, .campo-simul { display: none; }
+
+    /* ======== MODO DE IMPRESSÃO ======== */
+    @media print {
+      body { background-color: #fff; padding: 0; margin: 0; }
+      #form-manutencao, .abas-container, .cards-container, .ferramentas-container, a, p { display: none !important; }
+      h1 { text-align: center; margin-bottom: 20px; font-size: 1.5em; border-bottom: 2px solid #000; padding-bottom: 10px; }
+      .table-container { box-shadow: none; border: none; }
+      table { width: 100%; min-width: 100%; }
+      th, td { padding: 8px; border: 1px solid #ccc; font-size: 0.75em; }
+      /* Força ocultar colunas de ações na impressão para poupar tinta */
+      th:last-child, td:last-child { display: none; }
+    }
   </style>
 </head>
 <body>
 
   <p><a href="home.html">⬅️ Voltar para o Menu Principal</a></p>
-  <h1>Painel de Vistoria e Manutenção (Máquinas)</h1>
+  <h1 id="titulo-pagina">Painel de Vistoria e Manutenção (Máquinas)</h1>
 
   <!-- Formulário Dinâmico -->
   <form id="form-manutencao">
-    <h3>Registar / Atualizar Máquina</h3>
+    <h3>➕ Registar / Atualizar Máquina</h3>
     <div class="form-grid">
       
       <div class="form-group">
@@ -69,7 +92,7 @@
       </div>
       <div class="form-group">
         <label>Nº / ID da Máquina:</label>
-        <input type="text" id="input-identificacao" required>
+        <input type="text" id="input-identificacao" placeholder="Ex: PC-01" required>
       </div>
       <div class="form-group">
         <label>Património CPU:</label>
@@ -156,17 +179,18 @@
       </div>
       <div class="form-group">
         <label>Motivo / Problema:</label>
-        <input type="text" id="input-motivo-problema">
+        <input type="text" id="input-motivo-problema" placeholder="Descreva se houver falha">
       </div>
       <div class="form-group">
-        <label>Verificado por:</label>
+        <label>Verificado por (Técnico):</label>
         <input type="text" id="input-verificado-por" required>
       </div>
 
     </div>
-    <button type="submit" class="btn-salvar">💾 Guardar Alterações</button>
+    <button type="submit" class="btn-salvar">💾 Guardar Registo de Vistoria</button>
   </form>
 
+  <!-- Lógica Front-end do Formulário (Ocultar/Mostrar Campos) -->
   <script>
     const selectLab = document.getElementById('select-laboratorio');
     selectLab.addEventListener('change', (e) => {
@@ -179,9 +203,9 @@
   </script>
 
   <div class="cards-container">
-    <div class="card-stat card-total"><small>Máquinas no Laboratório</small><h3 id="stat-total-pcs">0</h3></div>
-    <div class="card-stat card-ok"><small>Operacionais</small><h3 id="stat-pcs-ok">0</h3></div>
-    <div class="card-stat card-erro"><small>Com Pendências</small><h3 id="stat-pcs-erro">0</h3></div>
+    <div class="card-stat card-total"><small>Máquinas Auditadas</small><h3 id="stat-total-pcs">0</h3></div>
+    <div class="card-stat card-ok"><small>100% Operacionais</small><h3 id="stat-pcs-ok">0</h3></div>
+    <div class="card-stat card-erro"><small>Pendências Físicas</small><h3 id="stat-pcs-erro">0</h3></div>
   </div>
 
   <div class="abas-container">
@@ -190,8 +214,9 @@
     <button class="aba-btn" data-lab="Simulações Numéricas">⚙️ Simulações</button>
   </div>
 
-  <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
-    <button id="btn-toggle-ocultar" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">👀 Ocultar Resolvidos</button>
+  <div class="ferramentas-container">
+    <button id="btn-toggle-ocultar" class="btn-ferramenta btn-ocultar">👀 Ocultar Resolvidos</button>
+    <button id="btn-imprimir-relatorio" class="btn-ferramenta btn-imprimir">🖨️ Imprimir Relatório de Pendências</button>
   </div>
 
   <div class="table-container">
@@ -201,34 +226,17 @@
     </table>
   </div>
 
-  <br><hr><br>
-
-  <h2>📜 Histórico de Problemas Resolvidos</h2>
-  <div class="table-container" style="background-color: #fafafa;">
-    <table>
-      <thead>
-        <tr>
-          <th>Laboratório</th>
-          <th>Máquina</th>
-          <th>Problema Relatado</th>
-          <th>Verificador</th>
-          <th>Data de Resolução</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="tabela-historico"></tbody>
-    </table>
-  </div>
-
-  <!-- Ligação exclusiva ao maquinas.js -->
+  <!-- Lógica Principal com Firebase -->
   <script type="module">
-    import { cadastrarMaquina, buscarMaquinas, renderizarPainelMaquinas, renderizarHistoricoMaquinas, concluirMaquina } from './maquinas.js';
+    // Nota: A função renderizarHistoricoMaquinas foi removida do import!
+    import { cadastrarMaquina, buscarMaquinas, renderizarPainelMaquinas, concluirMaquina } from './maquinas.js';
 
     const formManutencao = document.getElementById('form-manutencao');
     const tabela = document.getElementById('tabela-chamados');
     const cabecalhoTabela = document.getElementById('cabecalho-tabela');
-    const tabelaHistorico = document.getElementById('tabela-historico');
     const btnOcultar = document.getElementById('btn-toggle-ocultar');
+    const btnImprimir = document.getElementById('btn-imprimir-relatorio');
+    const tituloPagina = document.getElementById('titulo-pagina');
 
     let labAtual = "Informática, Bloco I";
     let ocultarResolvidos = false;
@@ -241,17 +249,18 @@
 
     function redesenhar() {
       renderizarPainelMaquinas(tabela, cabecalhoTabela, registosCache, labAtual, ocultarResolvidos);
-      renderizarHistoricoMaquinas(tabelaHistorico, registosCache);
     }
 
     carregarDados();
 
+    // Gestão de Abas
     document.querySelectorAll('.aba-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => {
         document.querySelectorAll('.aba-btn').forEach((b) => b.classList.remove('ativa'));
         e.target.classList.add('ativa');
         labAtual = e.target.getAttribute('data-lab');
         
+        // Sincroniza o select do form com a aba ativa
         const selectElem = document.getElementById('select-laboratorio');
         selectElem.value = labAtual;
         selectElem.dispatchEvent(new Event('change'));
@@ -260,17 +269,39 @@
       });
     });
 
+    // Ferramenta: Ocultar/Mostrar Resolvidos
     btnOcultar?.addEventListener('click', () => {
       ocultarResolvidos = !ocultarResolvidos;
-      btnOcultar.textContent = ocultarResolvidos ? '👀 Exibir Resolvidos' : '👀 Ocultar Resolvidos';
+      btnOcultar.innerHTML = ocultarResolvidos ? '👀 Exibir Resolvidos' : '👀 Ocultar Resolvidos';
       redesenhar();
     });
 
-    tabela?.addEventListener('click', async (e) => {
-      if (!e.target.classList.contains('btn-concluir')) return;
-      try { await concluirMaquina(e.target.getAttribute('data-id')); carregarDados(); } catch (e) { alert('Erro ao concluir.'); }
+    // Ferramenta: Imprimir Relatório
+    btnImprimir?.addEventListener('click', () => {
+      // Força a ocultação dos resolvidos para o relatório ficar focado nas falhas
+      if (!ocultarResolvidos) {
+        ocultarResolvidos = true;
+        btnOcultar.innerHTML = '👀 Exibir Resolvidos';
+        redesenhar();
+      }
+      tituloPagina.innerHTML = `Relatório de Pendências Técnicas - ${labAtual}`;
+      window.print();
+      // Restaura o título padrão após imprimir
+      setTimeout(() => { tituloPagina.innerHTML = `Painel de Vistoria e Manutenção (Máquinas)`; }, 500);
     });
 
+    // Concluir Máquina na Tabela
+    tabela?.addEventListener('click', async (e) => {
+      if (!e.target.classList.contains('btn-concluir')) return;
+      try { 
+        await concluirMaquina(e.target.getAttribute('data-id')); 
+        carregarDados(); 
+      } catch (e) { 
+        alert('Erro ao concluir manutenção.'); 
+      }
+    });
+
+    // Salvar Registo
     formManutencao?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const dados = {
@@ -297,6 +328,7 @@
         armazenamentoTipo: document.getElementById('input-armazenamento-tipo').value,
         armazenamentoQtde: document.getElementById('input-armazenamento-qtde').value
       };
+      
       await cadastrarMaquina(dados);
       formManutencao.reset();
       

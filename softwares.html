@@ -9,28 +9,30 @@
 
     body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; margin: 0; padding: 30px; color: #2c3e50; }
     h1, h2 { color: #1a252f; font-weight: 600; }
-    a { color: #007bff; text-decoration: none; font-weight: 500; }
+    a { color: #007bff; text-decoration: none; font-weight: 500; transition: 0.2s; }
     a:hover { color: #0056b3; }
 
+    /* Navegação */
     .abas-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-    .aba-btn { padding: 12px 24px; cursor: pointer; border: none; background: #008b8b; color: white; border-radius: 6px; font-weight: 500; font-family: 'Poppins', sans-serif; transition: 0.2s; }
-    .aba-btn:not(.ativa) { background: #e9ecef; color: #495057; }
+    .aba-btn { padding: 12px 24px; cursor: pointer; border: none; background: #e9ecef; color: #495057; border-radius: 6px; font-weight: 500; font-family: 'Poppins', sans-serif; transition: 0.2s; flex: 1; min-width: 150px; }
+    .aba-btn.ativa { background: #008b8b; color: white; box-shadow: 0 4px 8px rgba(0,139,139,0.3); }
 
+    /* Formulário */
     #form-softwares { background: #ffffff; padding: 25px 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 30px; border-left: 5px solid #008b8b; }
     .form-group-top { display: flex; gap: 20px; margin-bottom: 20px; align-items: flex-end; flex-wrap: wrap; }
     .form-group { display: flex; flex-direction: column; flex: 1; min-width: 220px; }
     label { font-size: 0.85em; font-weight: 600; margin-bottom: 5px; color: #555; }
-    input { padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.95em; }
+    input { padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.95em; transition: border-color 0.2s; }
+    input:focus { outline: none; border-color: #008b8b; }
 
     /* Adicionar Novo Software Dinâmico */
     .container-adicionar-soft { display: flex; gap: 10px; margin-bottom: 15px; }
-    .container-adicionar-soft input { flex: 1; padding: 8px 12px; }
-    .btn-adicionar-soft { background-color: #6f42c1; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    .btn-adicionar-soft:hover { background-color: #5a32a3; }
+    .container-adicionar-soft input { flex: 1; padding: 10px 12px; }
+    .btn-adicionar-soft { background-color: #6f42c1; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; font-family: 'Poppins', sans-serif; }
+    .btn-adicionar-soft:hover { background-color: #5a32a3; transform: translateY(-2px); }
 
     /* Grelha de Checkboxes dos Softwares */
     .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; background: #fafbfc; padding: 15px; border-radius: 8px; border: 1px solid #e1e4e8; max-height: 250px; overflow-y: auto; margin-bottom: 20px; }
-    
     .checkbox-wrapper { display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 6px 10px; border-radius: 6px; border: 1px solid #e1e4e8; }
     .checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 0.9em; cursor: pointer; flex: 1; margin: 0; }
     .checkbox-item input { cursor: pointer; width: 16px; height: 16px; }
@@ -38,10 +40,11 @@
     .btn-remover-soft:hover { transform: scale(1.2); }
 
     .botoes-acao { display: flex; gap: 10px; }
-    button.btn-salvar { background-color: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-    button.btn-salvar:hover { background-color: #218838; }
-    button.btn-cancelar { background-color: #6c757d; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; display: none; }
+    button.btn-salvar { background-color: #008b8b; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; font-family: 'Poppins', sans-serif; }
+    button.btn-salvar:hover { background-color: #006666; transform: translateY(-2px); }
+    button.btn-cancelar { background-color: #6c757d; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; display: none; font-family: 'Poppins', sans-serif; }
 
+    /* Cards e Ferramentas */
     .cards-container { display: flex; gap: 20px; margin-bottom: 25px; flex-wrap: wrap; }
     .card-stat { background: #ffffff; padding: 20px; border-radius: 12px; flex: 1; box-shadow: 0 4px 8px rgba(0,0,0,0.04); min-width: 200px; }
     .card-stat small { font-weight: 600; text-transform: uppercase; font-size: 0.75em; }
@@ -50,25 +53,43 @@
     .card-ok { border-bottom: 4px solid #28a745; } .card-ok small { color: #28a745; }
     .card-erro { border-bottom: 4px solid #dc3545; } .card-erro small { color: #dc3545; }
 
-    .barra-ferramentas { display: flex; gap: 10px; margin-bottom: 20px; }
+    .ferramentas-container { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 15px; }
+    .btn-ferramenta { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-family: 'Poppins', sans-serif; transition: 0.2s; color: white; }
+    .btn-imprimir { background: #17a2b8; } .btn-imprimir:hover { background: #138496; }
+
+    .barra-pesquisa-container { display: flex; gap: 10px; margin-bottom: 20px; }
     .input-pesquisa { flex: 1; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.95em; }
 
+    /* Tabela */
     .table-container { overflow-x: auto; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
     table { width: 100%; border-collapse: collapse; min-width: 800px; }
     th, td { padding: 15px; text-align: left; font-size: 0.9em; border-bottom: 1px solid #f0f0f0; }
     th { background-color: #f8f9fa; color: #495057; font-weight: 600; text-transform: uppercase; font-size: 0.8em; border-bottom: 2px solid #dee2e6; }
     tr:hover { background-color: #f8fbfb; }
+
+    /* ======== MODO DE IMPRESSÃO ======== */
+    @media print {
+      body { background-color: #fff; padding: 0; margin: 0; }
+      #form-softwares, .abas-container, .cards-container, .ferramentas-container, .barra-pesquisa-container, a, p { display: none !important; }
+      h1 { text-align: center; margin-bottom: 20px; font-size: 1.5em; border-bottom: 2px solid #000; padding-bottom: 10px; }
+      .table-container { box-shadow: none; border: none; }
+      table { width: 100%; min-width: 100%; border: 1px solid #ccc; }
+      th, td { padding: 8px; border: 1px solid #ccc; font-size: 0.8em; }
+      /* Força ocultar a coluna de ações e de última atualização na impressão */
+      th:nth-child(4), td:nth-child(4),
+      th:last-child, td:last-child { display: none; }
+    }
   </style>
 </head>
 <body>
 
   <p><a href="home.html">⬅️ Voltar para o Menu Principal</a></p>
-  <h1>💻 Auditoria de Softwares por Máquina</h1>
+  <h1 id="titulo-pagina">💻 Auditoria de Softwares por Máquina</h1>
 
   <div class="abas-container">
-    <button class="aba-btn ativa" data-lab="Informática, Bloco I">Informática, Bloco I</button>
-    <button class="aba-btn" data-lab="Programação Computacional">Programação Computacional</button>
-    <button class="aba-btn" data-lab="Simulações Numéricas">Simulações Numéricas</button>
+    <button class="aba-btn ativa" data-lab="Informática, Bloco I">💻 Informática (Bloco I)</button>
+    <button class="aba-btn" data-lab="Programação Computacional">👨‍💻 Programação</button>
+    <button class="aba-btn" data-lab="Simulações Numéricas">⚙️ Simulações</button>
   </div>
 
   <form id="form-softwares">
@@ -77,23 +98,22 @@
     <div class="form-group-top">
       <div class="form-group">
         <label>Laboratório Atual:</label>
-        <input type="text" id="input-laboratorio" value="Informática, Bloco I" readonly style="background-color: #e9ecef; font-weight: bold;">
+        <input type="text" id="input-laboratorio" value="Informática, Bloco I" readonly style="background-color: #e9ecef; font-weight: bold; color: #495057;">
       </div>
       <div class="form-group">
         <label>Número / ID da Máquina:</label>
         <input type="text" id="input-identificacao" placeholder="Ex: PC-01" required>
       </div>
       <div style="display: flex; align-items: center; gap: 10px;">
-        <button type="button" id="btn-marcar-todos" style="padding: 10px 15px; background: #17a2b8; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold;">☑️ Marcar Todos</button>
-        <button type="button" id="btn-desmarcar-todos" style="padding: 10px 15px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold;">❌ Limpar Seleção</button>
+        <button type="button" id="btn-marcar-todos" style="padding: 10px 15px; background: #17a2b8; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold; font-family: 'Poppins', sans-serif;">☑️ Marcar Todos</button>
+        <button type="button" id="btn-desmarcar-todos" style="padding: 10px 15px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold; font-family: 'Poppins', sans-serif;">❌ Limpar Seleção</button>
       </div>
     </div>
 
     <label style="margin-bottom: 8px; display: block;">Selecione os softwares instalados e funcionais nesta máquina:</label>
     
-    <!-- Campo para adicionar novo software na hora -->
     <div class="container-adicionar-soft">
-      <input type="text" id="input-novo-soft" placeholder="Nome de um software novo para este laboratório...">
+      <input type="text" id="input-novo-soft" placeholder="Nome de um software novo para adicionar à lista oficial deste laboratório...">
       <button type="button" id="btn-adicionar-soft" class="btn-adicionar-soft">➕ Adicionar à Lista</button>
     </div>
 
@@ -102,7 +122,7 @@
     </div>
 
     <div class="botoes-acao">
-      <button type="submit" class="btn-salvar" id="btn-submit-texto">💾 Salvar Auditoria da Máquina</button>
+      <button type="submit" class="btn-salvar" id="btn-submit-texto">💾 Guardar Auditoria da Máquina</button>
       <button type="button" id="btn-cancelar-edicao" class="btn-cancelar">Cancelar Edição</button>
     </div>
   </form>
@@ -113,7 +133,11 @@
     <div class="card-stat card-erro"><small>Com Softwares em Falta</small><h3 id="stat-pcs-erro">0</h3></div>
   </div>
 
-  <div class="barra-ferramentas">
+  <div class="ferramentas-container">
+    <button id="btn-imprimir-relatorio" class="btn-ferramenta btn-imprimir">🖨️ Imprimir Relatório de Pendências</button>
+  </div>
+
+  <div class="barra-pesquisa-container">
     <input type="text" id="input-pesquisa" class="input-pesquisa" placeholder="🔍 Pesquisar máquina por ID (ex: PC-01)...">
   </div>
 
@@ -144,6 +168,8 @@
     const btnSubmitTexto = document.getElementById('btn-submit-texto');
     const inputNovoSoft = document.getElementById('input-novo-soft');
     const btnAdicionarSoft = document.getElementById('btn-adicionar-soft');
+    const btnImprimir = document.getElementById('btn-imprimir-relatorio');
+    const tituloPagina = document.getElementById('titulo-pagina');
 
     let labAtual = "Informática, Bloco I";
     let registosCache = [];
@@ -194,20 +220,20 @@
 
     inputPesquisa.addEventListener('input', redesenhar);
 
-    // Adicionar Novo Software Dinamicamente à Lista do Lab
+    // Impressão de Relatório
+    btnImprimir?.addEventListener('click', () => {
+      tituloPagina.innerHTML = `Relatório de Auditoria de Softwares - ${labAtual}`;
+      window.print();
+      setTimeout(() => { tituloPagina.innerHTML = `💻 Auditoria de Softwares por Máquina`; }, 500);
+    });
+
+    // Adicionar Novo Software Dinamicamente
     btnAdicionarSoft.addEventListener('click', () => {
       const nomeNovo = inputNovoSoft.value.trim();
-      if (!nomeNovo) {
-        alert("Digite o nome do novo software!");
-        return;
-      }
+      if (!nomeNovo) { alert("Digite o nome do novo software!"); return; }
 
       if (!LISTA_SOFTWARES[labAtual]) LISTA_SOFTWARES[labAtual] = [];
-
-      if (LISTA_SOFTWARES[labAtual].includes(nomeNovo)) {
-        alert("Esse software já faz parte da lista deste laboratório!");
-        return;
-      }
+      if (LISTA_SOFTWARES[labAtual].includes(nomeNovo)) { alert("Esse software já faz parte da lista!"); return; }
 
       LISTA_SOFTWARES[labAtual].push(nomeNovo);
 
@@ -221,7 +247,7 @@
       inputNovoSoft.value = '';
     });
 
-    // Remover Software da Lista Oficial do Laboratório
+    // Remover Software da Lista Oficial
     containerCheckboxes.addEventListener('click', (e) => {
       if (!e.target.classList.contains('btn-remover-soft')) return;
       
@@ -236,26 +262,24 @@
         containerCheckboxes.querySelectorAll('input[type="checkbox"]').forEach(cb => {
           if (cb.checked) marcados[cb.value] = true;
         });
-
         carregarCheckboxes(marcados);
       }
     });
 
-    // Botões de marcação rápida
     document.getElementById('btn-marcar-todos').addEventListener('click', () => {
       containerCheckboxes.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
     });
+    
     document.getElementById('btn-desmarcar-todos').addEventListener('click', () => {
       containerCheckboxes.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
     });
 
-    // Ações na Tabela (Editar / Apagar)
     tabela.addEventListener('click', async (e) => {
       const idReg = e.target.getAttribute('data-id');
       if (!idReg) return;
 
       if (e.target.classList.contains('btn-remover')) {
-        if (confirm("Tens a certeza que desejas apagar o registo desta máquina?")) {
+        if (confirm("Tem a certeza que deseja apagar o registo desta máquina?")) {
           await removerAuditoria(idReg);
           carregarDados();
         }
@@ -280,14 +304,13 @@
       inputId.value = '';
       inputId.disabled = false;
       tituloForm.textContent = "➕ Registar / Auditar Máquina";
-      btnSubmitTexto.textContent = "💾 Salvar Auditoria da Máquina";
+      btnSubmitTexto.textContent = "💾 Guardar Auditoria da Máquina";
       btnCancelar.style.display = "none";
       carregarCheckboxes();
     }
 
     btnCancelar.addEventListener('click', cancelarEdicao);
 
-    // Submissão do Formulário
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       

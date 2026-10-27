@@ -32,7 +32,7 @@ export const LISTA_SOFTWARES = {
 };
 
 export async function salvarAuditoriaMaquina(dados) {
-  // ID único por Máquina e Laboratório (ex: "Simulações Numéricas_PC-01")
+  // ID único por Máquina e Laboratório
   const idUnico = sanitizarParaId(`${dados.laboratorio}_${dados.identificacao}`);
   await setDoc(doc(db, COLECAO, idUnico), {
     ...dados,
@@ -50,7 +50,7 @@ export async function removerAuditoria(idRegistro) {
   await deleteDoc(doc(db, COLECAO, idRegistro));
 }
 
-// Renderização baseada em Máquinas (Formato: 15/37)
+// Renderização baseada em Máquinas
 export function renderizarPainelSoftwares(tabela, cabecalho, registros, labFiltro, termoBusca) {
   if (!tabela || !cabecalho) return;
 
@@ -71,14 +71,15 @@ export function renderizarPainelSoftwares(tabela, cabecalho, registros, labFiltr
     totalMaquinas++;
     const instaladosObj = dados.softwaresInstalados || {};
     
-    // Conta quantos softwares estão marcados como true (ativos)
+    // Conta quantos softwares estão instalados e funcionais
     let qtdFuncionando = 0;
     for (const soft of softwaresOficiais) {
       if (instaladosObj[soft] === true) qtdFuncionando++;
     }
 
     const percentual = totalOficial > 0 ? Math.round((qtdFuncionando / totalOficial) * 100) : 0;
-    const corBadge = percentual === 100 ? 'background: #d4edda; color: #155724;' : (percentual > 50 ? 'background: #fff3cd; color: #856404;' : 'background: #f8d7da; color: #721c24;');
+    // Semáforo visual: Verde (100%), Amarelo (80% a 99%), Vermelho (<80%)
+    const corBadge = percentual === 100 ? 'background: #d4edda; color: #155724;' : (percentual >= 80 ? 'background: #fff3cd; color: #856404;' : 'background: #f8d7da; color: #721c24;');
 
     if (percentual === 100) maquinasOk++;
 
@@ -91,17 +92,21 @@ export function renderizarPainelSoftwares(tabela, cabecalho, registros, labFiltr
         <td><span style="padding: 4px 8px; border-radius: 4px; font-weight: bold; ${corBadge}">${percentual}%</span></td>
         <td><small>${dataFormatada}</small></td>
         <td>
-          <button class="btn-editar" data-id="${escapeHtml(id)}" style="background-color: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-right: 5px;">✏️ Editar</button>
-          <button class="btn-remover" data-id="${escapeHtml(id)}" style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">🗑️ Apagar</button>
+          <button class="btn-editar" data-id="${escapeHtml(id)}" style="background-color: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-right: 5px; transition: 0.2s;">✏️ Editar</button>
+          <button class="btn-remover" data-id="${escapeHtml(id)}" style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: 0.2s;">🗑️ Apagar</button>
         </td>
       </tr>
     `);
   }
 
   // Atualiza os cartões de estatísticas no topo
-  document.getElementById('stat-total-pcs').innerText = totalMaquinas;
-  document.getElementById('stat-pcs-ok').innerText = `${maquinasOk} / ${totalMaquinas}`;
-  document.getElementById('stat-pcs-erro').innerText = totalMaquinas - maquinasOk;
+  const statTotal = document.getElementById('stat-total-pcs');
+  const statOk = document.getElementById('stat-pcs-ok');
+  const statErro = document.getElementById('stat-pcs-erro');
 
-  tabela.innerHTML = linhas.length > 0 ? linhas.join('') : `<tr><td colspan="5" style="text-align: center; padding: 25px; color: #666;">Nenhuma máquina auditada neste laboratório. Preencha o formulário acima para começar.</td></tr>`;
+  if(statTotal) statTotal.innerText = totalMaquinas;
+  if(statOk) statOk.innerText = `${maquinasOk} / ${totalMaquinas}`;
+  if(statErro) statErro.innerText = totalMaquinas - maquinasOk;
+
+  tabela.innerHTML = linhas.length > 0 ? linhas.join('') : `<tr><td colspan="5" style="text-align: center; padding: 25px; color: #666; font-size: 1.1em;">Nenhuma máquina auditada neste laboratório. Preencha o formulário acima para começar.</td></tr>`;
 }

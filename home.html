@@ -3,30 +3,158 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel Principal - Vistoria de Laboratórios</title>
+  <title>Painel Principal - DTI UFC</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f6f9; text-align: center; }
-    .menu-container { display: flex; justify-content: center; gap: 20px; margin-top: 40px; flex-wrap: wrap; }
-    .card-menu { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 280px; text-decoration: none; color: #333; transition: transform 0.2s; }
-    .card-menu:hover { transform: translateY(-5px); }
-    .card-menu h3 { color: #008b8b; margin-bottom: 10px; }
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+    body { 
+      font-family: 'Poppins', sans-serif; 
+      margin: 0; 
+      padding: 0;
+      background-color: #f4f7f6; 
+      color: #2c3e50; 
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .header {
+      background-color: #1a252f;
+      width: 100%;
+      padding: 25px 0;
+      text-align: center;
+      color: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      margin-bottom: 50px;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 2em;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .header span {
+      color: #008b8b;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 900px;
+      padding: 20px;
+      width: 100%;
+    }
+
+    .container h2 {
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .container p.subtitulo {
+      font-size: 1.1em;
+      color: #555;
+      margin-bottom: 40px;
+    }
+
+    .menu-container { 
+      display: flex; 
+      justify-content: center; 
+      gap: 30px; 
+      flex-wrap: wrap; 
+    }
+
+    .card-menu { 
+      background: white; 
+      padding: 40px 30px; 
+      border-radius: 12px; 
+      box-shadow: 0 8px 16px rgba(0,0,0,0.05); 
+      width: 300px; 
+      text-decoration: none; 
+      color: #333; 
+      transition: all 0.3s ease; 
+      border-top: 6px solid #008b8b;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .card-menu:hover { 
+      transform: translateY(-8px); 
+      box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    }
+
+    .card-menu .icon {
+      font-size: 3.5em;
+      margin-bottom: 15px;
+    }
+
+    .card-menu h3 { 
+      color: #1a252f; 
+      margin: 0 0 15px 0;
+      font-size: 1.4em;
+    }
+    
+    .card-menu p {
+      margin: 0;
+      font-size: 0.95em;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .logout-container {
+      margin-top: 60px;
+    }
+
+    .btn-sair {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-sair:hover {
+      background-color: #c82333;
+      transform: translateY(-2px);
+    }
   </style>
 </head>
 <body>
 
-  <h1>Sistem de Vistoria e Manutenção</h1>
-  <p>Selecione a área que deseja gerenciar:</p>
+  <div class="header">
+    <h1>Sistema de Vistoria <span>DTI</span></h1>
+  </div>
 
-  <div class="menu-container">
-    <a href="maquinas.html" class="card-menu">
-      <h3>🖥️ Gerenciar Máquinas</h3>
-      <p>Registrar vistorias, acompanhar status dos computadores e histórico.</p>
-    </a>
+  <div class="container">
+    <h2>Bem-vindo ao Painel Principal</h2>
+    <p class="subtitulo">Selecione a área que deseja gerir nos laboratórios da UFC:</p>
 
-    <a href="softwares.html" class="card-menu">
-      <h3>💻 Auditoria de Softwares</h3>
-      <p>Monitorar instalação e funcionamento de softwares nos laboratórios.</p>
-    </a>
+    <div class="menu-container">
+      <a href="maquinas.html" class="card-menu">
+        <div class="icon">🖥️</div>
+        <h3>Gestão de Máquinas</h3>
+        <p>Registe vistorias, monitorize o estado do hardware e gira as pendências de peças e internet.</p>
+      </a>
+
+      <a href="softwares.html" class="card-menu">
+        <div class="icon">💻</div>
+        <h3>Auditoria de Softwares</h3>
+        <p>Gira a lista oficial e monitorize a conformidade e instalação dos programas nas máquinas.</p>
+      </a>
+    </div>
+
+    <div class="logout-container">
+      <!-- Este botão leva o utilizador de volta para o ecrã de login e pode ser ligado ao Firebase Auth futuramente -->
+      <a href="index.html" class="btn-sair">🚪 Sair do Sistema</a>
+    </div>
   </div>
 
 </body>

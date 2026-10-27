@@ -1,3 +1,8 @@
+/**
+ * Módulo de Autenticação - DTI UFC
+ * Gere o login, registo e logout de utilizadores usando o Firebase Auth.
+ */
+
 import { auth } from './firebase.js';
 import { 
   createUserWithEmailAndPassword, 
@@ -5,50 +10,66 @@ import {
   signOut 
 } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
-// 1. Criar novo usuário (Cadastro)
+/**
+ * Cria um novo técnico no sistema (Apenas para o Administrador).
+ * @param {string} email - E-mail institucional do novo técnico.
+ * @param {string} senha - Palavra-passe temporária.
+ * @returns {Promise<Object>} - Retorna o objeto do utilizador criado.
+ */
 export async function cadastrar(email, senha) {
   try {
     const credencial = await createUserWithEmailAndPassword(auth, email, senha);
-    console.log("Usuário criado com sucesso:", credencial.user.email);
+    console.log("Utilizador criado com sucesso:", credencial.user.email);
     
-    // 🔴 REMOVIDO: window.location.href = "home.html";
-    // Assim o admin continua na tela do admin.html após cadastrar alguém!
-
+    // O administrador permanece na página admin.html após cadastrar alguém
     return credencial.user;
   } catch (erro) {
-    console.error("Erro ao cadastrar:", erro.message);
+    console.error("Erro ao cadastrar utilizador:", erro.message);
     throw erro;
   }
 }
 
-// 2. Entrar na conta (Login)
+/**
+ * Autentica um utilizador existente e redireciona-o para o painel correto.
+ * @param {string} email - E-mail do utilizador.
+ * @param {string} senha - Palavra-passe do utilizador.
+ * @returns {Promise<Object>} - Retorna o objeto do utilizador autenticado.
+ */
 export async function entrar(email, senha) {
   try {
     const credencial = await signInWithEmailAndPassword(auth, email, senha);
-    console.log("Login realizado com sucesso:", credencial.user.email);
+    console.log("Login efetuado com sucesso:", credencial.user.email);
 
-    // 🔴 TROQUE "admin@seu-sistema.com" PELO SEU E-MAIL REAL DE ADMIN:
-    if (credencial.user.email === "admin@sistema-labs.com") {
-      // Envia para o painel de administrador
+    // Substitui este e-mail pelo e-mail real do Administrador da DTI
+    const emailAdmin = "admin@sistema-labs.com";
+
+    if (credencial.user.email === emailAdmin) {
+      // Redireciona para o painel de administração (gestão de utilizadores e sistema)
       window.location.href = "admin.html"; 
     } else {
-      // Envia para a home comum de usuário
+      // Redireciona para o painel principal (Menu de vistorias para técnicos)
       window.location.href = "home.html"; 
     }
 
     return credencial.user;
   } catch (erro) {
-    console.error("Erro ao entrar:", erro.message);
+    console.error("Erro na autenticação:", erro.message);
     throw erro;
   }
 }
 
-// 3. Sair da conta (Logout)
+/**
+ * Encerra a sessão do utilizador atual e redireciona para o ecrã de login.
+ */
 export async function sair() {
   try {
     await signOut(auth);
-    console.log("Usuário deslogado com sucesso.");
+    console.log("Sessão encerrada com sucesso.");
+    
+    // Redireciona o utilizador de volta para a porta de entrada
+    window.location.href = "index.html";
   } catch (erro) {
-    console.error("Erro ao sair:", erro.message);
+    console.error("Erro ao encerrar sessão:", erro.message);
+    throw erro;
   }
 }
