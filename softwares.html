@@ -110,6 +110,12 @@
   <script type="module">
     import { salvarAuditoriaMaquina, buscarAuditorias, renderizarPainelSoftwares, removerAuditoria, LISTA_SOFTWARES } from './softwares.js';
 
+    // Função auxiliar para evitar problemas de caracteres especiais
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
     const form = document.getElementById('form-softwares');
     const tabela = document.getElementById('tabela-softwares');
     const cabecalho = document.getElementById('cabecalho-tabela');
@@ -182,7 +188,7 @@
       if (!idReg) return;
 
       if (e.target.classList.contains('btn-remover')) {
-        if (confirm("Tem a certeza que deseja apagar o registo desta máquina?")) {
+        if (confirm("Tens a certeza que desejas apagar o registo desta máquina?")) {
           await removerAuditoria(idReg);
           carregarDados();
         }
@@ -192,7 +198,7 @@
 
         idEditando = idReg;
         inputId.value = item.dados.identificacao;
-        inputId.disabled = true; // Bloqueia o ID na edição
+        inputId.disabled = true; 
         tituloForm.textContent = `✏️ A editar registo da máquina: ${item.dados.identificacao}`;
         btnSubmitTexto.textContent = "💾 Atualizar Auditoria";
         btnCancelar.style.display = "inline-block";
