@@ -22,6 +22,12 @@
     label { font-size: 0.85em; font-weight: 600; margin-bottom: 5px; color: #555; }
     input { padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.95em; }
 
+    /* Adicionar Novo Software Dinâmico */
+    .container-adicionar-soft { display: flex; gap: 10px; margin-bottom: 15px; }
+    .container-adicionar-soft input { flex: 1; padding: 8px 12px; }
+    .btn-adicionar-soft { background-color: #6f42c1; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .btn-adicionar-soft:hover { background-color: #5a32a3; }
+
     /* Grelha de Checkboxes dos Softwares */
     .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; background: #fafbfc; padding: 15px; border-radius: 8px; border: 1px solid #e1e4e8; max-height: 250px; overflow-y: auto; margin-bottom: 20px; }
     .checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 0.9em; cursor: pointer; }
@@ -80,6 +86,13 @@
     </div>
 
     <label style="margin-bottom: 8px; display: block;">Selecione os softwares instalados e funcionais nesta máquina:</label>
+    
+    <!-- Campo para adicionar novo software na hora -->
+    <div class="container-adicionar-soft">
+      <input type="text" id="input-novo-soft" placeholder="Nome de um software novo para este laboratório...">
+      <button type="button" id="btn-adicionar-soft" class="btn-adicionar-soft">➕ Adicionar à Lista</button>
+    </div>
+
     <div id="container-checkboxes" class="checkbox-grid">
       <!-- Gerado dinamicamente via JavaScript -->
     </div>
@@ -110,7 +123,6 @@
   <script type="module">
     import { salvarAuditoriaMaquina, buscarAuditorias, renderizarPainelSoftwares, removerAuditoria, LISTA_SOFTWARES } from './softwares.js';
 
-    // Função auxiliar para evitar problemas de caracteres especiais
     function escapeHtml(text) {
       if (!text) return '';
       return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
@@ -126,12 +138,13 @@
     const btnCancelar = document.getElementById('btn-cancelar-edicao');
     const tituloForm = document.getElementById('titulo-form');
     const btnSubmitTexto = document.getElementById('btn-submit-texto');
+    const inputNovoSoft = document.getElementById('input-novo-soft');
+    const btnAdicionarSoft = document.getElementById('btn-adicionar-soft');
 
     let labAtual = "Informática, Bloco I";
     let registosCache = [];
     let idEditando = null;
 
-    // Renderiza dinamicamente as checkboxes do laboratório ativo
     function carregarCheckboxes(selecionadosObj = {}) {
       const lista = LISTA_SOFTWARES[labAtual] || [];
       containerCheckboxes.innerHTML = lista.map(soft => {
@@ -173,6 +186,34 @@
     });
 
     inputPesquisa.addEventListener('input', redesenhar);
+
+    // Adicionar Novo Software Dinamicamente à Lista do Lab
+    btnAdicionarSoft.addEventListener('click', () => {
+      const nomeNovo = inputNovoSoft.value.trim();
+      if (!nomeNovo) {
+        alert("Digite o nome do novo software!");
+        return;
+      }
+
+      if (!LISTA_SOFTWARES[labAtual]) LISTA_SOFTWARES[labAtual] = [];
+
+      if (LISTA_SOFTWARES[labAtual].includes(nomeNovo)) {
+        alert("Esse software já faz parte da lista deste laboratório!");
+        return;
+      }
+
+      LISTA_SOFTWARES[labAtual].push(nomeNovo);
+
+      // Recolhe os checkboxes já marcados para não os perder
+      const marcados = {};
+      containerCheckboxes.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        if (cb.checked) marcados[cb.value] = true;
+      });
+      marcados[nomeNovo] = true; // Já marca o recém-adicionado por conveniência
+
+      carregarCheckboxes(marcados);
+      inputNovoSoft.value = '';
+    });
 
     // Botões de marcação rápida
     document.getElementById('btn-marcar-todos').addEventListener('click', () => {
