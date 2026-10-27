@@ -7,17 +7,26 @@ import { escapeHtml, sanitizarParaId } from './utils.js';
 
 const COLECAO = "manutencoes";
 
-export async function cadastrarMaquina(dados) {
-  // Padroniza o ID interno com prefixo PC- baseado no número digitado (ex: "PC-40")
-  const idFormatado = `PC-${dados.identificacao}`;
-  const idUnico = sanitizarParaId(`${dados.laboratorio}_${idFormatado}`);
+// Recebe o idExistente (se for edição) para NÃO criar duplicados
+export async function cadastrarMaquina(dados, idExistente = null) {
+  // Limpa o prefixo caso haja lixo na base de dados antiga
+  const identLimpa = String(dados.identificacao).replace(/PC-/gi, '').trim();
   
-  await setDoc(doc(db, COLECAO, idUnico), {
+  // Se for edição, usa o ID exato do Firebase. Se for novo, gera um padronizado.
+  const idUnico = idExistente || sanitizarParaId(`${dados.laboratorio}_PC-${identLimpa}`);
+  
+  const payload = {
     ...dados,
-    identificacao: dados.identificacao, // Guarda apenas o número limpo
+    identificacao: identLimpa, // Guarda apenas o número limpo
     status: dados.tudoFuncionando === "Não" ? "Pendente" : "OK",
-    criadoEm: serverTimestamp(),
-  }, { merge: true });
+  };
+
+  // Regista a data de criação apenas se for uma máquina nova
+  if (!idExistente) {
+    payload.criadoEm = serverTimestamp();
+  }
+
+  await setDoc(doc(db, COLECAO, idUnico), payload, { merge: true });
 }
 
 export async function buscarMaquinas() {
@@ -30,7 +39,6 @@ export async function concluirMaquina(idChamado) {
   await updateDoc(doc(db, COLECAO, idChamado), { status: "Concluído" });
 }
 
-// NOVA FUNÇÃO: Apagar um registo de máquina
 export async function removerMaquina(idRegistro) {
   await deleteDoc(doc(db, COLECAO, idRegistro));
 }
@@ -63,8 +71,8 @@ export function renderizarPainelMaquinas(tabela, cabecalho, registros, labFiltro
     const corBat = dados.bateria === 'Descarregada' ? 'background: #fff3cd; color: #856404; font-weight: bold; padding: 2px 6px; border-radius: 4px;' : '';
     const statusGeral = dados.tudoFuncionando === 'Sim' ? '✅ Sim' : '❌ Não';
     
-    // Apresenta sempre com o prefixo visual PC- na tabela
-    const nomeMaquina = `PC-${escapeHtml(dados.identificacao) || '-'}`;
+    const identLimpa = String(dados.identificacao).replace(/PC-/gi, '').trim();
+    const nomeMaquina = `PC-${escapeHtml(identLimpa) || '-'}`;
 
     let tds = '';
     if (labFiltro === "Informática, Bloco I") {
@@ -117,6 +125,7 @@ export function renderizarPainelMaquinas(tabela, cabecalho, registros, labFiltro
       `;
     }
 
+    // Botão de apagar removido das linhas. Mantido apenas o de Editar e Resolver.
     linhas.push(`
       <tr style="border-bottom: 1px solid #eee; background-color: ${concluido ? '#f8f9fa' : '#ffffff'}; opacity: ${concluido ? '0.65' : '1'};">
         ${tds}
@@ -127,7 +136,6 @@ export function renderizarPainelMaquinas(tabela, cabecalho, registros, labFiltro
               ? '<span style="color: #155724; font-weight: bold; background: #d4edda; padding: 4px 8px; border-radius: 4px; font-size: 0.85em;">✔️ Resolvido</span>' 
               : `<button class="btn-concluir" data-id="${escapeHtml(id)}" style="background-color: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 0.85em;" title="Marcar como resolvido">✔️ Resolver</button>`}
             <button class="btn-editar" data-id="${escapeHtml(id)}" style="background-color: #007bff; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 0.85em;" title="Editar dados da máquina">✏️ Editar</button>
-            <button class="btn-remover" data-id="${escapeHtml(id)}" style="background-color: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 0.85em;" title="Apagar este registo">🗑️ Apagar</button>
           </div>
         </td>
       </tr>
