@@ -30,8 +30,12 @@
 
     /* Grelha de Checkboxes dos Softwares */
     .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; background: #fafbfc; padding: 15px; border-radius: 8px; border: 1px solid #e1e4e8; max-height: 250px; overflow-y: auto; margin-bottom: 20px; }
-    .checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 0.9em; cursor: pointer; }
+    
+    .checkbox-wrapper { display: flex; align-items: center; justify-content: space-between; background: #fff; padding: 6px 10px; border-radius: 6px; border: 1px solid #e1e4e8; }
+    .checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 0.9em; cursor: pointer; flex: 1; margin: 0; }
     .checkbox-item input { cursor: pointer; width: 16px; height: 16px; }
+    .btn-remover-soft { background: none; border: none; color: #dc3545; cursor: pointer; font-size: 0.9em; padding: 0 4px; transition: 0.2s; }
+    .btn-remover-soft:hover { transform: scale(1.2); }
 
     .botoes-acao { display: flex; gap: 10px; }
     button.btn-salvar { background-color: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
@@ -147,13 +151,16 @@
 
     function carregarCheckboxes(selecionadosObj = {}) {
       const lista = LISTA_SOFTWARES[labAtual] || [];
-      containerCheckboxes.innerHTML = lista.map(soft => {
+      containerCheckboxes.innerHTML = lista.map((soft, index) => {
         const isChecked = selecionadosObj[soft] === true ? 'checked' : '';
         return `
-          <label class="checkbox-item">
-            <input type="checkbox" name="software" value="${escapeHtml(soft)}" ${isChecked}>
-            <span>${escapeHtml(soft)}</span>
-          </label>
+          <div class="checkbox-wrapper">
+            <label class="checkbox-item">
+              <input type="checkbox" name="software" value="${escapeHtml(soft)}" ${isChecked}>
+              <span>${escapeHtml(soft)}</span>
+            </label>
+            <button type="button" class="btn-remover-soft" data-index="${index}" title="Remover da lista oficial">🗑️</button>
+          </div>
         `;
       }).join('');
     }
@@ -204,15 +211,34 @@
 
       LISTA_SOFTWARES[labAtual].push(nomeNovo);
 
-      // Recolhe os checkboxes já marcados para não os perder
       const marcados = {};
       containerCheckboxes.querySelectorAll('input[type="checkbox"]').forEach(cb => {
         if (cb.checked) marcados[cb.value] = true;
       });
-      marcados[nomeNovo] = true; // Já marca o recém-adicionado por conveniência
+      marcados[nomeNovo] = true; 
 
       carregarCheckboxes(marcados);
       inputNovoSoft.value = '';
+    });
+
+    // Remover Software da Lista Oficial do Laboratório
+    containerCheckboxes.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('btn-remover-soft')) return;
+      
+      const index = parseInt(e.target.getAttribute('data-index'));
+      const lista = LISTA_SOFTWARES[labAtual] || [];
+      const nomeSoft = lista[index];
+
+      if (confirm(`Tem a certeza que deseja remover "${nomeSoft}" da lista oficial deste laboratório?`)) {
+        LISTA_SOFTWARES[labAtual].splice(index, 1);
+
+        const marcados = {};
+        containerCheckboxes.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+          if (cb.checked) marcados[cb.value] = true;
+        });
+
+        carregarCheckboxes(marcados);
+      }
     });
 
     // Botões de marcação rápida
