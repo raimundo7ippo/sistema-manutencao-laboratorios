@@ -3,391 +3,230 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Auditoria de Softwares</title>
+  <title>Status e Cadastro de Softwares - DTI</title>
   <style>
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
-  body { 
-    font-family: 'Poppins', sans-serif; 
-    background-color: #f4f7f6; 
-    margin: 0; 
-    padding: 30px; 
-    color: #2c3e50; 
-  }
+    body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; margin: 0; padding: 30px; color: #2c3e50; }
+    h1, h2 { color: #1a252f; font-weight: 600; }
+    a { color: #007bff; text-decoration: none; font-weight: 500; transition: 0.2s; }
+    a:hover { color: #0056b3; }
 
-  h1, h2, h3 { color: #1a252f; font-weight: 600; }
-  a { color: #007bff; text-decoration: none; font-weight: 500; transition: 0.2s; }
-  a:hover { color: #0056b3; }
+    .abas-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .aba-btn { padding: 12px 24px; cursor: pointer; border: none; background: #008b8b; color: white; border-radius: 6px; font-weight: 500; transition: 0.2s; font-family: 'Poppins', sans-serif; }
+    .aba-btn:not(.ativa) { background: #e9ecef; color: #495057; }
+    .btn-falhas { background: #ffeeba; color: #856404; font-weight: bold; border: 1px solid #ffdf7e; margin-left: auto; }
+    .btn-falhas.ativa { background: #dc3545; color: white; border-color: #dc3545; }
 
-  /* Formulário Moderno */
-  form {
-    background: #ffffff;
-    padding: 25px 30px;
-    border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.05);
-    margin-bottom: 30px;
-    border-top: 4px solid #17a2b8; /* Cor ligeiramente diferente para distinguir dos PCs */
-  }
+    #form-softwares { background: #ffffff; padding: 25px 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 30px; border-left: 5px solid #6f42c1; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+    .form-group { display: flex; flex-direction: column; }
+    label { font-size: 0.85em; font-weight: 600; margin-bottom: 5px; color: #555; }
+    input, select { padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.95em; }
+    
+    button.btn-salvar { background-color: #008b8b; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 15px; transition: 0.2s; }
+    button.btn-salvar:hover { background-color: #006666; }
 
-  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
-  .form-group { display: flex; flex-direction: column; }
-  
-  label { font-size: 0.9em; font-weight: 500; margin-bottom: 5px; color: #555; }
-  input, select {
-    padding: 10px;
-    border: 1px solid #ced4da;
-    border-radius: 6px;
-    font-family: 'Poppins', sans-serif;
-    font-size: 0.95em;
-    transition: border-color 0.2s;
-  }
-  input:focus, select:focus { outline: none; border-color: #17a2b8; }
+    .cards-container { display: flex; gap: 20px; margin-bottom: 25px; flex-wrap: wrap; }
+    .card-stat { background: #ffffff; padding: 20px; border-radius: 12px; flex: 1; box-shadow: 0 4px 8px rgba(0,0,0,0.04); }
+    .card-stat small { font-weight: 600; text-transform: uppercase; font-size: 0.75em; }
+    .card-stat h3 { margin: 10px 0 0 0; font-size: 26px; }
+    .card-total { border-bottom: 4px solid #17a2b8; } .card-total small { color: #17a2b8; }
+    .card-ok { border-bottom: 4px solid #28a745; } .card-ok small { color: #28a745; }
+    .card-erro { border-bottom: 4px solid #dc3545; } .card-erro small { color: #dc3545; }
 
-  button {
-    background-color: #17a2b8; color: white; border: none;
-    padding: 12px 24px; border-radius: 6px; font-weight: 600;
-    cursor: pointer; transition: background-color 0.2s, transform 0.1s;
-    margin-top: 10px; font-family: 'Poppins', sans-serif;
-  }
-  button:hover { background-color: #138496; transform: translateY(-2px); }
+    /* Barra de Pesquisa e Botão Limpar */
+    .barra-ferramentas { display: flex; gap: 10px; margin-bottom: 20px; }
+    .input-pesquisa { flex: 1; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.95em; }
+    .btn-limpar-lab { background-color: #f44336; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
+    .btn-limpar-lab:hover { background-color: #d32f2f; }
 
-  /* Cards de Estatísticas */
-  .cards-container { display: flex; gap: 20px; margin-bottom: 25px; flex-wrap: wrap; }
-  .card-stat { 
-    background: #ffffff; padding: 20px; border-radius: 12px; flex: 1; min-width: 200px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.04); transition: transform 0.2s;
-  }
-  .card-stat:hover { transform: translateY(-4px); }
-  .card-stat small { font-weight: 600; text-transform: uppercase; font-size: 0.8em; }
-  .card-stat h3 { margin: 10px 0 0 0; font-size: 28px; }
-  
-  .card-total { border-bottom: 4px solid #17a2b8; }
-  .card-total small { color: #17a2b8; }
-  .card-ok { border-bottom: 4px solid #28a745; }
-  .card-ok small { color: #28a745; }
-  .card-erro { border-bottom: 4px solid #dc3545; }
-  .card-erro small { color: #dc3545; }
-
-  /* Tabela Moderna */
-  .table-container { 
-    overflow-x: auto; background: #ffffff; border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 5px;
-  }
-  table { width: 100%; border-collapse: collapse; min-width: 1000px; }
-  th, td { padding: 12px 15px; text-align: left; font-size: 0.9em; border-bottom: 1px solid #f0f0f0; }
-  th { background-color: #f8f9fa; color: #495057; font-weight: 600; text-transform: uppercase; font-size: 0.8em; letter-spacing: 0.5px; border-bottom: 2px solid #dee2e6; }
-  tr:hover { background-color: #f8fbfb; }
-  
-  /* Botão Detalhes (Específico dos Softwares) */
-  .btn-detalhes-soft {
-    background-color: #008b8b;
-    padding: 8px 12px;
-    font-size: 0.85em;
-    margin: 0;
-    border-radius: 6px;
-    color: white;
-    border: none;
-  }
-  .btn-detalhes-soft:hover { background-color: #006666; }
-</style>
+    .table-container { overflow-x: auto; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    table { width: 100%; border-collapse: collapse; min-width: 900px; }
+    th, td { padding: 15px; text-align: left; font-size: 0.9em; border-bottom: 1px solid #f0f0f0; }
+    th { background-color: #f8f9fa; color: #495057; font-weight: 600; text-transform: uppercase; font-size: 0.8em; border-bottom: 2px solid #dee2e6; }
+    tr:hover { background-color: #f8fbfb; }
+  </style>
 </head>
 <body>
 
   <p><a href="home.html">⬅️ Voltar para o Menu Principal</a></p>
   <h1>💻 Status e Cadastro de Softwares por Laboratório</h1>
 
-  <!-- Abas de Navegação por Laboratório -->
-  <div class="labs-tabs" id="lab-tabs-container">
-    <button class="tab-btn active" data-lab="Informática, Bloco I">Informática, Bloco I</button>
-    <button class="tab-btn" data-lab="Programação Computacional">Programação Computacional</button>
-    <button class="tab-btn" data-lab="Simulações Numéricas">Simulações Numéricas</button>
-    <button class="tab-btn" data-lab="Pendencias" style="background: #fce8e6; color: #c5221f; border: 1px solid #f5c6cb;">⚠️ Ver Apenas Falhas/Pendências</button>
+  <div class="abas-container">
+    <button class="aba-btn ativa" data-lab="Informática, Bloco I">Informática, Bloco I</button>
+    <button class="aba-btn" data-lab="Programação Computacional">Programação Computacional</button>
+    <button class="aba-btn" data-lab="Simulações Numéricas">Simulações Numéricas</button>
+    <button id="btn-toggle-falhas" class="aba-btn btn-falhas">⚠️ Ver Apenas Falhas/Pendências</button>
   </div>
 
-  <!-- Formulário de Registro Rápido -->
-  <form id="form-software" style="background: white; padding: 20px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-    <h3 style="margin-top:0;">➕ Registrar Status de Máquina no Lab Atual</h3>
+  <form id="form-softwares">
+    <h3 style="margin-top: 0;">➕ Registar Status de Máquina no Lab Atual</h3>
     <div class="form-grid">
       <div class="form-group">
         <label>Laboratório Atual:</label>
-        <input type="text" id="input-lab-atual" readonly style="padding: 6px; background: #eef2f5; font-weight: bold; border: 1px solid #ccc; border-radius: 4px;">
+        <input type="text" id="input-laboratorio" value="Informática, Bloco I" readonly style="background-color: #e9ecef; cursor: not-allowed; font-weight: bold;">
       </div>
-
-      <div class="form-group">
-        <label>Nome do Software:</label>
-        <select id="input-nome-software" required style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
-          <option value="">Selecione o software...</option>
-        </select>
-      </div>
-
       <div class="form-group">
         <label>Número / ID da Máquina:</label>
-        <input type="text" id="input-maquina-software" required placeholder="Ex: PC-01" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
+        <input type="text" id="input-identificacao" placeholder="Ex: PC-01" required>
       </div>
-
       <div class="form-group">
-        <label>Funciona?:</label>
-        <select id="select-funciona-software" required style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
-          <option value="Sim">Sim (OK)</option>
-          <option value="Não">Não (Falha)</option>
-        </select>
+        <label>Nome do Software:</label>
+        <input type="text" id="input-software" placeholder="Ex: AutoCAD, MATLAB" required>
       </div>
-
+      <div class="form-group">
+        <label>S.O. (Sistema Operativo):</label>
+        <input type="text" id="input-so" placeholder="Ex: Windows 11, Ubuntu">
+      </div>
       <div class="form-group">
         <label>Curso (Opcional):</label>
-        <input type="text" id="input-curso-software" placeholder="Ex: Engenharia" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
+        <input type="text" id="input-curso" placeholder="Ex: Engenharia">
       </div>
-
       <div class="form-group">
         <label>Solicitante / Professor (Opcional):</label>
-        <input type="text" id="input-solicitante-software" placeholder="Nome" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
+        <input type="text" id="input-solicitante" placeholder="Nome">
+      </div>
+      <div class="form-group">
+        <label>Funciona?:</label>
+        <select id="select-funciona" required>
+          <option value="Sim (OK)">Sim (OK)</option>
+          <option value="Não (Falha)">Não (Falha)</option>
+        </select>
       </div>
     </div>
-    <br>
-    <button type="submit" style="background: #008b8b; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Salvar Registro</button>
-    <div id="form-erro-soft" class="aviso-erro" style="display:none;"></div>
+    <button type="submit" class="btn-salvar">💾 Guardar Registo</button>
   </form>
 
-  <!-- Indicador Resumido de Máquinas (Ex: 20/40 OK) -->
   <div class="cards-container">
-    <div class="card-stat card-total">
-      <small>Total Registros no Lab</small>
-      <h3 id="stat-total-lab">0</h3>
-    </div>
-    <div class="card-stat card-ok">
-      <small>Máquinas Operacionais (OK)</small>
-      <h3 id="stat-ok-lab">0/0</h3>
-    </div>
-    <div class="card-stat card-erro">
-      <small>Com Falhas / Pendências</small>
-      <h3 id="stat-erro-lab">0</h3>
-    </div>
+    <div class="card-stat card-total"><small>Total Registos no Lab</small><h3 id="stat-total-pcs">0</h3></div>
+    <div class="card-stat card-ok"><small>Máquinas Operacionais (OK)</small><h3 id="stat-pcs-ok">0/0</h3></div>
+    <div class="card-stat card-erro"><small>Com Falhas / Pendências</small><h3 id="stat-pcs-erro">0</h3></div>
   </div>
 
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-    <input
-      type="text"
-      id="filtro-software-busca"
-      placeholder="🔍 Filtrar nesta visão por software, máquina ou curso..."
-      style="padding: 8px 12px; width: 100%; max-width: 450px; border: 1px solid #ccc; border-radius: 5px;"
-    >
-    <button id="btn-limpar-softwares" style="background-color: #f44336; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">🗑️ Limpar Registros do Lab</button>
+  <!-- Barra de Pesquisa e Limpar Lab -->
+  <div class="barra-ferramentas">
+    <input type="text" id="input-pesquisa" class="input-pesquisa" placeholder="🔍 Filtrar nesta visão por software, máquina ou curso...">
+    <button id="btn-limpar-lab" class="btn-limpar-lab">🗑️ Limpar Registos do Lab</button>
   </div>
 
-  <!-- Tabela de Exibição Dinâmica -->
   <div class="table-container">
     <table>
-      <thead>
-        <tr>
-          <th>Laboratório</th>
-          <th>Software</th>
-          <th>Máquina</th>
-          <th>Status</th>
-          <th>Curso / Solicitante</th>
-          <th>Última Atualização</th>
-        </tr>
-      </thead>
-      <tbody id="tabela-softwares">
-        <tr><td colspan="6" style="text-align:center;">Carregando registros...</td></tr>
-      </tbody>
+      <thead id="cabecalho-tabela"></thead>
+      <tbody id="tabela-softwares"></tbody>
     </table>
   </div>
 
   <script type="module">
-    import {
-      buscarSoftwares,
-      cadastrarChecagemSoftware,
-      limparSecaoSoftwares
-    } from './manutencao.js';
-    import { debounce } from './utils.js';
+    import { cadastrarSoftware, buscarSoftwares, renderizarPainelSoftwares, removerSoftware } from './softwares.js';
 
-    // Lista fixa de softwares organizados em ordem alfabética por laboratório para popular o <select>
-    const softwaresPorLab = {
-      "Informática, Bloco I": [
-        "Autocad", "Blender", "Chrome", "Dev C++", "Firefox", "GeoDA", "GeoDaSpace", 
-        "Java (latest)", "Musescore", "MySQL Community Edition", "MySQL Workbench", 
-        "Netbeans 11", "Python 3", "QGIS", "Stata", "TerraView", "VS Code", "Wireshark 3.0"
-      ],
-      "Programação Computacional": [
-        "Android Studio", "Arduino IDE", "Autocad", "Blender", "Dev C++", "DOSVOX", 
-        "Drive do Arduino", "Eclipse", "GeoDA", "GeoDaSpace", "Ionic", "Jamovi", 
-        "Java 8", "Jenkins", "Matlab", "Musescore", "MySQL Community Edition", 
-        "MySQL Workbench", "Netbeans 11", "NodeJS", "NPM", "NVDA", "Octave 11", 
-        "PROTEUS", "PSIM", "PSPP", "PyCharm Community", "Python 3", "QGIS", 
-        "R e RStudio", "React Native", "Scilab", "Spinmaker", "Stata", "Sublime Text 3", 
-        "TerraView", "Visual Studio Code (VS Code)", "WinPCap 4", "Wireshark 3.0"
-      ],
-      "Simulações Numéricas": [
-        "Android Studio", "Arduino IDE", "Autocad", "Blender", "Dev C++", "DOSVOX", 
-        "Drive do Arduino", "GeoDA", "GeoDaSpace", "Jamovi", "JamoviTestes", 
-        "Java 8/25", "Matlab", "Musescore", "MySQL Community Edition", 
-        "MySQL Workbench", "Netbeans", "NodeJS", "NPM", "NVIDIA Linux", 
-        "NVIDIA Windows", "NVDA", "Octave", "PROTEUS", "PSIM", "PSPP", 
-        "PyCharm Community", "Python 3", "QGIS", "R e RStudio", "R Project", 
-        "Scilab", "Stata", "Sublime Text 3", "TerraView", "Visual Studio Code (VS Code)", 
-        "WinPCap 4", "Wireshark 3.0"
-      ]
-    };
+    const form = document.getElementById('form-softwares');
+    const tabela = document.getElementById('tabela-softwares');
+    const cabecalho = document.getElementById('cabecalho-tabela');
+    const inputLab = document.getElementById('input-laboratorio');
+    const btnFalhas = document.getElementById('btn-toggle-falhas');
+    const inputPesquisa = document.getElementById('input-pesquisa');
+    const btnLimparLab = document.getElementById('btn-limpar-lab');
 
     let labAtual = "Informática, Bloco I";
-    let registrosCache = [];
-
-    const tabButtons = document.querySelectorAll('.tab-btn');
-    const inputLabAtual = document.getElementById('input-lab-atual');
-    const selectNomeSoftware = document.getElementById('input-nome-software');
-    const formSoftware = document.getElementById('form-software');
-    const formErroSoft = document.getElementById('form-erro-soft');
-    const tabelaSoftwares = document.getElementById('tabela-softwares');
-    const inputBuscaSoft = document.getElementById('filtro-software-busca');
-    const btnLimparSoftwares = document.getElementById('btn-limpar-softwares');
-
-    const statTotal = document.getElementById('stat-total-lab');
-    const statOk = document.getElementById('stat-ok-lab');
-    const statErro = document.getElementById('stat-erro-lab');
-
-    function atualizarSelectSoftwares(lab) {
-      selectNomeSoftware.innerHTML = '<option value="">Selecione o software...</option>';
-      if (softwaresPorLab[lab]) {
-        softwaresPorLab[lab].forEach(sw => {
-          const opt = document.createElement('option');
-          opt.value = sw;
-          opt.textContent = sw;
-          selectNomeSoftware.appendChild(opt);
-        });
-      }
-    }
-
-    function mudarLaboratorio(novoLab) {
-      labAtual = novoLab;
-      tabButtons.forEach(btn => {
-        if (btn.getAttribute('data-lab') === novoLab) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
-        }
-      });
-
-      if (novoLab === "Pendencias") {
-        inputLabAtual.value = "Modo Geral (Apenas Falhas)";
-        selectNomeSoftware.innerHTML = '<option value="Geral">Modo Falhas Geral</option>';
-      } else {
-        inputLabAtual.value = novoLab;
-        atualizarSelectSoftwares(novoLab);
-      }
-      renderizarTela();
-    }
+    let filtroFalhas = false;
+    let registosCache = [];
 
     async function carregarDados() {
-      try {
-        registrosCache = await buscarSoftwares();
-      } catch (e) {
-        registrosCache = [];
-      }
-      renderizarTela();
+      try { registosCache = await buscarSoftwares(); } catch (e) { console.error(e); }
+      redesenhar();
     }
 
-    function renderizarTela() {
-      const termoBusca = (inputBuscaSoft?.value || "").toLowerCase();
-      let filtrados = [];
+    function redesenhar() {
+      const termoPesquisa = inputPesquisa.value.toLowerCase();
+      
+      // Filtra os registos pela pesquisa antes de os enviar para a tabela
+      const registosFiltrados = registosCache.filter(({dados}) => {
+        if (!termoPesquisa) return true;
+        const textoBusca = `${dados.software} ${dados.identificacao} ${dados.curso} ${dados.solicitante}`.toLowerCase();
+        return textoBusca.includes(termoPesquisa);
+      });
 
-      if (labAtual === "Pendencias") {
-        filtrados = registrosCache.filter(r => r.funciona && r.funciona.toLowerCase() === "não");
-      } else {
-        filtrados = registrosCache.filter(r => r.laboratorio === labAtual);
-      }
-
-      if (termoBusca) {
-        filtrados = filtrados.filter(r => 
-          (r.software && r.software.toLowerCase().includes(termoBusca)) ||
-          (r.maquina && r.maquina.toLowerCase().includes(termoBusca)) ||
-          (r.curso && r.curso.toLowerCase().includes(termoBusca)) ||
-          (r.laboratorio && r.laboratorio.toLowerCase().includes(termoBusca))
-        );
-      }
-
-      // Atualizar contadores do painel
-      const totalLab = filtrados.length;
-      const qtdOk = filtrados.filter(r => r.funciona && r.funciona.toLowerCase() === "sim").length;
-      const qtdErro = filtrados.filter(r => r.funciona && r.funciona.toLowerCase() === "não").length;
-
-      statTotal.textContent = totalLab;
-      statOk.textContent = `${qtdOk}/${totalLab}`;
-      statErro.textContent = qtdErro;
-
-      // Renderizar Tabela
-      if (filtrados.length === 0) {
-        tabelaSoftwares.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#777;">Nenhum registro encontrado nesta visão.</td></tr>`;
-        return;
-      }
-
-      tabelaSoftwares.innerHTML = filtrados.map(r => `
-        <tr>
-          <td>${r.laboratorio || '-'}</td>
-          <td><b>${r.software || '-'}</b></td>
-          <td>${r.maquina || '-'}</td>
-          <td>${r.funciona && r.funciona.toLowerCase() === 'sim' ? '<span class="badge-ok">OK</span>' : '<span class="badge-erro">FALHA</span>'}</td>
-          <td>${r.curso || '-'} ${r.solicitante ? '(' + r.solicitante + ')' : ''}</td>
-          <td>${r.data ? new Date(r.data).toLocaleDateString('pt-BR') : 'recente'}</td>
-        </tr>
-      `).join('');
+      renderizarPainelSoftwares(tabela, cabecalho, registosFiltrados, labAtual, filtroFalhas);
     }
 
-    // Eventos de clique nas abas
-    tabButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        mudarLaboratorio(btn.getAttribute('data-lab'));
+    carregarDados();
+
+    // Eventos de Pesquisa
+    inputPesquisa.addEventListener('input', redesenhar);
+
+    // Eventos das Abas
+    document.querySelectorAll('.aba-btn:not(.btn-falhas)').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        document.querySelectorAll('.aba-btn:not(.btn-falhas)').forEach(b => b.classList.remove('ativa'));
+        e.target.classList.add('ativa');
+        labAtual = e.target.getAttribute('data-lab');
+        inputLab.value = labAtual; 
+        inputPesquisa.value = ''; // Limpa a pesquisa ao mudar de lab
+        redesenhar();
       });
     });
 
-    // Inicialização
-    mudarLaboratorio("Informática, Bloco I");
-    carregarDados();
+    // Filtro de Falhas
+    btnFalhas.addEventListener('click', () => {
+      filtroFalhas = !filtroFalhas;
+      btnFalhas.classList.toggle('ativa');
+      redesenhar();
+    });
 
-    formSoftware?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      formErroSoft.style.display = 'none';
+    // Remover um registo único
+    tabela.addEventListener('click', async (e) => {
+      if (e.target.classList.contains('btn-remover')) {
+        if(confirm("Tem a certeza que deseja remover este registo de software?")) {
+          await removerSoftware(e.target.getAttribute('data-id'));
+          carregarDados();
+        }
+      }
+    });
 
-      if (labAtual === "Pendencias") {
-        formErroSoft.textContent = "Selecione um laboratório específico nas abas para registrar um status.";
-        formErroSoft.style.display = 'block';
+    // Limpar TODOS os registos do Laboratório Atual
+    btnLimparLab.addEventListener('click', async () => {
+      const registosDoLab = registosCache.filter(({dados}) => dados.laboratorio === labAtual);
+      
+      if (registosDoLab.length === 0) {
+        alert(`O laboratório ${labAtual} já está vazio!`);
         return;
       }
 
-      const dados = {
-        software: document.getElementById('input-nome-software')?.value || '',
-        laboratorio: labAtual,
-        maquina: document.getElementById('input-maquina-software')?.value || '',
-        funciona: document.getElementById('select-funciona-software')?.value || '',
-        curso: document.getElementById('input-curso-software')?.value || '',
-        solicitante: document.getElementById('input-solicitante-software')?.value || '',
-      };
-
-      try {
-        await cadastrarChecagemSoftware(dados);
-        document.getElementById('input-maquina-software').value = '';
-        document.getElementById('input-curso-software').value = '';
-        document.getElementById('input-solicitante-software').value = '';
+      if (confirm(`⚠️ ATENÇÃO: Tem a certeza que deseja APAGAR TODOS os ${registosDoLab.length} registos do laboratório "${labAtual}"? Esta ação não pode ser desfeita.`)) {
+        btnLimparLab.textContent = "A limpar...";
+        btnLimparLab.disabled = true;
+        
+        for (const registo of registosDoLab) {
+          await removerSoftware(registo.id);
+        }
+        
+        btnLimparLab.textContent = "🗑️ Limpar Registos do Lab";
+        btnLimparLab.disabled = false;
         carregarDados();
-      } catch (erro) {
-        formErroSoft.textContent = "Erro ao salvar registro. Verifique a autenticação.";
-        formErroSoft.style.display = 'block';
       }
     });
 
-    btnLimparSoftwares?.addEventListener('click', async () => {
-      if (labAtual === "Pendencias") {
-        alert("Acesse um laboratório específico para limpar os registros daquele ambiente.");
-        return;
-      }
-      if (confirm(`Deseja limpar os registros do laboratório: ${labAtual}?`)) {
-        // Remove os dados correspondentes ao laboratório atual do cache/storage através da função auxiliar existente
-        if (await limparSecaoSoftwares() > 0) carregarDados();
-      }
+    // Submissão do Formulário
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const dados = {
+        laboratorio: inputLab.value,
+        identificacao: document.getElementById('input-identificacao').value,
+        software: document.getElementById('input-software').value,
+        so: document.getElementById('input-so').value,
+        curso: document.getElementById('input-curso').value,
+        solicitante: document.getElementById('input-solicitante').value,
+        funciona: document.getElementById('select-funciona').value
+      };
+      await cadastrarSoftware(dados);
+      
+      const labSalvo = inputLab.value;
+      form.reset();
+      inputLab.value = labSalvo;
+      
+      carregarDados();
     });
-
-    inputBuscaSoft?.addEventListener('input', debounce(() => {
-      renderizarTela();
-    }, 250));
   </script>
 </body>
 </html>
