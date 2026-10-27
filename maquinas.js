@@ -1,6 +1,6 @@
 import { db } from './firebase.js';
 import {
-  collection, getDocs, query, orderBy, serverTimestamp, doc, setDoc, updateDoc
+  collection, getDocs, query, orderBy, serverTimestamp, doc, setDoc, updateDoc, deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 import { escapeHtml, sanitizarParaId } from './utils.js';
@@ -28,6 +28,11 @@ export async function buscarMaquinas() {
 
 export async function concluirMaquina(idChamado) {
   await updateDoc(doc(db, COLECAO, idChamado), { status: "Concluído" });
+}
+
+// NOVA FUNÇÃO: Apagar um registo de máquina
+export async function removerMaquina(idRegistro) {
+  await deleteDoc(doc(db, COLECAO, idRegistro));
 }
 
 export function renderizarPainelMaquinas(tabela, cabecalho, registros, labFiltro, ocultarResolvidos) {
@@ -117,9 +122,13 @@ export function renderizarPainelMaquinas(tabela, cabecalho, registros, labFiltro
         ${tds}
         <td>👤 ${escapeHtml(dados.verificadoPor) || '-'}</td>
         <td>
-          ${concluido 
-            ? '<span style="color: #155724; font-weight: bold; background: #d4edda; padding: 4px 8px; border-radius: 4px;">✔️ Resolvido</span>' 
-            : `<button class="btn-concluir" data-id="${escapeHtml(id)}" style="background-color: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: 0.2s;" title="Marcar como resolvido">✔️ Resolver</button>`}
+          <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+            ${concluido 
+              ? '<span style="color: #155724; font-weight: bold; background: #d4edda; padding: 4px 8px; border-radius: 4px; font-size: 0.85em;">✔️ Resolvido</span>' 
+              : `<button class="btn-concluir" data-id="${escapeHtml(id)}" style="background-color: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 0.85em;" title="Marcar como resolvido">✔️ Resolver</button>`}
+            <button class="btn-editar" data-id="${escapeHtml(id)}" style="background-color: #007bff; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 0.85em;" title="Editar dados da máquina">✏️ Editar</button>
+            <button class="btn-remover" data-id="${escapeHtml(id)}" style="background-color: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 0.85em;" title="Apagar este registo">🗑️ Apagar</button>
+          </div>
         </td>
       </tr>
     `);
