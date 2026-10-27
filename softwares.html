@@ -3,46 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Status e Cadastro de Softwares - DTI</title>
+  <title>Auditoria de Softwares por Máquina - DTI</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
     body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; margin: 0; padding: 30px; color: #2c3e50; }
     h1, h2 { color: #1a252f; font-weight: 600; }
-    a { color: #007bff; text-decoration: none; font-weight: 500; transition: 0.2s; }
+    a { color: #007bff; text-decoration: none; font-weight: 500; }
     a:hover { color: #0056b3; }
 
     .abas-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-    .aba-btn { padding: 12px 24px; cursor: pointer; border: none; background: #008b8b; color: white; border-radius: 6px; font-weight: 500; transition: 0.2s; font-family: 'Poppins', sans-serif; }
+    .aba-btn { padding: 12px 24px; cursor: pointer; border: none; background: #008b8b; color: white; border-radius: 6px; font-weight: 500; font-family: 'Poppins', sans-serif; transition: 0.2s; }
     .aba-btn:not(.ativa) { background: #e9ecef; color: #495057; }
-    .btn-falhas { background: #ffeeba; color: #856404; font-weight: bold; border: 1px solid #ffdf7e; margin-left: auto; }
-    .btn-falhas.ativa { background: #dc3545; color: white; border-color: #dc3545; }
 
-    #form-softwares { background: #ffffff; padding: 25px 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 30px; border-left: 5px solid #6f42c1; }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-    .form-group { display: flex; flex-direction: column; }
+    #form-softwares { background: #ffffff; padding: 25px 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 30px; border-left: 5px solid #008b8b; }
+    .form-group-top { display: flex; gap: 20px; margin-bottom: 20px; align-items: flex-end; flex-wrap: wrap; }
+    .form-group { display: flex; flex-direction: column; flex: 1; min-width: 220px; }
     label { font-size: 0.85em; font-weight: 600; margin-bottom: 5px; color: #555; }
-    input, select { padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.95em; }
-    
-    button.btn-salvar { background-color: #008b8b; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 15px; transition: 0.2s; }
-    button.btn-salvar:hover { background-color: #006666; }
+    input { padding: 10px; border: 1px solid #ced4da; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.95em; }
+
+    /* Grelha de Checkboxes dos Softwares */
+    .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; background: #fafbfc; padding: 15px; border-radius: 8px; border: 1px solid #e1e4e8; max-height: 250px; overflow-y: auto; margin-bottom: 20px; }
+    .checkbox-item { display: flex; align-items: center; gap: 8px; font-size: 0.9em; cursor: pointer; }
+    .checkbox-item input { cursor: pointer; width: 16px; height: 16px; }
+
+    .botoes-acao { display: flex; gap: 10px; }
+    button.btn-salvar { background-color: #28a745; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    button.btn-salvar:hover { background-color: #218838; }
+    button.btn-cancelar { background-color: #6c757d; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; display: none; }
 
     .cards-container { display: flex; gap: 20px; margin-bottom: 25px; flex-wrap: wrap; }
-    .card-stat { background: #ffffff; padding: 20px; border-radius: 12px; flex: 1; box-shadow: 0 4px 8px rgba(0,0,0,0.04); }
+    .card-stat { background: #ffffff; padding: 20px; border-radius: 12px; flex: 1; box-shadow: 0 4px 8px rgba(0,0,0,0.04); min-width: 200px; }
     .card-stat small { font-weight: 600; text-transform: uppercase; font-size: 0.75em; }
     .card-stat h3 { margin: 10px 0 0 0; font-size: 26px; }
     .card-total { border-bottom: 4px solid #17a2b8; } .card-total small { color: #17a2b8; }
     .card-ok { border-bottom: 4px solid #28a745; } .card-ok small { color: #28a745; }
     .card-erro { border-bottom: 4px solid #dc3545; } .card-erro small { color: #dc3545; }
 
-    /* Barra de Pesquisa e Botão Limpar */
     .barra-ferramentas { display: flex; gap: 10px; margin-bottom: 20px; }
     .input-pesquisa { flex: 1; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; font-family: 'Poppins', sans-serif; font-size: 0.95em; }
-    .btn-limpar-lab { background-color: #f44336; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
-    .btn-limpar-lab:hover { background-color: #d32f2f; }
 
     .table-container { overflow-x: auto; background: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    table { width: 100%; border-collapse: collapse; min-width: 900px; }
+    table { width: 100%; border-collapse: collapse; min-width: 800px; }
     th, td { padding: 15px; text-align: left; font-size: 0.9em; border-bottom: 1px solid #f0f0f0; }
     th { background-color: #f8f9fa; color: #495057; font-weight: 600; text-transform: uppercase; font-size: 0.8em; border-bottom: 2px solid #dee2e6; }
     tr:hover { background-color: #f8fbfb; }
@@ -51,63 +53,51 @@
 <body>
 
   <p><a href="home.html">⬅️ Voltar para o Menu Principal</a></p>
-  <h1>💻 Status e Cadastro de Softwares por Laboratório</h1>
+  <h1>💻 Auditoria de Softwares por Máquina</h1>
 
   <div class="abas-container">
     <button class="aba-btn ativa" data-lab="Informática, Bloco I">Informática, Bloco I</button>
     <button class="aba-btn" data-lab="Programação Computacional">Programação Computacional</button>
     <button class="aba-btn" data-lab="Simulações Numéricas">Simulações Numéricas</button>
-    <button id="btn-toggle-falhas" class="aba-btn btn-falhas">⚠️ Ver Apenas Falhas/Pendências</button>
   </div>
 
   <form id="form-softwares">
-    <h3 style="margin-top: 0;">➕ Registar Status de Máquina no Lab Atual</h3>
-    <div class="form-grid">
+    <h3 id="titulo-form" style="margin-top: 0; color: #008b8b;">➕ Registar / Auditar Máquina</h3>
+    
+    <div class="form-group-top">
       <div class="form-group">
         <label>Laboratório Atual:</label>
-        <input type="text" id="input-laboratorio" value="Informática, Bloco I" readonly style="background-color: #e9ecef; cursor: not-allowed; font-weight: bold;">
+        <input type="text" id="input-laboratorio" value="Informática, Bloco I" readonly style="background-color: #e9ecef; font-weight: bold;">
       </div>
       <div class="form-group">
         <label>Número / ID da Máquina:</label>
         <input type="text" id="input-identificacao" placeholder="Ex: PC-01" required>
       </div>
-      <div class="form-group">
-        <label>Nome do Software:</label>
-        <input type="text" id="input-software" placeholder="Ex: AutoCAD, MATLAB" required>
-      </div>
-      <div class="form-group">
-        <label>S.O. (Sistema Operativo):</label>
-        <input type="text" id="input-so" placeholder="Ex: Windows 11, Ubuntu">
-      </div>
-      <div class="form-group">
-        <label>Curso (Opcional):</label>
-        <input type="text" id="input-curso" placeholder="Ex: Engenharia">
-      </div>
-      <div class="form-group">
-        <label>Solicitante / Professor (Opcional):</label>
-        <input type="text" id="input-solicitante" placeholder="Nome">
-      </div>
-      <div class="form-group">
-        <label>Funciona?:</label>
-        <select id="select-funciona" required>
-          <option value="Sim (OK)">Sim (OK)</option>
-          <option value="Não (Falha)">Não (Falha)</option>
-        </select>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button type="button" id="btn-marcar-todos" style="padding: 10px 15px; background: #17a2b8; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold;">☑️ Marcar Todos</button>
+        <button type="button" id="btn-desmarcar-todos" style="padding: 10px 15px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold;">❌ Limpar Seleção</button>
       </div>
     </div>
-    <button type="submit" class="btn-salvar">💾 Guardar Registo</button>
+
+    <label style="margin-bottom: 8px; display: block;">Selecione os softwares instalados e funcionais nesta máquina:</label>
+    <div id="container-checkboxes" class="checkbox-grid">
+      <!-- Gerado dinamicamente via JavaScript -->
+    </div>
+
+    <div class="botoes-acao">
+      <button type="submit" class="btn-salvar" id="btn-submit-texto">💾 Salvar Auditoria da Máquina</button>
+      <button type="button" id="btn-cancelar-edicao" class="btn-cancelar">Cancelar Edição</button>
+    </div>
   </form>
 
   <div class="cards-container">
-    <div class="card-stat card-total"><small>Total Registos no Lab</small><h3 id="stat-total-pcs">0</h3></div>
-    <div class="card-stat card-ok"><small>Máquinas Operacionais (OK)</small><h3 id="stat-pcs-ok">0/0</h3></div>
-    <div class="card-stat card-erro"><small>Com Falhas / Pendências</small><h3 id="stat-pcs-erro">0</h3></div>
+    <div class="card-stat card-total"><small>Total Máquinas Auditadas</small><h3 id="stat-total-pcs">0</h3></div>
+    <div class="card-stat card-ok"><small>Máquinas 100% Conformadas</small><h3 id="stat-pcs-ok">0 / 0</h3></div>
+    <div class="card-stat card-erro"><small>Com Softwares em Falta</small><h3 id="stat-pcs-erro">0</h3></div>
   </div>
 
-  <!-- Barra de Pesquisa e Limpar Lab -->
   <div class="barra-ferramentas">
-    <input type="text" id="input-pesquisa" class="input-pesquisa" placeholder="🔍 Filtrar nesta visão por software, máquina ou curso...">
-    <button id="btn-limpar-lab" class="btn-limpar-lab">🗑️ Limpar Registos do Lab</button>
+    <input type="text" id="input-pesquisa" class="input-pesquisa" placeholder="🔍 Pesquisar máquina por ID (ex: PC-01)...">
   </div>
 
   <div class="table-container">
@@ -118,113 +108,129 @@
   </div>
 
   <script type="module">
-    import { cadastrarSoftware, buscarSoftwares, renderizarPainelSoftwares, removerSoftware } from './softwares.js';
+    import { salvarAuditoriaMaquina, buscarAuditorias, renderizarPainelSoftwares, removerAuditoria, LISTA_SOFTWARES } from './softwares.js';
 
     const form = document.getElementById('form-softwares');
     const tabela = document.getElementById('tabela-softwares');
     const cabecalho = document.getElementById('cabecalho-tabela');
     const inputLab = document.getElementById('input-laboratorio');
-    const btnFalhas = document.getElementById('btn-toggle-falhas');
+    const inputId = document.getElementById('input-identificacao');
+    const containerCheckboxes = document.getElementById('container-checkboxes');
     const inputPesquisa = document.getElementById('input-pesquisa');
-    const btnLimparLab = document.getElementById('btn-limpar-lab');
+    const btnCancelar = document.getElementById('btn-cancelar-edicao');
+    const tituloForm = document.getElementById('titulo-form');
+    const btnSubmitTexto = document.getElementById('btn-submit-texto');
 
     let labAtual = "Informática, Bloco I";
-    let filtroFalhas = false;
     let registosCache = [];
+    let idEditando = null;
+
+    // Renderiza dinamicamente as checkboxes do laboratório ativo
+    function carregarCheckboxes(selecionadosObj = {}) {
+      const lista = LISTA_SOFTWARES[labAtual] || [];
+      containerCheckboxes.innerHTML = lista.map(soft => {
+        const isChecked = selecionadosObj[soft] === true ? 'checked' : '';
+        return `
+          <label class="checkbox-item">
+            <input type="checkbox" name="software" value="${escapeHtml(soft)}" ${isChecked}>
+            <span>${escapeHtml(soft)}</span>
+          </label>
+        `;
+      }).join('');
+    }
 
     async function carregarDados() {
-      try { registosCache = await buscarSoftwares(); } catch (e) { console.error(e); }
+      try { registosCache = await buscarAuditorias(); } catch (e) { console.error(e); }
       redesenhar();
     }
 
     function redesenhar() {
-      const termoPesquisa = inputPesquisa.value.toLowerCase();
-      
-      // Filtra os registos pela pesquisa antes de os enviar para a tabela
-      const registosFiltrados = registosCache.filter(({dados}) => {
-        if (!termoPesquisa) return true;
-        const textoBusca = `${dados.software} ${dados.identificacao} ${dados.curso} ${dados.solicitante}`.toLowerCase();
-        return textoBusca.includes(termoPesquisa);
-      });
-
-      renderizarPainelSoftwares(tabela, cabecalho, registosFiltrados, labAtual, filtroFalhas);
+      const termo = inputPesquisa.value.toLowerCase().trim();
+      renderizarPainelSoftwares(tabela, cabecalho, registosCache, labAtual, termo);
     }
 
+    carregarCheckboxes();
     carregarDados();
 
-    // Eventos de Pesquisa
-    inputPesquisa.addEventListener('input', redesenhar);
-
-    // Eventos das Abas
-    document.querySelectorAll('.aba-btn:not(.btn-falhas)').forEach((btn) => {
+    // Troca de Abas
+    document.querySelectorAll('.aba-btn').forEach((btn) => {
       btn.addEventListener('click', (e) => {
-        document.querySelectorAll('.aba-btn:not(.btn-falhas)').forEach(b => b.classList.remove('ativa'));
+        document.querySelectorAll('.aba-btn').forEach(b => b.classList.remove('ativa'));
         e.target.classList.add('ativa');
         labAtual = e.target.getAttribute('data-lab');
-        inputLab.value = labAtual; 
-        inputPesquisa.value = ''; // Limpa a pesquisa ao mudar de lab
+        inputLab.value = labAtual;
+        inputPesquisa.value = '';
+        cancelarEdicao();
+        carregarCheckboxes();
         redesenhar();
       });
     });
 
-    // Filtro de Falhas
-    btnFalhas.addEventListener('click', () => {
-      filtroFalhas = !filtroFalhas;
-      btnFalhas.classList.toggle('ativa');
-      redesenhar();
+    inputPesquisa.addEventListener('input', redesenhar);
+
+    // Botões de marcação rápida
+    document.getElementById('btn-marcar-todos').addEventListener('click', () => {
+      containerCheckboxes.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+    });
+    document.getElementById('btn-desmarcar-todos').addEventListener('click', () => {
+      containerCheckboxes.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
     });
 
-    // Remover um registo único
+    // Ações na Tabela (Editar / Apagar)
     tabela.addEventListener('click', async (e) => {
+      const idReg = e.target.getAttribute('data-id');
+      if (!idReg) return;
+
       if (e.target.classList.contains('btn-remover')) {
-        if(confirm("Tem a certeza que deseja remover este registo de software?")) {
-          await removerSoftware(e.target.getAttribute('data-id'));
+        if (confirm("Tem a certeza que deseja apagar o registo desta máquina?")) {
+          await removerAuditoria(idReg);
           carregarDados();
         }
+      } else if (e.target.classList.contains('btn-editar')) {
+        const item = registosCache.find(r => r.id === idReg);
+        if (!item) return;
+
+        idEditando = idReg;
+        inputId.value = item.dados.identificacao;
+        inputId.disabled = true; // Bloqueia o ID na edição
+        tituloForm.textContent = `✏️ A editar registo da máquina: ${item.dados.identificacao}`;
+        btnSubmitTexto.textContent = "💾 Atualizar Auditoria";
+        btnCancelar.style.display = "inline-block";
+
+        carregarCheckboxes(item.dados.softwaresInstalados || {});
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
 
-    // Limpar TODOS os registos do Laboratório Atual
-    btnLimparLab.addEventListener('click', async () => {
-      const registosDoLab = registosCache.filter(({dados}) => dados.laboratorio === labAtual);
-      
-      if (registosDoLab.length === 0) {
-        alert(`O laboratório ${labAtual} já está vazio!`);
-        return;
-      }
+    function cancelarEdicao() {
+      idEditando = null;
+      inputId.value = '';
+      inputId.disabled = false;
+      tituloForm.textContent = "➕ Registar / Auditar Máquina";
+      btnSubmitTexto.textContent = "💾 Salvar Auditoria da Máquina";
+      btnCancelar.style.display = "none";
+      carregarCheckboxes();
+    }
 
-      if (confirm(`⚠️ ATENÇÃO: Tem a certeza que deseja APAGAR TODOS os ${registosDoLab.length} registos do laboratório "${labAtual}"? Esta ação não pode ser desfeita.`)) {
-        btnLimparLab.textContent = "A limpar...";
-        btnLimparLab.disabled = true;
-        
-        for (const registo of registosDoLab) {
-          await removerSoftware(registo.id);
-        }
-        
-        btnLimparLab.textContent = "🗑️ Limpar Registos do Lab";
-        btnLimparLab.disabled = false;
-        carregarDados();
-      }
-    });
+    btnCancelar.addEventListener('click', cancelarEdicao);
 
     // Submissão do Formulário
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      
+      const softwaresInstalados = {};
+      containerCheckboxes.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        softwaresInstalados[cb.value] = cb.checked;
+      });
+
       const dados = {
-        laboratorio: inputLab.value,
-        identificacao: document.getElementById('input-identificacao').value,
-        software: document.getElementById('input-software').value,
-        so: document.getElementById('input-so').value,
-        curso: document.getElementById('input-curso').value,
-        solicitante: document.getElementById('input-solicitante').value,
-        funciona: document.getElementById('select-funciona').value
+        laboratorio: labAtual,
+        identificacao: inputId.value.trim(),
+        softwaresInstalados: softwaresInstalados
       };
-      await cadastrarSoftware(dados);
-      
-      const labSalvo = inputLab.value;
-      form.reset();
-      inputLab.value = labSalvo;
-      
+
+      await salvarAuditoriaMaquina(dados);
+      cancelarEdicao();
       carregarDados();
     });
   </script>

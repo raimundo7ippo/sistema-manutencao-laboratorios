@@ -4,73 +4,104 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { escapeHtml, sanitizarParaId } from './utils.js';
 
-const COLECAO = "softwares";
+const COLECAO = "softwares_v2";
 
-// 1. DADOS
-export async function cadastrarSoftware(dados) {
-  // Cria um ID único juntando Lab, Máquina e Software para evitar duplicados
-  const idUnico = sanitizarParaId(`${dados.laboratorio}_${dados.identificacao}_${dados.software}`);
+// Listas oficiais mapeadas das planilhas da DTI
+export const LISTA_SOFTWARES = {
+  "Informática, Bloco I": [
+    "Chrome", "Firefox", "Dev C++", "Wireshark 3.0", "MySQL Workbench", "Blender", 
+    "MySQL Community Edition", "Stata", "Netbeans 11", "Java (latest)", "Python 3", 
+    "QGIS", "GeoDA", "GeoDaSpace", "TerraView", "Musescore", "Autocad", "VS Code"
+  ],
+  "Programação Computacional": [
+    "R e RStudio", "QGIS", "Blender", "GeoDA", "GeoDaSpace", "Dev C++", "Wireshark 3.0", 
+    "MySQL Workbench", "MySQL Community Edition", "Stata", "Netbeans 11", "Java 8", 
+    "Python 3", "TerraView", "Musescore", "PSPP", "PSIM", "PROTEUS", "Matlab", 
+    "Sublime Text 3", "Arduino IDE", "Drive do Arduino", "WinPCap 4", "Visual Studio Code (VS Code)", 
+    "Octave", "Scilab", "Autocad", "PyCharm", "DOSVOX", "NVDA", "NodeJS", "NPM", 
+    "Eclipse", "Jamovi", "Spinmaker", "Jenkins", "Android Studio", "React Native", "Ionic"
+  ],
+  "Simulações Numéricas": [
+    "Visual Studio Code (VS Code)", "Netbeans", "Blender", "Java 8/25", "R e RStudio", 
+    "QGIS", "GeoDA", "GeoDaSpace", "TerraView", "Dev C++", "Wireshark 3.0", 
+    "MySQL Workbench", "MySQL Community Edition", "Stata", "Python 3", "Musescore", 
+    "PSPP", "PSIM", "PROTEUS", "Matlab", "Sublime Text 3", "Arduino IDE", "Drive do Arduino", 
+    "WinPCap 4", "Scilab", "Octave", "Autocad", "PyCharm", "DOSVOX", "NVDA", 
+    "R Project", "NodeJS", "NPM", "Jamovi", "Testes NVIDIA - Windows", "Testes NVIDIA - Linux", "Android Studio"
+  ]
+};
+
+export async function salvarAuditoriaMaquina(dados) {
+  // ID único por Máquina e Laboratório (ex: "Simulações Numéricas_PC-01")
+  const idUnico = sanitizarParaId(`${dados.laboratorio}_${dados.identificacao}`);
   await setDoc(doc(db, COLECAO, idUnico), {
     ...dados,
-    criadoEm: serverTimestamp(),
+    atualizadoEm: serverTimestamp(),
   }, { merge: true });
 }
 
-export async function buscarSoftwares() {
-  const q = query(collection(db, COLECAO), orderBy("criadoEm", "desc"));
+export async function buscarAuditorias() {
+  const q = query(collection(db, COLECAO), orderBy("atualizadoEm", "desc"));
   const snapshot = await getDocs(q);
   return snapshot.docs.map((docSnap) => ({ id: docSnap.id, dados: docSnap.data() }));
 }
 
-export async function removerSoftware(idRegistro) {
+export async function removerAuditoria(idRegistro) {
   await deleteDoc(doc(db, COLECAO, idRegistro));
 }
 
-// 2. RENDERIZAÇÃO DA TABELA
-export function renderizarPainelSoftwares(tabela, cabecalho, registros, labFiltro, filtroFalhas) {
+// Renderização baseada em Máquinas (Formato: 15/37)
+export function renderizarPainelSoftwares(tabela, cabecalho, registros, labFiltro, termoBusca) {
   if (!tabela || !cabecalho) return;
 
-  // Os cabeçalhos exatos que pediste aplicados a todos os laboratórios
-  cabecalho.innerHTML = `<tr><th>Máquina / ID</th><th>Software</th><th>S.O.</th><th>Curso</th><th>Solicitante</th><th>Status</th><th>Ações</th></tr>`;
+  cabecalho.innerHTML = `<tr><th>Máquina / ID</th><th>Softwares Operacionais</th><th>Progresso (%)</th><th>Última Atualização</th><th>Ações</th></tr>`;
 
-  let total = 0, ok = 0, erro = 0;
+  const softwaresOficiais = LISTA_SOFTWARES[labFiltro] || [];
+  const totalOficial = softwaresOficiais.length;
+
+  let totalMaquinas = 0, maquinasOk = 0;
   const linhas = [];
 
   for (const { id, dados } of registros) {
     if (dados.laboratorio !== labFiltro) continue;
 
-    if (dados.funciona === "Sim (OK)") ok++; else erro++;
-    total++;
+    // Filtro de pesquisa por ID da máquina
+    if (termoBusca && !dados.identificacao.toLowerCase().includes(termoBusca)) continue;
 
-    // Se o botão "Ver Apenas Falhas" estiver ativo
-    if (filtroFalhas && dados.funciona === "Sim (OK)") continue;
+    totalMaquinas++;
+    const instaladosObj = dados.softwaresInstalados || {};
+    
+    // Conta quantos softwares estão marcados como true (ativos)
+    let qtdFuncionando = 0;
+    for (const soft of softwaresOficiais) {
+      if (instaladosObj[soft] === true) qtdFuncionando++;
+    }
 
-    const corStatus = dados.funciona === 'Sim (OK)' ? 'color: #28a745; font-weight: bold;' : 'color: #dc3545; font-weight: bold;';
-    const iconeStatus = dados.funciona === 'Sim (OK)' ? '✅ OK' : '❌ Falha';
+    const percentual = totalOficial > 0 ? Math.round((qtdFuncionando / totalOficial) * 100) : 0;
+    const corBadge = percentual === 100 ? 'background: #d4edda; color: #155724;' : (percentual > 50 ? 'background: #fff3cd; color: #856404;' : 'background: #f8d7da; color: #721c24;');
+
+    if (percentual === 100) maquinasOk++;
+
+    const dataFormatada = dados.atualizadoEm?.toDate ? dados.atualizadoEm.toDate().toLocaleDateString('pt-BR') : 'Agora mesmo';
 
     linhas.push(`
       <tr style="border-bottom: 1px solid #eee;">
-        <td><strong>${escapeHtml(dados.identificacao) || '-'}</strong></td>
-        <td>${escapeHtml(dados.software) || '-'}</td>
-        <td>${escapeHtml(dados.so) || '-'}</td>
-        <td>${escapeHtml(dados.curso) || '-'}</td>
-        <td>${escapeHtml(dados.solicitante) || '-'}</td>
-        <td style="${corStatus}">${iconeStatus}</td>
+        <td><strong>🖥️ ${escapeHtml(dados.identificacao)}</strong></td>
+        <td><span style="font-size: 1.1em; font-weight: bold; color: #008b8b;">${qtdFuncionando}</span> / ${totalOficial} softwares</td>
+        <td><span style="padding: 4px 8px; border-radius: 4px; font-weight: bold; ${corBadge}">${percentual}%</span></td>
+        <td><small>${dataFormatada}</small></td>
         <td>
-          <button class="btn-remover" data-id="${escapeHtml(id)}" style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85em;">🗑️ Remover</button>
+          <button class="btn-editar" data-id="${escapeHtml(id)}" style="background-color: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-right: 5px;">✏️ Editar</button>
+          <button class="btn-remover" data-id="${escapeHtml(id)}" style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">🗑️ Apagar</button>
         </td>
       </tr>
     `);
   }
 
-  // Atualiza as estatísticas no topo da página
-  const elTotal = document.getElementById('stat-total-pcs');
-  const elOk = document.getElementById('stat-pcs-ok');
-  const elErro = document.getElementById('stat-pcs-erro');
-  
-  if (elTotal) elTotal.innerText = total;
-  if (elOk) elOk.innerText = `${ok}/${total}`;
-  if (elErro) elErro.innerText = erro;
+  // Atualiza os cartões de estatísticas no topo
+  document.getElementById('stat-total-pcs').innerText = totalMaquinas;
+  document.getElementById('stat-pcs-ok').innerText = `${maquinasOk} / ${totalMaquinas}`;
+  document.getElementById('stat-pcs-erro').innerText = totalMaquinas - maquinasOk;
 
-  tabela.innerHTML = linhas.length > 0 ? linhas.join('') : '<tr><td colspan="7" style="text-align: center; padding: 20px;">Nenhum registo encontrado nesta visão.</td></tr>';
+  tabela.innerHTML = linhas.length > 0 ? linhas.join('') : `<tr><td colspan="5" style="text-align: center; padding: 25px; color: #666;">Nenhuma máquina auditada neste laboratório. Preencha o formulário acima para começar.</td></tr>`;
 }
