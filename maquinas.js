@@ -7,12 +7,14 @@ import { escapeHtml, sanitizarParaId } from './utils.js';
 
 const COLECAO = "manutencoes";
 
-// 1. DADOS (Criar, Atualizar e Buscar)
 export async function cadastrarMaquina(dados) {
-  // Cria um ID único juntando o Laboratório e a Máquina (evita duplicados)
-  const idUnico = sanitizarParaId(`${dados.laboratorio}_${dados.identificacao}`);
+  // Padroniza o ID interno com prefixo PC- baseado no número digitado (ex: "PC-40")
+  const idFormatado = `PC-${dados.identificacao}`;
+  const idUnico = sanitizarParaId(`${dados.laboratorio}_${idFormatado}`);
+  
   await setDoc(doc(db, COLECAO, idUnico), {
     ...dados,
+    identificacao: dados.identificacao, // Guarda apenas o número limpo
     status: dados.tudoFuncionando === "Não" ? "Pendente" : "OK",
     criadoEm: serverTimestamp(),
   }, { merge: true });
@@ -28,18 +30,16 @@ export async function concluirMaquina(idChamado) {
   await updateDoc(doc(db, COLECAO, idChamado), { status: "Concluído" });
 }
 
-// 2. RENDERIZAÇÃO DA TABELA DINÂMICA
 export function renderizarPainelMaquinas(tabela, cabecalho, registros, labFiltro, ocultarResolvidos) {
   if (!tabela || !cabecalho) return;
 
-  // Cabeçalhos Dinâmicos por Laboratório
   let ths = '';
   if (labFiltro === "Informática, Bloco I") {
-    ths = `<tr><th>ID</th><th>Património CPU</th><th>Internet?</th><th>Det. Internet</th><th>Bateria</th><th>Estabilizador?</th><th>Patr. Estab.</th><th>Det. Estab.</th><th>Tudo OK?</th><th>Motivo</th><th>Modelo</th><th>S.O.</th><th>Técnico</th><th>Ações</th></tr>`;
+    ths = `<tr><th>Máquina</th><th>Património CPU</th><th>Internet?</th><th>Det. Internet</th><th>Bateria</th><th>Estabilizador?</th><th>Patr. Estab.</th><th>Det. Estab.</th><th>Tudo OK?</th><th>Motivo</th><th>Modelo</th><th>S.O.</th><th>Técnico</th><th>Ações</th></tr>`;
   } else if (labFiltro === "Programação Computacional") {
-    ths = `<tr><th>ID</th><th>Património CPU</th><th>Internet?</th><th>Det. Internet</th><th>Win</th><th>Linux</th><th>Processador</th><th>RAM (Qtde)</th><th>RAM (Tipo)</th><th>Armaz. (Tipo)</th><th>Armaz. (GB)</th><th>Bateria (CMOS)</th><th>Estab.?</th><th>Det. Estab.</th><th>Tudo OK?</th><th>Motivo</th><th>Técnico</th><th>Ações</th></tr>`;
+    ths = `<tr><th>Máquina</th><th>Património CPU</th><th>Internet?</th><th>Det. Internet</th><th>Win</th><th>Linux</th><th>Processador</th><th>RAM (Qtde)</th><th>RAM (Tipo)</th><th>Armaz. (Tipo)</th><th>Armaz. (GB)</th><th>Bateria (CMOS)</th><th>Estab.?</th><th>Det. Estab.</th><th>Tudo OK?</th><th>Motivo</th><th>Técnico</th><th>Ações</th></tr>`;
   } else if (labFiltro === "Simulações Numéricas") {
-    ths = `<tr><th>ID</th><th>Património CPU</th><th>Internet?</th><th>Det. Internet</th><th>Bateria</th><th>Estabilizador?</th><th>Det. Estab.</th><th>Tudo OK?</th><th>Motivo</th><th>Win</th><th>Linux</th><th>Técnico</th><th>Ações</th></tr>`;
+    ths = `<tr><th>Máquina</th><th>Património CPU</th><th>Internet?</th><th>Det. Internet</th><th>Bateria</th><th>Estabilizador?</th><th>Det. Estab.</th><th>Tudo OK?</th><th>Motivo</th><th>Win</th><th>Linux</th><th>Técnico</th><th>Ações</th></tr>`;
   }
   cabecalho.innerHTML = ths;
 
@@ -58,11 +58,13 @@ export function renderizarPainelMaquinas(tabela, cabecalho, registros, labFiltro
     const corBat = dados.bateria === 'Descarregada' ? 'background: #fff3cd; color: #856404; font-weight: bold; padding: 2px 6px; border-radius: 4px;' : '';
     const statusGeral = dados.tudoFuncionando === 'Sim' ? '✅ Sim' : '❌ Não';
     
+    // Apresenta sempre com o prefixo visual PC- na tabela
+    const nomeMaquina = `PC-${escapeHtml(dados.identificacao) || '-'}`;
+
     let tds = '';
-    // Dados Dinâmicos exatos baseados no laboratório escolhido
     if (labFiltro === "Informática, Bloco I") {
       tds = `
-        <td><strong>🖥️ ${escapeHtml(dados.identificacao) || '-'}</strong></td>
+        <td><strong>🖥️ ${nomeMaquina}</strong></td>
         <td>${escapeHtml(dados.patrimonioCpu) || '-'}</td>
         <td>${escapeHtml(dados.internetFunciona) || '-'}</td>
         <td><small>${escapeHtml(dados.detalhesInternet) || '-'}</small></td>
@@ -77,7 +79,7 @@ export function renderizarPainelMaquinas(tabela, cabecalho, registros, labFiltro
       `;
     } else if (labFiltro === "Programação Computacional") {
       tds = `
-        <td><strong>🖥️ ${escapeHtml(dados.identificacao) || '-'}</strong></td>
+        <td><strong>🖥️ ${nomeMaquina}</strong></td>
         <td>${escapeHtml(dados.patrimonioCpu) || '-'}</td>
         <td>${escapeHtml(dados.internetFunciona) || '-'}</td>
         <td><small>${escapeHtml(dados.detalhesInternet) || '-'}</small></td>
@@ -96,7 +98,7 @@ export function renderizarPainelMaquinas(tabela, cabecalho, registros, labFiltro
       `;
     } else if (labFiltro === "Simulações Numéricas") {
       tds = `
-        <td><strong>🖥️ ${escapeHtml(dados.identificacao) || '-'}</strong></td>
+        <td><strong>🖥️ ${nomeMaquina}</strong></td>
         <td>${escapeHtml(dados.patrimonioCpu) || '-'}</td>
         <td>${escapeHtml(dados.internetFunciona) || '-'}</td>
         <td><small>${escapeHtml(dados.detalhesInternet) || '-'}</small></td>
@@ -123,7 +125,6 @@ export function renderizarPainelMaquinas(tabela, cabecalho, registros, labFiltro
     `);
   }
 
-  // Atualiza os cartões de estatísticas no topo da página
   const statTotal = document.getElementById('stat-total-pcs');
   const statOk = document.getElementById('stat-pcs-ok');
   const statErro = document.getElementById('stat-pcs-erro');
