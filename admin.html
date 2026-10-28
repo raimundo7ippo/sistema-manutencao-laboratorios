@@ -26,7 +26,7 @@
       text-align: center;
       color: white;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      margin-bottom: 40px;
+      margin-bottom: 25px;
     }
 
     .header h1 {
@@ -39,6 +39,38 @@
       color: #008b8b;
     }
 
+    /* Atalhos de Navegação Rápida */
+    .nav-atalhos-container {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-nav {
+      background: #ffffff;
+      color: #1a252f;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9em;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .btn-nav:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+      border-color: #008b8b;
+      color: #008b8b;
+    }
+
     .admin-container {
       background-color: #ffffff;
       padding: 40px;
@@ -46,7 +78,8 @@
       box-shadow: 0 8px 16px rgba(0,0,0,0.05);
       width: 100%;
       max-width: 450px;
-      border-top: 6px solid #6f42c1; /* Cor roxa para diferenciar que é admin */
+      border-top: 6px solid #6f42c1;
+      box-sizing: border-box;
     }
 
     .admin-container h2 {
@@ -117,6 +150,7 @@
 
     .logout-container {
       margin-top: 30px;
+      margin-bottom: 30px;
       text-align: center;
     }
 
@@ -143,6 +177,13 @@
     <h1>Administração <span>DTI</span></h1>
   </div>
 
+  <!-- Barra de Navegação Rápida -->
+  <div class="nav-atalhos-container">
+    <a href="home.html" class="btn-nav">🏠 Menu Principal</a>
+    <a href="maquinas.html" class="btn-nav">🖥️ Máquinas</a>
+    <a href="softwares.html" class="btn-nav">💻 Softwares</a>
+  </div>
+
   <div class="admin-container">
     <h2>👤 Registar Novo Técnico</h2>
     
@@ -167,7 +208,6 @@
     <button type="button" id="btn-sair" class="btn-sair">🚪 Terminar Sessão</button>
   </div>
 
-  <!-- Script para ligar o formulário à Autenticação -->
   <script type="module">
     import { cadastrar, sair } from './auth.js';
 
@@ -192,7 +232,6 @@
         formCadastro.reset();
       } catch (erro) {
         msg.className = 'mensagem msg-erro';
-        // Tradução simples de erros comuns
         if(erro.code === 'auth/email-already-in-use') {
           msg.innerText = 'Este e-mail já está registado no sistema.';
         } else if (erro.code === 'auth/weak-password') {
@@ -206,7 +245,6 @@
       }
     });
 
-    // Ação do botão de terminar sessão
     btnSair.addEventListener('click', async () => {
       await sair();
     });
