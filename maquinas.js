@@ -217,12 +217,24 @@ export function renderizarPainelMaquinas(tabela, cabecalho, registros, labFiltro
         <td>${escapeHtml(dados.versaoLinux) || '-'}</td>
       `;
     }
-
+    
+// Botão de apagar removido das linhas. Mantido apenas o de Editar e Resolver.
     linhas.push(`
       <tr style="border-bottom: 1px solid #eee; background-color: ${concluido ? '#f8f9fa' : '#ffffff'}; opacity: ${concluido ? '0.65' : '1'};">
         ${tds}
         <td>👤 ${escapeHtml(dados.verificadoPor) || '-'}</td>
-        <td>`);
+        <td><div style="display: flex; gap: 5px; flex-wrap: wrap;">
+            ${concluido 
+              ? '<span style="color: #155724; font-weight: bold; background: #d4edda; padding: 4px 8px; border-radius: 4px; font-size: 0.85em;">✔️ Resolvido</span>' 
+              : `<button class="btn-concluir" data-id="${escapeHtml(id)}" style="background-color: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 0.85em;" title="Marcar como resolvido">✔️ Resolver</button>`}
+            <button class="btn-editar" data-id="${escapeHtml(id)}" style="background-color: #007bff; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 0.85em;" title="Editar dados da máquina">✏️ Editar</button>
+          </div>
+        </td>
+      </tr>
+    `);
+        
+    
+          
 }
 const statTotal = document.getElementById('stat-total-pcs');
 const statOk = document.getElementById('stat-pcs-ok');
