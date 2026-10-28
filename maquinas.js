@@ -11,7 +11,7 @@ const COLECAO = "manutencoes";
 export async function cadastrarMaquina(dados, idExistente = null) {
   // Limpa o prefixo caso haja lixo na base de dados antiga
   const identLimpa = String(dados.identificacao).replace(/PC-/gi, '').trim();
-  
+
   // Se for edição, usa o ID exato do Firebase. Se for novo, gera um padronizado.
   const idUnico = idExistente || sanitizarParaId(`${dados.laboratorio}_PC-${identLimpa}`);
   
@@ -43,9 +43,15 @@ export async function removerMaquina(idRegistro) {
   await deleteDoc(doc(db, COLECAO, idRegistro));
 }
 
+// Variáveis de controle globais para rastrear a coluna e a direção da ordenação
+let colunaOrdenadaIndex = 0; // Começa ordenando pela primeira coluna (Máquina)
+let direcaoOrdenacaoGeral = 'asc'; // 'asc' ou 'desc'
+
 export function renderizarPainelMaquinas(tabela, cabecalho, registros, labFiltro, ocultarResolvidos) {
   if (!tabela || !cabecalho) return;
 
+  // 1. --- DEFINE O MAPA DE COLUNAS DE ACORDO COM O LAB FILTRO ---
+  // Isso nos ajuda a saber qual propriedade do objeto corresponde a qual coluna clicada
   let ths = '';
   if (labFiltro === "Informática, Bloco I") {
     ths = `<tr><th>Máquina</th><th>Património CPU</th><th>Internet?</th><th>Det. Internet</th><th>Bateria</th><th>Estabilizador?</th><th>Patr. Estab.</th><th>Det. Estab.</th><th>Tudo OK?</th><th>Motivo</th><th>Modelo</th><th>S.O.</th><th>Técnico</th><th>Ações</th></tr>`;
@@ -56,12 +62,96 @@ export function renderizarPainelMaquinas(tabela, cabecalho, registros, labFiltro
   }
   cabecalho.innerHTML = ths;
 
+  // Adiciona estilo de cursor e indicadores visuais nos cabeçalhos gerados
+  const cabeçalhosCélulas = cabecalho.querySelectorAll('th');
+  cabeçalhosCélulas.forEach((th, index) => {
+    // Não permite ordenar a coluna de "Ações" (geralmente a última)
+    if (th.innerText.toLowerCase() === 'ações') return;
+
+    th.style.cursor = 'pointer';
+    th.style.userSelect = 'none';
+    
+    // Adiciona o indicador visual (seta) apenas na coluna atualmente ativa
+    if (index === colunaOrdenadaIndex) {
+      th.innerText += direcaoOrdenacaoGeral === 'asc' ? ' ▲' : ' ▼';
+      th.style.backgroundColor = '#e9ecef';
+    }
+
+    // Atrela o evento de clique dinamicamente para cada título
+    th.addEventListener('click', () => {
+      if (colunaOrdenadaIndex === index) {
+        // Se clicou na mesma coluna, inverte a direção
+        direcaoOrdenacaoGeral = direcaoOrdenacaoGeral === 'asc' ? 'desc' : 'asc';
+      } else {
+        // Se clicou em uma nova coluna, muda o índice e reinicia em ordem crescente
+        colunaOrdenadaIndex = index;
+        direcaoOrdenacaoGeral = 'asc';
+      }
+      // Re-renderiza para aplicar a ordenação
+      renderizarPainelMaquinas(tabela, cabecalho, registros, labFiltro, ocultarResolvidos);
+    });
+  });
+
+  // 2. --- FILTRA OS REGISTROS DO LAB ATUAL ANTES DA ORDENAÇÃO ---
+  // Precisamos filtrar primeiro para que o mapeamento dos elementos filhos funcione perfeitamente com os dados ordenados
+  const registrosFiltrados = registros.filter(({ dados }) => dados.laboratorio === labFiltro);
+
+  // 3. --- LÓGICA DE ORDENAÇÃO GENÉRICA DOS DADOS ---
+  registrosFiltrados.sort((a, b) => {
+    // Função auxiliar para extrair o valor que seria exibido na coluna com base no índice clicado
+    const obterValorColuna = (item, indexColuna) => {
+      const d = item.dados || {};
+      
+      // Normalização da identificação da Máquina ("PC-02")
+      let ident = String(d.identificacao || '').replace(/PC-/gi, '').trim();
+      if (/^\d+$/.test(ident) && ident.length === 1) ident = '0' + ident;
+      const nomeMaquina = `PC-${ident}`;
+
+      const statusGeral = d.tudoFuncionando === 'Sim' ? '✅ Sim' : '❌ Não';
+
+      if (labFiltro === "Informática, Bloco I") {
+        const colunas = [
+          nomeMaquina, d.patrimonioCpu, d.internetFunciona, d.detalhesInternet, d.bateria,
+          d.estabilizadorFunciona, d.patrimonioEstabilizador, d.detalhesEstabilizador,
+          statusGeral, d.motivoProblema, d.modeloComputador, d.so, d.verificadoPor
+        ];
+        return String(colunas[indexColuna] || '').toLowerCase().trim();
+      } else if (labFiltro === "Programação Computacional") {
+        const colunas = [
+          nomeMaquina, d.patrimonioCpu, d.internetFunciona, d.detalhesInternet, d.versaoWindows,
+          d.versaoLinux, d.processador, d.ramQtde, d.ramTipo, d.armazenamentoTipo,
+          d.armazenamentoQtde, d.bateria, d.estabilizadorFunciona, d.detalhesEstabilizador,
+          statusGeral, d.motivoProblema, d.verificadoPor
+        ];
+        return String(colunas[indexColuna] || '').toLowerCase().trim();
+      } else if (labFiltro === "Simulações Numéricas") {
+        const colunas = [
+          nomeMaquina, d.patrimonioCpu, d.internetFunciona, d.detalhesInternet, d.bateria,
+          d.estabilizadorFunciona, d.detalhesEstabilizador, statusGeral, d.motivoProblema,
+          d.versaoWindows, d.versaoLinux, d.verificadoPor
+        ];
+        return String(colunas[indexColuna] || '').toLowerCase().trim();
+      }
+      return '';
+    };
+
+    const valA = obterValorColuna(a, colunaOrdenadaIndex);
+    const valB = obterValorColuna(b, colunaOrdenadaIndex);
+
+    // Usa ordenação natural (funciona de forma inteligente para strings, números e emojis)
+    if (direcaoOrdenacaoGeral === 'asc') {
+      return valA.localeCompare(valB, undefined, { numeric: true, sensitivity: 'base' });
+    } else {
+      return valB.localeCompare(valA, undefined, { numeric: true, sensitivity: 'base' });
+    }
+  });
+
+  // 4. --- MONTAGEM DAS LINHAS DA TABELA COM OS DADOS FILTRADOS E ORDENADOS ---
   let total = 0, ok = 0, erro = 0;
   const linhas = [];
 
-  for (const { id, dados } of registros) {
-    if (dados.laboratorio !== labFiltro) continue;
-
+  // Usamos o array já ordenado e filtrado para renderizar o conteúdo na tela
+  for (const { id, dados } of registrosFiltrados) {
     total++;
     if (dados.tudoFuncionando === "Sim") ok++; else erro++;
 
@@ -71,7 +161,10 @@ export function renderizarPainelMaquinas(tabela, cabecalho, registros, labFiltro
     const corBat = dados.bateria === 'Descarregada' ? 'background: #fff3cd; color: #856404; font-weight: bold; padding: 2px 6px; border-radius: 4px;' : '';
     const statusGeral = dados.tudoFuncionando === 'Sim' ? '✅ Sim' : '❌ Não';
     
-    const identLimpa = String(dados.identificacao).replace(/PC-/gi, '').trim();
+    let identLimpa = String(dados.identificacao).replace(/PC-/gi, '').trim();
+    if (/^\d+$/.test(identLimpa) && identLimpa.length === 1) {
+      identLimpa = '0' + identLimpa;
+    }
     const nomeMaquina = `PC-${escapeHtml(identLimpa) || '-'}`;
 
     let tds = '';
@@ -125,30 +218,19 @@ export function renderizarPainelMaquinas(tabela, cabecalho, registros, labFiltro
       `;
     }
 
-    // Botão de apagar removido das linhas. Mantido apenas o de Editar e Resolver.
     linhas.push(`
       <tr style="border-bottom: 1px solid #eee; background-color: ${concluido ? '#f8f9fa' : '#ffffff'}; opacity: ${concluido ? '0.65' : '1'};">
         ${tds}
         <td>👤 ${escapeHtml(dados.verificadoPor) || '-'}</td>
-        <td>
-          <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-            ${concluido 
-              ? '<span style="color: #155724; font-weight: bold; background: #d4edda; padding: 4px 8px; border-radius: 4px; font-size: 0.85em;">✔️ Resolvido</span>' 
-              : `<button class="btn-concluir" data-id="${escapeHtml(id)}" style="background-color: #28a745; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 0.85em;" title="Marcar como resolvido">✔️ Resolver</button>`}
-            <button class="btn-editar" data-id="${escapeHtml(id)}" style="background-color: #007bff; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; transition: 0.2s; font-size: 0.85em;" title="Editar dados da máquina">✏️ Editar</button>
-          </div>
-        </td>
-      </tr>
-    `);
-  }
+        <td>`);
+}
+const statTotal = document.getElementById('stat-total-pcs');
+const statOk = document.getElementById('stat-pcs-ok');
+const statErro = document.getElementById('stat-pcs-erro');
 
-  const statTotal = document.getElementById('stat-total-pcs');
-  const statOk = document.getElementById('stat-pcs-ok');
-  const statErro = document.getElementById('stat-pcs-erro');
-  
-  if(statTotal) statTotal.innerText = total;
-  if(statOk) statOk.innerText = ok;
-  if(statErro) statErro.innerText = erro;
+if(statTotal) statTotal.innerText = total;
+if(statOk) statOk.innerText = ok;
+if(statErro) statErro.innerText = erro;
 
-  tabela.innerHTML = linhas.length > 0 ? linhas.join('') : '<tr><td colspan="20" style="text-align: center; padding: 25px; color: #666; font-size: 1.1em;">Nenhuma máquina registada neste laboratório até ao momento.</td></tr>';
+tabela.innerHTML = linhas.length > 0 ? linhas.join('') : 'Nenhuma máquina registada neste laboratório até ao momento.';
 }
