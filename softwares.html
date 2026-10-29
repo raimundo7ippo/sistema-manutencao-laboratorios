@@ -12,10 +12,21 @@
     a { color: #007bff; text-decoration: none; font-weight: 500; transition: 0.2s; }
     a:hover { color: #0056b3; }
 
-    .abas-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-    .aba-btn { padding: 12px 24px; cursor: pointer; border: none; background: #e9ecef; color: #495057; border-radius: 6px; font-weight: 500; font-family: 'Poppins', sans-serif; transition: 0.2s; flex: 1; min-width: 150px; }
-    .aba-btn.ativa { background: #008b8b; color: white; box-shadow: 0 4px 8px rgba(0,139,139,0.3); }
+    /* Cartões de Estatísticas */
+    .cards-container { display: flex; gap: 20px; margin-bottom: 25px; flex-wrap: wrap; }
+    .card-stat { background: #ffffff; padding: 20px; border-radius: 12px; flex: 1; box-shadow: 0 4px 8px rgba(0,0,0,0.04); min-width: 200px; }
+    .card-stat small { font-weight: 600; text-transform: uppercase; font-size: 0.75em; }
+    .card-stat h3 { margin: 10px 0 0 0; font-size: 26px; }
+    .card-total { border-bottom: 4px solid #17a2b8; } .card-total small { color: #17a2b8; }
+    .card-ok { border-bottom: 4px solid #28a745; } .card-ok small { color: #28a745; }
+    .card-erro { border-bottom: 4px solid #dc3545; } .card-erro small { color: #dc3545; }
 
+    /* Abas de Laboratório (Agora logo abaixo dos cartões) */
+    .abas-container { display: flex; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+    .aba-btn { padding: 14px 20px; cursor: pointer; border: none; background: #e9ecef; color: #495057; border-radius: 8px; font-weight: 600; font-family: 'Poppins', sans-serif; transition: 0.2s; flex: 1; min-width: 180px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .aba-btn.ativa { background: #008b8b; color: white; box-shadow: 0 4px 10px rgba(0,139,139,0.3); }
+
+    /* Formulário */
     #form-softwares { background: #ffffff; padding: 25px 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 30px; border-left: 5px solid #008b8b; }
     .form-group-top { display: flex; gap: 20px; margin-bottom: 20px; align-items: flex-end; flex-wrap: wrap; }
     .form-group { display: flex; flex-direction: column; flex: 1; min-width: 220px; }
@@ -39,14 +50,6 @@
     button.btn-salvar { background-color: #008b8b; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; font-family: 'Poppins', sans-serif; }
     button.btn-salvar:hover { background-color: #006666; transform: translateY(-2px); }
     button.btn-cancelar { background-color: #6c757d; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; display: none; font-family: 'Poppins', sans-serif; }
-
-    .cards-container { display: flex; gap: 20px; margin-bottom: 25px; flex-wrap: wrap; }
-    .card-stat { background: #ffffff; padding: 20px; border-radius: 12px; flex: 1; box-shadow: 0 4px 8px rgba(0,0,0,0.04); min-width: 200px; }
-    .card-stat small { font-weight: 600; text-transform: uppercase; font-size: 0.75em; }
-    .card-stat h3 { margin: 10px 0 0 0; font-size: 26px; }
-    .card-total { border-bottom: 4px solid #17a2b8; } .card-total small { color: #17a2b8; }
-    .card-ok { border-bottom: 4px solid #28a745; } .card-ok small { color: #28a745; }
-    .card-erro { border-bottom: 4px solid #dc3545; } .card-erro small { color: #dc3545; }
 
     .ferramentas-container { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 15px; }
     .btn-ferramenta { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-family: 'Poppins', sans-serif; transition: 0.2s; color: white; }
@@ -78,6 +81,14 @@
   <p><a href="home.html">⬅️ Voltar para o Menu Principal</a></p>
   <h1 id="titulo-pagina">💻 Auditoria de Softwares por Máquina</h1>
 
+  <!-- Cartões de Estatísticas no Topo -->
+  <div class="cards-container">
+    <div class="card-stat card-total"><small>Total Máquinas Auditadas</small><h3 id="stat-total-pcs">0</h3></div>
+    <div class="card-stat card-ok"><small>Máquinas 100% Conformadas</small><h3 id="stat-pcs-ok">0 / 0</h3></div>
+    <div class="card-stat card-erro"><small>Com Softwares em Falta</small><h3 id="stat-pcs-erro">0</h3></div>
+  </div>
+
+  <!-- Abas de Laboratório logo abaixo dos cartões -->
   <div class="abas-container">
     <button class="aba-btn ativa" data-lab="Informática, Bloco I">💻 Informática (Bloco I)</button>
     <button class="aba-btn" data-lab="Programação Computacional">👨‍💻 Programação</button>
@@ -94,11 +105,11 @@
       </div>
       <div class="form-group">
         <label>Número / ID da Máquina:</label>
-        <input type="text" id="input-identificacao" placeholder="Ex: PC-01" required>
+        <input type="text" id="input-identificacao" placeholder="Ex: 01" required>
       </div>
       <div class="form-group">
         <label>Verificado por (Técnico):</label>
-        <input type="text" id="input-tecnico" placeholder="Seu Nome" required>
+        <input type="text" id="input-tecnico" required>
       </div>
       <div style="display: flex; align-items: center; gap: 10px;">
         <button type="button" id="btn-marcar-todos" style="padding: 10px 15px; background: #17a2b8; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: bold; font-family: 'Poppins', sans-serif;">☑️ Marcar Todos</button>
@@ -123,18 +134,12 @@
     </div>
   </form>
 
-  <div class="cards-container">
-    <div class="card-stat card-total"><small>Total Máquinas Auditadas</small><h3 id="stat-total-pcs">0</h3></div>
-    <div class="card-stat card-ok"><small>Máquinas 100% Conformadas</small><h3 id="stat-pcs-ok">0 / 0</h3></div>
-    <div class="card-stat card-erro"><small>Com Softwares em Falta</small><h3 id="stat-pcs-erro">0</h3></div>
-  </div>
-
   <div class="ferramentas-container">
     <button id="btn-imprimir-relatorio" class="btn-ferramenta btn-imprimir">🖨️ Imprimir Relatório de Pendências</button>
   </div>
 
   <div class="barra-pesquisa-container">
-    <input type="text" id="input-pesquisa" class="input-pesquisa" placeholder="🔍 Pesquisar máquina por ID (ex: PC-01)...">
+    <input type="text" id="input-pesquisa" class="input-pesquisa" placeholder="🔍 Pesquisar máquina por ID (ex: 01)...">
   </div>
 
   <div class="table-container">
@@ -285,6 +290,7 @@
         inputTecnico.value = item.dados.verificadoPor || '';
         inputId.disabled = true; 
         tituloForm.textContent = `✏️ A editar registo da máquina: ${item.dados.identificacao}`;
+        tituloForm.style.color = "#008b8b";
         btnSubmitTexto.textContent = "💾 Atualizar Auditoria";
         btnCancelar.style.display = "inline-block";
 
@@ -299,6 +305,7 @@
       inputTecnico.value = '';
       inputId.disabled = false;
       tituloForm.textContent = "➕ Registar / Auditar Máquina";
+      tituloForm.style.color = "#1a252f";
       btnSubmitTexto.textContent = "💾 Guardar Auditoria da Máquina";
       btnCancelar.style.display = "none";
       carregarCheckboxes();
@@ -327,4 +334,4 @@
     });
   </script>
 </body>
-</html> //myke
+</html>
