@@ -53,7 +53,6 @@ let direcaoOrdenacaoMaquina = 'asc';
 export function renderizarPainelSoftwares(tabela, cabecalho, registros, labFiltro, termoBusca) {
   if (!tabela || !cabecalho) return;
 
-  // Atualizado com a coluna Técnico
   cabecalho.innerHTML = `<tr><th>Máquina / ID</th><th>Softwares Operacionais</th><th>Progresso (%)</th><th>Última Atualização</th><th>Técnico</th><th>Ações</th></tr>`;
 
   const cabecalhosCelulas = cabecalho.querySelectorAll('th');
@@ -123,8 +122,7 @@ export function renderizarPainelSoftwares(tabela, cabecalho, registros, labFiltr
         <td><small>${dataFormatada}</small></td>
         <td>👤 ${escapeHtml(dados.verificadoPor) || '-'}</td>
         <td>
-          <button class="btn-editar" data-id="${escapeHtml(id)}" style="background-color: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-right: 5px; transition: 0.2s;">✏️ Editar</button>
-          <button class="btn-remover" data-id="${escapeHtml(id)}" style="background-color: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: 0.2s;">🗑️ Apagar</button>
+          <button class="btn-editar" data-id="${escapeHtml(id)}" style="background-color: #007bff; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; transition: 0.2s;">✏️ Editar</button>
         </td>
       </tr>
     `);
