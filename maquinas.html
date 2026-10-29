@@ -8,7 +8,7 @@
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
 
     body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; margin: 0; padding: 30px; color: #2c3e50; }
-    h1, h2, h3 { color: #1a252f; font-weight: 600; }
+    h1, h2, h3 { color: #1a252f; font-weight: 600; transition: color 0.3s ease; }
     a { color: #007bff; text-decoration: none; font-weight: 500; transition: 0.2s; }
     a:hover { color: #0056b3; }
 
@@ -314,7 +314,6 @@
       setTimeout(() => { tituloPagina.innerHTML = `Painel de Vistoria e Manutenção (Máquinas)`; }, 500);
     });
 
-    // Função global de apagar máquina pelo número
     btnApagarGlobal?.addEventListener('click', async () => {
       const numPC = prompt(`Qual o número da máquina que deseja excluir no laboratório "${labAtual}"? (Ex: 40)`);
       if (!numPC) return;
@@ -354,9 +353,10 @@
 
         idEditando = idReg;
         
+        const idLimpo = String(item.dados.identificacao).replace(/PC-/gi, '').trim();
+
         document.getElementById('select-laboratorio').value = item.dados.laboratorio || labAtual;
-        // Limpa qualquer vestígio de "PC-" que tenha ficado guardado
-        document.getElementById('input-identificacao').value = String(item.dados.identificacao).replace(/PC-/gi, '').trim();
+        document.getElementById('input-identificacao').value = idLimpo;
         document.getElementById('input-patrimonio-cpu').value = item.dados.patrimonioCpu || '';
         document.getElementById('select-internet').value = item.dados.internetFunciona || 'Sim';
         document.getElementById('input-detalhes-internet').value = item.dados.detalhesInternet || '';
@@ -383,7 +383,9 @@
         document.getElementById('select-laboratorio').disabled = true;
         document.getElementById('input-identificacao').disabled = true;
 
-        tituloForm.innerHTML = `✏️ A editar registo da Máquina PC-${String(item.dados.identificacao).replace(/PC-/gi, '').trim()}`;
+        // Estilização visual idêntica à do ecrã de Softwares
+        tituloForm.innerHTML = `✏️ A editar registo da máquina: PC-${idLimpo}`;
+        tituloForm.style.color = "#008b8b"; 
         btnSubmitTexto.innerHTML = "💾 Atualizar Registo da Máquina";
         btnCancelar.style.display = "inline-block";
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -401,7 +403,9 @@
       selectLabElem.value = labAtual;
       selectLabElem.dispatchEvent(new Event('change'));
 
+      // Restaura o visual padrão
       tituloForm.innerHTML = "➕ Registar Máquina";
+      tituloForm.style.color = "#1a252f";
       btnSubmitTexto.innerHTML = "💾 Guardar Registo de Vistoria";
       btnCancelar.style.display = "none";
     }
@@ -455,7 +459,6 @@
         armazenamentoQtde: document.getElementById('input-armazenamento-qtde').value
       };
       
-      // Passa o idEditando para não gerar duplicados!
       await cadastrarMaquina(dados, idEditando);
       
       if (idEditando) cancelarEdicao();
