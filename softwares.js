@@ -138,5 +138,5 @@ export function renderizarPainelSoftwares(tabela, cabecalho, registros, labFiltr
 
   tabela.innerHTML = linhas.length > 0 
     ? linhas.join('') 
-    : `<tr><td colspan="6" style="text-align: center; padding: 25px; color: #666; font-size: 1.1em;">Nenhuma máquina auditada neste laboratório. Preencha o formulário acima para começar.</td></tr>`;
+    : `<tr><td colspan="6" style="text-align: center; padding: 25px; color: #665; font-size: 1.1em;">Nenhuma máquina auditada neste laboratório. Preencha o formulário acima para começar.</td></tr>`;
 }
