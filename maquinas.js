@@ -184,45 +184,7 @@ export function renderizarPainelMaquinas(tabela, cabecalho, registros, labFiltro
         
           
 }
-  // --- ATUALIZAÇÃO DO FEED DE MÁQUINAS COM DEFEITO (LADO DIREITO) ---
-  const containerFeedLista = document.getElementById('lista-feed-defeitos');
-  if (containerFeedLista) {
-    const maquinasComDefeito = registrosFiltrados.filter(({ dados }) => 
-      dados.tudoFuncionando === "Não" && dados.status !== "Concluído"
-    );
-
-    if (maquinasComDefeito.length === 0) {
-      containerFeedLista.innerHTML = `
-        <div style="color: #28a745; text-align: center; padding: 20px; font-weight: bold; background: #e8f5e9; border-radius: 6px;">
-          🎉 Tudo OK! Nenhuma máquina com pendências.
-        </div>`;
-    } else {
-      const cardsFeed = maquinasComDefeito.map(({ dados }) => {
-        let identLimpa = String(dados.identificacao).replace(/PC-/gi, '').trim();
-        if (/^\d+$/.test(identLimpa) && identLimpa.length === 1) {
-          identLimpa = '0' + identLimpa;
-        }
-        const nomeMaquina = `PC-${escapeHtml(identLimpa) || '-'}`;
-
-        return `
-          <div style="border-left: 4px solid #dc3545; background: #fff8f8; padding: 10px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); font-size: 0.9em; text-align: left;">
-            <div style="display: flex; justify-content: space-between; font-weight: bold; color: #333; margin-bottom: 4px;">
-              <span>🖥️ ${nomeMaquina}</span>
-              <span style="color: #666; font-size: 0.85em; font-weight: normal;">📍 ${escapeHtml(dados.laboratorio)}</span>
-            </div>
-            <div style="color: #d32f2f; font-weight: 600; margin-bottom: 6px;">
-              ❌ ${escapeHtml(dados.motivoProblema) || 'Defeito não especificado'}
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 0.8em; color: #777; border-top: 1px dashed #f5c6cb; padding-top: 4px;">
-              <span>🔋 CMOS: ${escapeHtml(dados.bateria) || '-'}</span>
-              <span>👤 Técnico: ${escapeHtml(dados.verificadoPor) || '-'}</span>
-            </div>
-          </div>
-        `;
-      });
-      containerFeedLista.innerHTML = cardsFeed.join('');
-    }
-  }
+  
 
   const statTotal = document.getElementById('stat-total-pcs');
   const statOk = document.getElementById('stat-pcs-ok');
